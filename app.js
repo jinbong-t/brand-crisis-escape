@@ -314,6 +314,9 @@ skipButtons.forEach(btn => {
                 if (targetStage === 0) {
                     screen1.classList.remove('hidden');
                     startScreen1();
+                } else if (targetStage === 1) {
+                    document.getElementById('screen-2').classList.remove('hidden');
+                    startScreen2();
                 } else {
                     alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱 🛠️`);
                 }
@@ -503,6 +506,43 @@ btnSubmitOpening.addEventListener('click', async () => {
         openingErrorMsg.classList.remove('hidden');
     }
 });
+
+// ==========================================
+// Screen 2: 1단계 (디자인요소실) 로직
+// ==========================================
+function startScreen2() {
+    mainHeader.classList.remove('hidden');
+    currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
+    
+    document.getElementById('display-current-role').textContent = currentRole;
+    
+    // 몽타주 미션 세팅
+    const montageData = PUZZLE_DATA.stage1.montage[currentRole];
+    document.getElementById('montage-clue-text').textContent = montageData.text;
+    
+    const optionsContainer = document.getElementById('montage-options');
+    optionsContainer.innerHTML = '';
+    montageData.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-secondary';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+            optionsContainer.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('btn-montage-confirm').style.display = 'block';
+        });
+        optionsContainer.appendChild(btn);
+    });
+
+    if (currentRole === '부장') {
+        document.getElementById('manager-montage-panel').classList.remove('hidden');
+        document.getElementById('manager-submit-panel').classList.remove('hidden');
+        document.getElementById('btn-montage-confirm').style.display = 'none'; // 부장은 현황판에서 확인
+    } else {
+        document.getElementById('manager-montage-panel').classList.add('hidden');
+        document.getElementById('manager-submit-panel').classList.add('hidden');
+    }
+}
 
 // 초기화
 renderDeptGrid();
