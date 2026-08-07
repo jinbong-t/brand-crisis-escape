@@ -609,6 +609,11 @@ function startScreen2() {
     document.getElementById('fabric-clue-title').textContent = fabricData.title;
     document.getElementById('fabric-clue-text').textContent = fabricData.text;
     
+    const btnSubmitM2 = document.getElementById('btn-submit-mission-1-2');
+    if (btnSubmitM2) {
+        btnSubmitM2.textContent = currentRole === '부장' ? '최종 승인하기' : '부장님께 결재 올리기';
+    }
+    
     document.querySelectorAll('.fabric-btn').forEach(btn => {
         // 복수 선택 가능하도록 토글
         btn.onclick = () => btn.classList.toggle('selected');
@@ -631,9 +636,9 @@ function startScreen2() {
         }
         
         if (isCorrect) {
-            alert('정답입니다! 훌륭하게 원단을 골라냈습니다.');
+            alert(currentRole === '부장' ? '정답입니다! 완벽한 원단을 골라 최종 승인하셨습니다!' : '정답입니다! 부장님께 기안을 무사히 상신했습니다!');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = '제출 완료';
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 승인 완료' : '결재 요청 완료 (기안 상신)';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
