@@ -927,84 +927,41 @@ function startScreen4() {
             });
         });
         
-        // 드래그 앤 드롭 로직
-        const draggables = document.querySelectorAll('.draggable-item');
-        const dropzone = document.getElementById('mannequin-dropzone');
-        const droppedContainer = document.getElementById('dropped-items-container');
+        // 프리미엄 토글 로직
+        const toggleBtns = document.querySelectorAll('.premium-toggle-btn');
         const btnSubmit = document.getElementById('btn-submit-stage3');
-        const btnReset = document.getElementById('btn-reset-mannequin');
         const errorMsg = document.getElementById('manager-error-msg-stage3');
         
-        let droppedItems = {}; // { color: '쿨톤', line: '세로선', ... }
+        let selectedItems = {}; // { color: '쿨톤', line: '세로선', ... }
         
-        draggables.forEach(item => {
-            item.addEventListener('dragstart', (e) => {
-                item.classList.add('dragging');
-                e.dataTransfer.setData('type', item.getAttribute('data-type'));
-                e.dataTransfer.setData('value', item.getAttribute('data-value'));
-                e.dataTransfer.setData('html', item.innerHTML);
-                e.dataTransfer.setData('bg', item.style.background);
-                e.dataTransfer.setData('color', item.style.color);
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.getAttribute('data-category');
+                const val = btn.getAttribute('data-val');
+                
+                // 같은 카테고리의 다른 버튼 active 제거
+                const siblings = document.querySelectorAll(`.premium-toggle-btn[data-category="${category}"]`);
+                siblings.forEach(s => s.classList.remove('active'));
+                
+                // 현재 버튼 active 추가
+                btn.classList.add('active');
+                
+                // 상태 저장
+                selectedItems[category] = val;
+                
+                // 4개 카테고리가 모두 선택되었는지 확인
+                if (Object.keys(selectedItems).length === 4) {
+                    btnSubmit.disabled = false;
+                }
             });
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
-            });
         });
-        
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault(); // 드롭 허용
-            dropzone.style.borderColor = 'white';
-        });
-        
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.style.borderColor = 'var(--accent-gold)';
-        });
-        
-        dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropzone.style.borderColor = 'var(--accent-gold)';
-            
-            const type = e.dataTransfer.getData('type');
-            const value = e.dataTransfer.getData('value');
-            const html = e.dataTransfer.getData('html');
-            const bg = e.dataTransfer.getData('bg');
-            const color = e.dataTransfer.getData('color');
-            
-            if (!type || droppedItems[type]) return; // 이미 같은 타입(예: 컬러)이 있으면 추가 불가
-            
-            droppedItems[type] = value;
-            
-            // 시각적 추가
-            const el = document.createElement('div');
-            el.style.background = bg;
-            el.style.color = color;
-            el.style.padding = '0.5rem';
-            el.style.borderRadius = '4px';
-            el.style.textAlign = 'center';
-            el.style.fontWeight = 'bold';
-            el.style.fontSize = '0.9rem';
-            el.innerHTML = html;
-            droppedContainer.appendChild(el);
-            
-            // 4개가 모이면 제출 활성화
-            if (Object.keys(droppedItems).length === 4) {
-                btnSubmit.disabled = false;
-            }
-        });
-        
-        btnReset.onclick = () => {
-            droppedItems = {};
-            droppedContainer.innerHTML = '';
-            btnSubmit.disabled = true;
-            errorMsg.classList.add('hidden');
-        };
         
         btnSubmit.onclick = () => {
             // 정답 확인: 쿨톤, 세로선, 한색, 작은무늬
-            if (droppedItems['color'] === '쿨톤' && 
-                droppedItems['line'] === '세로선' && 
-                droppedItems['temp'] === '한색' && 
-                droppedItems['pattern'] === '작은무늬') {
+            if (selectedItems['color'] === '쿨톤' && 
+                selectedItems['line'] === '세로선' && 
+                selectedItems['temp'] === '한색' && 
+                selectedItems['pattern'] === '작은무늬') {
                 
                 errorMsg.classList.add('hidden');
                 alert("🎉 완벽합니다! 오지수 모델의 체형과 톤을 완벽하게 보완한 스타일링이 완성되었습니다!\n\n(4단계 런칭쇼 대기실로 이동합니다.)");

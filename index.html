@@ -355,43 +355,61 @@
                     </div>
 
                     <div id="stage3-manager-panel" class="mission-container hidden">
-                        <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 800px; margin: 0 auto; border: 2px solid var(--accent-gold);">
-                            <h3 style="color: var(--accent-gold);">👑 최종 스타일링 무드보드 (Drag & Drop)</h3>
-                            <div id="team-status-board-stage3" style="display: flex; gap: 1rem; margin: 1rem 0; justify-content: center; flex-wrap: wrap;">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 900px; margin: 0 auto; border: 2px solid var(--accent-gold); padding: 1rem;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem;">👑 프리미엄 부티크 스타일링 룸</h3>
+                            
+                            <div id="team-status-board-stage3" style="display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; flex-wrap: wrap;">
                                 <div class="status-item" id="status-stage3-인턴" style="background: rgba(0,0,0,0.5);">인턴: <span class="status-icon">❌</span></div>
                                 <div class="status-item" id="status-stage3-사원" style="background: rgba(0,0,0,0.5);">사원: <span class="status-icon">❌</span></div>
                                 <div class="status-item" id="status-stage3-차장" style="background: rgba(0,0,0,0.5);">차장: <span class="status-icon">❌</span></div>
                             </div>
-                            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem;">🗣️ 팀원들의 단서를 듣고, 정확한 스타일링 아이템 4개를 마네킹 위로 끌어다 놓으세요!</p>
+                            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1.5rem; text-align: center;">🗣️ 팀원들의 보고를 종합하여 오지수 모델의 최종 스타일링을 완성하세요!</p>
                             
-                            <div class="drag-drop-container" style="display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between;">
-                                <!-- 인벤토리 (드래그 할 아이템들) -->
-                                <div id="style-inventory" style="flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; border: 1px dashed var(--accent-gold); min-height: 350px;">
-                                    <div class="draggable-item" draggable="true" data-type="color" data-value="쿨톤" style="background: #e0f7fa; color: #006064;">❄️ 쿨톤 메이크업</div>
-                                    <div class="draggable-item" draggable="true" data-type="color" data-value="웜톤" style="background: #fff3e0; color: #e65100;">☀️ 웜톤 메이크업</div>
-                                    <div class="draggable-item" draggable="true" data-type="line" data-value="세로선" style="background: repeating-linear-gradient(90deg, #ccc, #ccc 5px, #fff 5px, #fff 10px); color: #333;">📏 세로선 의상</div>
-                                    <div class="draggable-item" draggable="true" data-type="line" data-value="가로선" style="background: repeating-linear-gradient(0deg, #ccc, #ccc 5px, #fff 5px, #fff 10px); color: #333;">📏 가로선 의상</div>
-                                    <div class="draggable-item" draggable="true" data-type="temp" data-value="한색" style="background: #2196f3; color: white;">🧊 한색(파란) 염료</div>
-                                    <div class="draggable-item" draggable="true" data-type="temp" data-value="난색" style="background: #f44336; color: white;">🔥 난색(빨간) 염료</div>
-                                    <div class="draggable-item" draggable="true" data-type="pattern" data-value="작은무늬" style="background: radial-gradient(circle, #333 10%, #ddd 20%); color: #333;">🐜 작은 무늬 원단</div>
-                                    <div class="draggable-item" draggable="true" data-type="pattern" data-value="큰무늬" style="background: radial-gradient(circle, #333 30%, #ddd 40%); color: #333;">🐘 큰 무늬 원단</div>
+                            <div class="styling-studio-container">
+                                <!-- 왼쪽: 마네킹 디스플레이 -->
+                                <div class="premium-mannequin-display">
+                                    <div style="background: rgba(0,0,0,0.7); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-size: 0.9rem; font-weight: bold; backdrop-filter: blur(5px);">오지수 모델 핏</div>
                                 </div>
                                 
-                                <!-- 드롭존 (마네킹) -->
-                                <div id="mannequin-dropzone" style="width: 250px; height: 350px; border: 3px dashed var(--accent-gold); border-radius: 12px; background: rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1rem; position: relative;">
-                                    <div style="font-size: 4rem; opacity: 0.5; margin-bottom: 1rem; pointer-events: none;">🧍‍♀️</div>
-                                    <p style="color: var(--accent-gold); font-weight: bold; margin-bottom: 0.5rem; pointer-events: none;">[ 오지수 모델 ]</p>
-                                    <p style="font-size: 0.8rem; color: #aaa; pointer-events: none;">여기로 4개의 아이템을<br>드래그 앤 드롭 하세요.</p>
-                                    <div id="dropped-items-container" style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; margin-top: 1rem; pointer-events: none;">
-                                        <!-- 드롭된 아이템들이 들어올 자리 -->
+                                <!-- 오른쪽: 스타일링 제어 패널 (Glassmorphism) -->
+                                <div class="glass-panel">
+                                    <div class="category-row">
+                                        <div class="category-label">퍼스널 컬러</div>
+                                        <div class="premium-btn-group">
+                                            <button class="premium-toggle-btn" data-category="color" data-val="웜톤">🔴 웜톤 메이크업</button>
+                                            <button class="premium-toggle-btn" data-category="color" data-val="쿨톤">🔵 쿨톤 메이크업</button>
+                                        </div>
                                     </div>
-                                    <button id="btn-reset-mannequin" class="btn-secondary" style="position: absolute; bottom: 10px; padding: 0.3rem 0.5rem; font-size: 0.8rem; z-index: 10;">다시 입히기</button>
+                                    
+                                    <div class="category-row">
+                                        <div class="category-label">착시효과 - 선</div>
+                                        <div class="premium-btn-group">
+                                            <button class="premium-toggle-btn" data-category="line" data-val="가로선">➖ 가로선 의상</button>
+                                            <button class="premium-toggle-btn" data-category="line" data-val="세로선">⏸️ 세로선 의상</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="category-row">
+                                        <div class="category-label">착시효과 - 온도</div>
+                                        <div class="premium-btn-group">
+                                            <button class="premium-toggle-btn" data-category="temp" data-val="난색">🔥 난색(따뜻한) 염료</button>
+                                            <button class="premium-toggle-btn" data-category="temp" data-val="한색">🧊 한색(차가운) 염료</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="category-row">
+                                        <div class="category-label">착시효과 - 무늬</div>
+                                        <div class="premium-btn-group">
+                                            <button class="premium-toggle-btn" data-category="pattern" data-val="큰무늬">🏵️ 큰 무늬 패턴</button>
+                                            <button class="premium-toggle-btn" data-category="pattern" data-val="작은무늬">💮 작은 무늬 패턴</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
                             <div style="text-align: center; margin-top: 1.5rem;">
-                                <button id="btn-submit-stage3" class="btn-primary" style="width: 100%;" disabled>스타일링 확정 및 런칭쇼 준비!</button>
-                                <p id="manager-error-msg-stage3" class="error-text hidden" style="margin-top: 1rem;">오답입니다! 팀원들이 알아낸 4가지 요소가 모두 포함되어 있는지 확인하세요!</p>
+                                <button id="btn-submit-stage3" class="btn-primary" style="width: 100%; max-width: 400px;" disabled>스타일링 확정 및 런칭쇼 준비!</button>
+                                <p id="manager-error-msg-stage3" class="error-text hidden" style="margin-top: 1rem;">오답입니다! 팀원들이 알아낸 4가지 요소가 정확히 선택되었는지 확인하세요!</p>
                             </div>
                         </div>
                     </div>
