@@ -663,6 +663,22 @@ function startScreen2() {
     } else {
         document.getElementById('manager-montage-panel').classList.add('hidden');
         document.getElementById('manager-submit-panel').classList.add('hidden');
+        
+        const btnConfirmAll = document.getElementById('btn-stage1-confirm-all');
+        if (btnConfirmAll) {
+            btnConfirmAll.onclick = () => {
+                const textarea = document.getElementById('reasoning-textarea');
+                if (textarea.value.trim().length < 5) {
+                    alert('의견을 조금 더 상세히 적어서 기안해주세요.');
+                    return;
+                }
+                
+                alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.');
+                btnConfirmAll.disabled = true;
+                btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
+                textarea.disabled = true;
+            };
+        }
     }
 }
 
