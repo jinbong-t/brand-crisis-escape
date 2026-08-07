@@ -374,12 +374,22 @@ header {
 /* 관리자 히든 버튼 (좌측 상단 모서리) */
 .admin-toggle-area {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 50px;
-    height: 50px;
-    cursor: default;
-    z-index: 1000;
+    top: 10px; left: 10px;
+    width: 40px; height: 40px;
+    z-index: 9999;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.admin-toggle-area::after {
+    content: '⚙️';
+    font-size: 1.5rem;
+    opacity: 0; /* 평소에는 완전히 투명하게 */
+    transition: opacity 0.2s;
+}
+.admin-toggle-area:hover::after {
+    opacity: 0.5; /* 마우스를 올리면 희미하게 보임 */
 }
 
 /* 모달 UI */
