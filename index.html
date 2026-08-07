@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>브랜드 위기 탈출</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- 상단 고정 헤더 -->
+        <header id="main-header" class="hidden">
+            <div class="header-left">
+                <span class="brand-logo">RE:BRAND</span>
+                <span id="current-team-display" class="team-badge"></span>
+            </div>
+            <div class="header-right">
+                <div id="inventory-bar" class="inventory">
+                    <div class="slot" data-index="0"></div>
+                    <div class="slot" data-index="1"></div>
+                    <div class="slot" data-index="2"></div>
+                </div>
+            </div>
+        </header>
+
+        <main id="screen-container">
+            <!-- Screen 0: 부서/직급 선택 -->
+            <section id="screen-0" class="screen active">
+                <div class="admin-toggle-area" id="admin-toggle-btn"></div> <!-- 숨겨진 버튼 영역 -->
+                
+                <h1 class="game-title">브랜드 위기 탈출</h1>
+                <p class="subtitle">위기에 빠진 브랜드를 구출하라</p>
+                
+                <div id="department-selection" class="selection-panel">
+                    <h2>부서 선택</h2>
+                    <div id="dept-grid" class="grid-container">
+                        <!-- JS에서 동적 렌더링 -->
+                    </div>
+                </div>
+
+                <div id="role-selection" class="selection-panel hidden">
+                    <button id="btn-back-to-dept" class="btn-text">← 부서 다시 선택</button>
+                    <h2><span id="selected-dept-name"></span> 직급 선택</h2>
+                    <p class="guide-text">본인의 역할을 선택하세요. 한 번 선택하면 되돌릴 수 없습니다.</p>
+                    <div id="role-grid" class="grid-container">
+                        <button class="role-card" data-role="인턴">
+                            <h3>인턴</h3>
+                            <p>직접적인 단서 탐색</p>
+                        </button>
+                        <button class="role-card" data-role="사원">
+                            <h3>사원</h3>
+                            <p>자료 해석 및 분석</p>
+                        </button>
+                        <button class="role-card" data-role="차장">
+                            <h3>차장</h3>
+                            <p>핵심 개념 도출</p>
+                        </button>
+                        <button class="role-card" data-role="부장">
+                            <h3>부장</h3>
+                            <p>종합 판단 및 제출</p>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 1: 오프닝 -->
+            <section id="screen-1" class="screen hidden">
+                <h2>사건의 시작: 잠긴 다이어리</h2>
+                <p class="guide-text">조사 카드 4장을 뒤집어 단서를 확인하고, 올바른 순서로 정렬하여 잠금을 해제하세요.</p>
+                
+                <div id="intro-modal" class="modal hidden">
+                    <div class="modal-content story-content">
+                        <h3>사건의 시작</h3>
+                        <video id="intro-video" controls width="100%" class="intro-video-player">
+                            <source src="인트로영상_컴.mp4" type="video/mp4">
+                            브라우저가 비디오 태그를 지원하지 않습니다.
+                        </video>
+                        <p id="intro-text"></p>
+                        <button id="btn-start-investigation" class="btn-primary">조사 시작</button>
+                    </div>
+                </div>
+
+                <div id="opening-cards" class="card-container sortable-container">
+                    <!-- JS 렌더링 -->
+                </div>
+                
+                <div class="action-area">
+                    <button id="btn-unlock" class="btn-primary" disabled>잠금 해제</button>
+                </div>
+
+                <!-- 다이어리 모달 -->
+                <div id="diary-modal" class="modal hidden">
+                    <div class="modal-content diary-content">
+                        <h3>한서연의 메모</h3>
+                        <p id="diary-text"></p>
+                        
+                        <div class="question-box">
+                            <p><strong>이 흐름(생산 → 사용 → 폐기)은 어떤 구조인가요?</strong></p>
+                            <div class="radio-group">
+                                <label><input type="radio" name="flow-type" value="선형"> 선형 구조</label>
+                                <label><input type="radio" name="flow-type" value="순환"> 순환 구조</label>
+                            </div>
+                            <button id="btn-submit-opening" class="btn-primary">제출</button>
+                            <p id="opening-error-msg" class="error-text hidden">틀렸습니다. 부장님과 상의해보세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 다른 화면들은 app.js 개발 시 추가 -->
+        </main>
+    </div>
+
+    <!-- 관리자 모달 -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-btn" id="close-admin-modal">×</button>
+            <h2>관리자 설정</h2>
+            <div id="pin-entry-section">
+                <p>PIN 번호를 입력하세요</p>
+                <input type="password" id="admin-pin-input" maxlength="4" placeholder="****">
+                <button id="btn-verify-pin" class="btn-primary">확인</button>
+                <p id="pin-error-msg" class="error-text hidden">비밀번호가 틀렸습니다.</p>
+            </div>
+            
+            <div id="admin-dashboard-section" class="hidden">
+                <h3>부서 관리</h3>
+                <div class="add-dept-form">
+                    <input type="text" id="new-dept-name" placeholder="새 부서 이름 (예: 영업부)">
+                    <button id="btn-add-dept" class="btn-secondary">추가</button>
+                </div>
+                <div id="admin-dept-list" class="admin-list">
+                    <!-- JS 렌더링 -->
+                </div>
+                <div class="admin-actions">
+                    <button id="btn-reset-depts" class="btn-text danger">기본 부서로 초기화</button>
+                    <button id="btn-reset-firebase" class="btn-text danger">모든 게임 데이터 초기화 (주의)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
