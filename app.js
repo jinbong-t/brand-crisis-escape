@@ -33,8 +33,6 @@ const screen0 = document.getElementById('screen-0');
 const screen1 = document.getElementById('screen-1');
 const introModal = document.getElementById('intro-modal');
 const introVideo = document.getElementById('intro-video');
-const introText = document.getElementById('intro-text');
-const btnStartInvestigation = document.getElementById('btn-start-investigation');
 const openingCardsContainer = document.getElementById('opening-cards');
 const btnUnlock = document.getElementById('btn-unlock');
 const diaryModal = document.getElementById('diary-modal');
@@ -396,7 +394,7 @@ function startScreen1() {
     renderOpeningCards();
 }
 
-btnStartInvestigation.addEventListener('click', () => {
+document.getElementById('close-intro-modal').addEventListener('click', () => {
     introModal.classList.add('hidden');
     if (introVideo) {
         introVideo.pause();
