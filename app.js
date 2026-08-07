@@ -43,11 +43,23 @@ const btnSubmitOpening = document.getElementById('btn-submit-opening');
 const openingErrorMsg = document.getElementById('opening-error-msg');
 
 // 상태 관리
-let currentDeptId = null;
-let currentDeptName = null;
-let currentRole = null;
+let currentDeptId = sessionStorage.getItem('currentDeptId') || null;
+let currentDeptName = sessionStorage.getItem('currentDeptName') || null;
+let currentRole = sessionStorage.getItem('currentRole') || null;
 let adminClickCount = 0;
 let adminClickTimer = null;
+
+function saveSessionState() {
+    if (currentDeptId) sessionStorage.setItem('currentDeptId', currentDeptId);
+    if (currentDeptName) sessionStorage.setItem('currentDeptName', currentDeptName);
+    if (currentRole) sessionStorage.setItem('currentRole', currentRole);
+}
+
+function clearSessionState() {
+    sessionStorage.removeItem('currentDeptId');
+    sessionStorage.removeItem('currentDeptName');
+    sessionStorage.removeItem('currentRole');
+}
 
 // 기본 부서 목록
 const DEFAULT_DEPTS = [
@@ -141,6 +153,7 @@ async function selectDepartment(dept) {
         }, { merge: true });
     }
 
+    saveSessionState();
     checkRoleAvailability();
 }
 
@@ -188,6 +201,7 @@ roleCards.forEach(card => {
             
             // 성공
             currentRole = role;
+            saveSessionState();
             alert(`${role} 직급으로 시작합니다!`);
             
             // 다이어리 넘기는(페이지 턴) 애니메이션으로 화면 전환
@@ -214,6 +228,8 @@ roleCards.forEach(card => {
 btnBackToDept.addEventListener('click', () => {
     currentDeptId = null;
     currentDeptName = null;
+    currentRole = null;
+    clearSessionState();
     roleSelection.classList.add('hidden');
     deptSelection.classList.remove('hidden');
 });
@@ -291,6 +307,7 @@ skipButtons.forEach(btn => {
                 currentDeptId = 'test-dept-' + Date.now(); // 임시 부서 생성
                 currentDeptName = '테스트부서';
                 currentRole = '부장';
+                saveSessionState();
             } else {
                 return;
             }
@@ -544,5 +561,33 @@ function startScreen2() {
     }
 }
 
-// 초기화
-renderDeptGrid();
+// 초기화 함수
+async function initApp() {
+    renderDeptGrid();
+    
+    // 세션이 남아있다면 해당 단계로 바로 복구
+    if (currentDeptId && currentRole) {
+        try {
+            const snap = await getDoc(doc(db, 'departments', currentDeptId));
+            if (snap.exists()) {
+                const stage = snap.data().currentStage;
+                
+                deptSelection.classList.add('hidden');
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                
+                if (stage === 0) {
+                    screen1.classList.remove('hidden');
+                    startScreen1();
+                } else if (stage === 1) {
+                    const s2 = document.getElementById('screen-2');
+                    if(s2) {
+                        s2.classList.remove('hidden');
+                        startScreen2();
+                    }
+                }
+            }
+        } catch(e) { console.error(e); }
+    }
+}
+
+initApp();
