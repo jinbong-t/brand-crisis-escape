@@ -232,6 +232,18 @@ btnBackToDept.addEventListener('click', () => {
     deptSelection.classList.remove('hidden');
 });
 
+// 역할 변경 (로그아웃 - 데이터 유지)
+const btnLogoutRole = document.getElementById('btn-logout-role');
+if (btnLogoutRole) {
+    btnLogoutRole.addEventListener('click', () => {
+        if (confirm("현재 역할에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다!)")) {
+            currentRole = null;
+            sessionStorage.removeItem('currentRole');
+            location.reload();
+        }
+    });
+}
+
 // 관리자 모드 로직 (5번 클릭 시 활성화)
 adminToggleBtn.addEventListener('click', () => {
     adminClickCount++;

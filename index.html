@@ -134,7 +134,10 @@
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <header class="stage-header">
                         <h2>1단계: 디자인요소실 🔍</h2>
-                        <div id="role-badge" class="badge">현재 역할: <span id="display-current-role">인턴</span></div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div id="role-badge" class="badge">현재 역할: <span id="display-current-role">인턴</span></div>
+                            <button id="btn-logout-role" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">역할 변경(로그아웃)</button>
+                        </div>
                     </header>
 
                     <!-- 미션 컨테이너 -->
