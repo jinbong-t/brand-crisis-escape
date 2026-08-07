@@ -28,15 +28,29 @@
         </header>
 
         <main id="screen-container">
+            <!-- Splash Screen (게임 진입 씬) -->
+            <section id="screen-splash" class="screen active">
+                <div class="splash-bg"></div>
+                <div class="splash-content">
+                    <h1 class="splash-title">브랜드 위기 탈출</h1>
+                    <p class="splash-subtitle">위기에 빠진 브랜드를 구출하라</p>
+                    <button id="btn-enter-game" class="btn-genius pulse-glow">게임 입장</button>
+                </div>
+            </section>
+
+            <!-- 더 지니어스 스타일 질문 팝업 -->
+            <div id="genius-modal" class="modal hidden">
+                <div class="modal-content genius-content">
+                    <h2 class="genius-text glow-text">"당신의 부서는 무엇입니까?"</h2>
+                </div>
+            </div>
+
             <!-- Screen 0: 부서/직급 선택 -->
-            <section id="screen-0" class="screen active">
+            <section id="screen-0" class="screen hidden">
                 <div class="admin-toggle-area" id="admin-toggle-btn"></div> <!-- 숨겨진 버튼 영역 -->
                 
-                <h1 class="game-title">브랜드 위기 탈출</h1>
-                <p class="subtitle">위기에 빠진 브랜드를 구출하라</p>
-                
                 <div id="department-selection" class="selection-panel">
-                    <h2>부서 선택</h2>
+                    <h2 class="genius-header">부서 선택</h2>
                     <div id="dept-grid" class="grid-container">
                         <!-- JS에서 동적 렌더링 -->
                     </div>

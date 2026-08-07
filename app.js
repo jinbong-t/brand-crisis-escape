@@ -25,7 +25,10 @@ const newDeptName = document.getElementById('new-dept-name');
 const btnAddDept = document.getElementById('btn-add-dept');
 const btnResetDepts = document.getElementById('btn-reset-depts');
 
-// Screen 1 (오프닝) DOM
+// Splash / Screen 0 DOM
+const screenSplash = document.getElementById('screen-splash');
+const btnEnterGame = document.getElementById('btn-enter-game');
+const geniusModal = document.getElementById('genius-modal');
 const screen0 = document.getElementById('screen-0');
 const screen1 = document.getElementById('screen-1');
 const introModal = document.getElementById('intro-modal');
@@ -55,6 +58,19 @@ const DEFAULT_DEPTS = [
     { id: 'dept-5', name: '마케팅부' },
     { id: 'dept-6', name: '품질관리부' }
 ];
+
+// Splash Screen Logic
+btnEnterGame.addEventListener('click', () => {
+    // 1. 강렬한 팝업 "당신의 부서는 무엇입니까?" 띄우기
+    geniusModal.classList.remove('hidden');
+    
+    // 2. 2.5초 후 팝업과 스플래시 화면 모두 사라지고 Screen 0 등장
+    setTimeout(() => {
+        geniusModal.classList.add('hidden');
+        screenSplash.classList.add('hidden');
+        screen0.classList.remove('hidden');
+    }, 2500);
+});
 
 // 부서 관리
 function getDepartments() {
