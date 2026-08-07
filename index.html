@@ -427,25 +427,17 @@
                                 
                                 <!-- 오른쪽: 아바타 모델 (드롭존) -->
                                 <div id="avatar-dropzone" class="avatar-section" style="width: 280px; height: 500px; background-image: url('avatar_base.png'); background-size: cover; background-position: center; border-radius: 16px; border: 4px dashed #8b5a2b; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.3); overflow: hidden;">
-                                    <!-- 드롭되었을 때 효과가 나타날 오버레이 -->
-                                    <div id="overlay-color" class="mannequin-overlay"></div>
-                                    <div id="overlay-line" class="mannequin-overlay"></div>
-                                    <div id="overlay-temp" class="mannequin-overlay"></div>
-                                    <div id="overlay-pattern" class="mannequin-overlay"></div>
                                     
-                                    <div style="position: absolute; bottom: -10px; width: 100%; text-align: center;">
-                                        <div style="background: rgba(255,255,255,0.9); padding: 0.5rem 1rem; display: inline-block; border-radius: 20px; border: 2px solid #8b5a2b; color: #5a3a1b; font-size: 0.9rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">오지수 모델 핏</div>
-                                    </div>
-                                    <div class="dropzone-hint" style="position: absolute; top: 10px; width: 100%; text-align: center; color: rgba(139,90,43,0.7); font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0.2rem; border-radius: 8px;">여기로 옷을 끌어오세요!</div>
-                                </div>
-                                
-                                <!-- 장착된 아이템 표시 패널 (우측) -->
-                                <div class="equipped-panel" style="width: 120px; display: flex; flex-direction: column; gap: 10px; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 12px; border: 2px solid #c7a477;">
-                                    <div style="text-align: center; font-size: 0.8rem; font-weight: bold; color: #5a3a1b;">장착된 아이템</div>
+                                    <!-- 실제 옷 그림이 입혀질 스티커 슬롯 (오지수 몸 위에 직접 위치) -->
                                     <div class="avatar-slot" id="slot-color" data-accept="color"></div>
                                     <div class="avatar-slot" id="slot-line" data-accept="line"></div>
                                     <div class="avatar-slot" id="slot-temp" data-accept="temp"></div>
                                     <div class="avatar-slot" id="slot-pattern" data-accept="pattern"></div>
+                                    
+                                    <div style="position: absolute; bottom: -10px; width: 100%; text-align: center; z-index: 20;">
+                                        <div style="background: rgba(255,255,255,0.9); padding: 0.5rem 1rem; display: inline-block; border-radius: 20px; border: 2px solid #8b5a2b; color: #5a3a1b; font-size: 0.9rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">오지수 모델 핏</div>
+                                    </div>
+                                    <div class="dropzone-hint" style="position: absolute; top: 10px; width: 100%; text-align: center; color: rgba(139,90,43,0.7); font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0.2rem; border-radius: 8px; z-index: 20;">여기로 옷 그림을 끌어오세요!</div>
                                 </div>
                             </div>
                             

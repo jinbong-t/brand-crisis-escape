@@ -1001,15 +1001,6 @@ function startScreen4() {
             // 새 아이템을 슬롯에 부착 (물리적 이동)
             targetSlot.appendChild(draggedItem);
             
-            // 기존 오버레이 클래스 제거
-            const overlayDiv = document.getElementById(`overlay-${category}`);
-            if (selectedItems[category]) {
-                overlayDiv.classList.remove(`overlay-${category}-${selectedItems[category]}`);
-            }
-            
-            // 새 오버레이 클래스 추가 (옷 갈아입기 마법 효과)
-            overlayDiv.classList.add(`overlay-${category}-${val}`);
-            
             // 상태 저장
             selectedItems[category] = val;
             

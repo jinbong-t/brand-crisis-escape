@@ -213,27 +213,27 @@ body {
 }
 
 .avatar-slot {
-    width: 100%;
-    min-height: 80px;
-    border: 2px dashed rgba(139,90,43,0.3);
-    border-radius: 8px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    background: rgba(255,255,255,0.8);
-    position: relative;
+    /* 테두리와 배경 제거하여 그림만 보이게 설정 */
+    border: none;
+    background: transparent;
 }
 
 .avatar-slot::before {
-    content: attr(data-accept);
-    position: absolute;
-    color: #ccc;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    font-weight: bold;
-    z-index: 1;
+    display: none; /* 슬롯 글자 가리기 */
 }
+
+/* 오지수 몸에 맞춘 완벽한 위치(Position) 및 크기(Size) 설정 */
+#slot-color { top: 5%; width: 35%; z-index: 18; } /* 얼굴 (메이크업) */
+#slot-line { top: 24%; width: 85%; z-index: 10; } /* 상의 (셔츠) */
+#slot-pattern { top: 24%; width: 95%; z-index: 15; } /* 겉옷 (자켓) - 셔츠보다 위에 */
+#slot-temp { top: 48%; width: 85%; z-index: 12; } /* 하의 (스커트) - 셔츠 밑으로 살짝 들어가거나 위로 */
 
 .avatar-slot .paperdoll-item {
     width: 100%;
@@ -252,46 +252,7 @@ body {
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* ==================================
-   Mannequin Visual Overlays
-================================== */
-.mannequin-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-    border-radius: 16px;
-    transition: opacity 0.5s ease;
-    opacity: 0;
-    /* 옷 부위(중앙)에만 효과가 들어가도록 마스크 적용 */
-    -webkit-mask-image: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 50%);
-    mask-image: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 50%);
-}
 
-.overlay-color-웜톤 { background: rgba(255, 100, 0, 0.4); mix-blend-mode: overlay; opacity: 1; }
-.overlay-color-쿨톤 { background: rgba(0, 150, 255, 0.4); mix-blend-mode: overlay; opacity: 1; }
-
-.overlay-line-가로선 { 
-    background: repeating-linear-gradient(0deg, transparent, transparent 5px, rgba(255,255,255,0.7) 5px, rgba(255,255,255,0.7) 10px); 
-    mix-blend-mode: overlay; opacity: 1; 
-}
-.overlay-line-세로선 { 
-    background: repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(255,255,255,0.7) 5px, rgba(255,255,255,0.7) 10px); 
-    mix-blend-mode: overlay; opacity: 1; 
-}
-
-.overlay-temp-난색 { background: rgba(255, 0, 0, 0.6); mix-blend-mode: color; opacity: 1; }
-.overlay-temp-한색 { background: rgba(0, 50, 255, 0.6); mix-blend-mode: color; opacity: 1; }
-
-.overlay-pattern-큰무늬 {
-    background-image: radial-gradient(circle, rgba(255,255,255,0.8) 6px, transparent 6px);
-    background-size: 30px 30px;
-    mix-blend-mode: overlay; opacity: 1;
-}
-.overlay-pattern-작은무늬 {
-    background-image: radial-gradient(circle, rgba(255,255,255,0.8) 2px, transparent 2px);
-    background-size: 10px 10px;
-    mix-blend-mode: overlay; opacity: 1;
-}
 
 
 
