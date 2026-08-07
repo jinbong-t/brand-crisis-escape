@@ -212,6 +212,34 @@ body {
     font-size: 1rem;
 }
 
+.avatar-slot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    min-height: 40px;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.avatar-slot .paperdoll-item {
+    width: 100%;
+    margin: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    border-color: #ff0055;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 /* ==================================
    Mannequin Visual Overlays
 ================================== */

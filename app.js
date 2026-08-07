@@ -941,10 +941,18 @@ function startScreen4() {
         let selectedItems = {}; // { color: '쿨톤', line: '세로선', ... }
         
         draggables.forEach(item => {
+            // 원본 부모 요소 저장 (다시 돌려놓기 위해)
+            if (!item.dataset.originalParent) {
+                item.dataset.originalParent = item.parentElement.className; // 'shelf-items'
+            }
+            
             item.addEventListener('dragstart', (e) => {
                 item.classList.add('dragging');
                 e.dataTransfer.setData('category', item.getAttribute('data-category'));
                 e.dataTransfer.setData('val', item.getAttribute('data-val'));
+                // 아이템의 DOM ID나 참조를 전달하기 위해 고유 ID 부여
+                if (!item.id) item.id = 'item-' + Date.now() + Math.floor(Math.random()*1000);
+                e.dataTransfer.setData('itemId', item.id);
             });
             item.addEventListener('dragend', () => {
                 item.classList.remove('dragging');
@@ -966,8 +974,32 @@ function startScreen4() {
             
             const category = e.dataTransfer.getData('category');
             const val = e.dataTransfer.getData('val');
+            const itemId = e.dataTransfer.getData('itemId');
             
-            if (!category || !val) return;
+            if (!category || !val || !itemId) return;
+            
+            const draggedItem = document.getElementById(itemId);
+            if (!draggedItem) return;
+            
+            // 기존에 해당 슬롯에 있던 아이템은 다시 옷장으로 돌려보냄
+            const targetSlot = document.getElementById(`slot-${category}`);
+            if (targetSlot.children.length > 0) {
+                const oldItem = targetSlot.children[0];
+                // 옷장의 원래 카테고리 선반 찾기
+                const shelves = document.querySelectorAll('.shelf-items');
+                // 같은 카테고리를 가진 첫번째 아이템이 있는 선반에 넣거나, 그냥 부모를 찾아 넣어야 하는데 
+                // 안전하게 카테고리 라벨로 찾기
+                let targetShelf = Array.from(shelves).find(s => s.querySelector(`[data-category="${category}"]`));
+                if (!targetShelf && draggedItem.parentElement.classList.contains('shelf-items')) {
+                    targetShelf = draggedItem.parentElement; // 방금 드래그해온 곳
+                }
+                if (targetShelf) {
+                    targetShelf.appendChild(oldItem);
+                }
+            }
+            
+            // 새 아이템을 슬롯에 부착 (물리적 이동)
+            targetSlot.appendChild(draggedItem);
             
             // 기존 오버레이 클래스 제거
             const overlayDiv = document.getElementById(`overlay-${category}`);
@@ -975,7 +1007,7 @@ function startScreen4() {
                 overlayDiv.classList.remove(`overlay-${category}-${selectedItems[category]}`);
             }
             
-            // 새 오버레이 클래스 추가 (옷 갈아입기 효과)
+            // 새 오버레이 클래스 추가 (옷 갈아입기 마법 효과)
             overlayDiv.classList.add(`overlay-${category}-${val}`);
             
             // 상태 저장
