@@ -717,7 +717,7 @@ function startScreen2() {
         
         // 부장 전용 최종 제출 버튼
         const btnSubmitStage1 = document.getElementById('btn-submit-stage1');
-        btnSubmitStage1.onclick = () => {
+        btnSubmitStage1.onclick = async () => {
             const finalAnswer1 = document.getElementById('manager-final-answer-1').value;
             const finalAnswer2 = document.getElementById('manager-final-answer-2').value;
             const errorMsg = document.getElementById('manager-error-msg');
@@ -729,20 +729,19 @@ function startScreen2() {
             
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
-                alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 완벽하게 찾아냈습니다! (1단계 클리어)\n\n2단계 방(패턴/봉제실)으로 자동 이동합니다!');
                 btnSubmitStage1.disabled = true;
                 btnSubmitStage1.textContent = '최종 승인 완료 (1단계 클리어)';
                 
-                // 2단계로 전환
-                updateDoc(doc(db, 'departments', currentDeptId), {
-                    currentStage: 2
-                }).then(() => {
-                    // Manager transitions locally too (or relies on the global listener if we add one)
-                    // Let's just transition locally here for the manager
-                    document.getElementById('screen-2').classList.add('hidden');
-                    document.getElementById('screen-3').classList.remove('hidden');
-                    startScreen3();
-                }).catch(e => console.error(e));
+                // Firestore를 먼저 업데이트하여 팀원들의 화면이 넘어가게 함
+                try {
+                    await updateDoc(doc(db, 'departments', currentDeptId), {
+                        currentStage: 2
+                    });
+                    
+                    alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 완벽하게 찾아냈습니다! (1단계 클리어)\n\n2단계 방(패턴/봉제실)으로 자동 이동합니다!');
+                } catch(e) {
+                    console.error(e);
+                }
                 
             } else {
                 errorMsg.classList.remove('hidden');
