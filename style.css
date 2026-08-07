@@ -213,27 +213,27 @@ body {
 }
 
 .avatar-slot {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    width: 100%;
+    min-height: 60px;
+    border: 2px dashed rgba(139,90,43,0.3);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    /* 테두리와 배경 제거하여 그림만 보이게 설정 */
-    border: none;
-    background: transparent;
+    background: rgba(255,255,255,0.8);
+    position: relative;
 }
 
 .avatar-slot::before {
-    display: none; /* 슬롯 글자 가리기 */
+    content: attr(data-accept);
+    position: absolute;
+    color: #ccc;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    z-index: 1;
 }
-
-/* 오지수 몸에 맞춘 완벽한 위치(Position) 및 크기(Size) 설정 */
-#slot-color { top: 5%; width: 35%; z-index: 18; } /* 얼굴 (메이크업) */
-#slot-line { top: 24%; width: 85%; z-index: 10; } /* 상의 (셔츠) */
-#slot-pattern { top: 24%; width: 95%; z-index: 15; } /* 겉옷 (자켓) - 셔츠보다 위에 */
-#slot-temp { top: 48%; width: 85%; z-index: 12; } /* 하의 (스커트) - 셔츠 밑으로 살짝 들어가거나 위로 */
 
 .avatar-slot .paperdoll-item {
     width: 100%;
