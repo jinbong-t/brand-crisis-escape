@@ -689,23 +689,54 @@ function startScreen2() {
             
             document.getElementById('btn-submit-stage1').disabled = !allConfirmed;
         });
+        
+        // 부장 전용 최종 제출 버튼
+        const btnSubmitStage1 = document.getElementById('btn-submit-stage1');
+        btnSubmitStage1.onclick = () => {
+            const finalAnswer = document.getElementById('manager-final-answer').value;
+            const errorMsg = document.getElementById('manager-error-msg');
+            
+            if (!finalAnswer) {
+                alert('최종 정답이 될 원단을 선택해주세요.');
+                return;
+            }
+            
+            if (finalAnswer === 'H') {
+                errorMsg.classList.add('hidden');
+                alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 원단을 완벽하게 찾아냈습니다! (1단계 클리어)');
+                btnSubmitStage1.disabled = true;
+                btnSubmitStage1.textContent = '최종 승인 완료 (1단계 클리어)';
+                // 추후 2단계 방으로 넘어가는 로직 추가 가능
+            } else {
+                errorMsg.classList.remove('hidden');
+                errorMsg.textContent = '오답입니다! 팀원들이 모아온 단서(교집합)를 다시 한번 분석해보세요.';
+            }
+        };
     } else {
         document.getElementById('manager-montage-panel').classList.add('hidden');
         document.getElementById('manager-submit-panel').classList.add('hidden');
         
         const btnConfirmAll = document.getElementById('btn-stage1-confirm-all');
         if (btnConfirmAll) {
-            btnConfirmAll.onclick = () => {
+            btnConfirmAll.onclick = async () => {
                 const textarea = document.getElementById('reasoning-textarea');
                 if (textarea.value.trim().length < 5) {
                     alert('의견을 조금 더 상세히 적어서 기안해주세요.');
                     return;
                 }
                 
-                alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.');
-                btnConfirmAll.disabled = true;
-                btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
-                textarea.disabled = true;
+                try {
+                    const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
+                    await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
+                    
+                    alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.');
+                    btnConfirmAll.disabled = true;
+                    btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
+                    textarea.disabled = true;
+                } catch(e) {
+                    console.error(e);
+                    alert('기안 상신 중 오류가 발생했습니다.');
+                }
             };
         }
     }
