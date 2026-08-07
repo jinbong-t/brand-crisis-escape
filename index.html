@@ -375,8 +375,8 @@
                                 <div class="closet-section" style="flex: 1; background: #e6cfa3; border: 3px solid #8b5a2b; border-radius: 10px; padding: 0.8rem; box-shadow: inset 0 0 10px rgba(139,90,43,0.3);">
                                     <h4 style="text-align: center; color: #5a3a1b; margin-bottom: 0.8rem; font-family: var(--font-heading); font-size: 1rem;">👗 오지수의 옷장</h4>
                                     
-                                    <div class="closet-shelf" style="padding: 0.5rem; margin-bottom: 0.5rem;">
-                                        <div class="closet-label" style="font-size: 0.75rem;">퍼스널 컬러 (메이크업)</div>
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">퍼스널 컬러 (메이크업)</div>
                                         <div class="shelf-items">
                                             <div class="paperdoll-item" draggable="true" data-category="color" data-val="웜톤">
                                                 <img src="item_makeup_warm.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
@@ -387,8 +387,8 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="closet-shelf" style="padding: 0.5rem; margin-bottom: 0.5rem;">
-                                        <div class="closet-label" style="font-size: 0.75rem;">선 (착시효과)</div>
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">선 (착시효과)</div>
                                         <div class="shelf-items">
                                             <div class="paperdoll-item" draggable="true" data-category="line" data-val="가로선">
                                                 <img src="item_shirt_horizontal.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
@@ -399,8 +399,8 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="closet-shelf" style="padding: 0.5rem; margin-bottom: 0.5rem;">
-                                        <div class="closet-label" style="font-size: 0.75rem;">온도 (염료)</div>
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">온도 (염료)</div>
                                         <div class="shelf-items">
                                             <div class="paperdoll-item" draggable="true" data-category="temp" data-val="난색">
                                                 <img src="item_skirt_warm.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
@@ -411,8 +411,8 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="closet-shelf" style="padding: 0.5rem; margin-bottom: 0;">
-                                        <div class="closet-label" style="font-size: 0.75rem;">무늬 (패턴)</div>
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">무늬 (패턴)</div>
                                         <div class="shelf-items">
                                             <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="큰무늬">
                                                 <img src="item_jacket_large.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
@@ -432,13 +432,13 @@
                                     <div class="dropzone-hint" style="position: absolute; top: 10px; width: 100%; text-align: center; color: rgba(139,90,43,0.7); font-size: 0.75rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0.2rem; border-radius: 8px; z-index: 20;">이곳이나 우측 슬롯에 드롭!</div>
                                 </div>
                                 
-                                <!-- 오른쪽: 장착된 아이템 표시 패널 -->
-                                <div class="equipped-panel" style="width: 110px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 2px solid #c7a477;">
+                                <!-- 오른쪽: 장착된 아이템 표시 패널 (아바타 높이에 맞춤) -->
+                                <div class="equipped-panel" style="width: 110px; height: 400px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 2px solid #c7a477;">
                                     <div style="text-align: center; font-size: 0.75rem; font-weight: bold; color: #5a3a1b;">장착 슬롯</div>
-                                    <div class="avatar-slot" id="slot-color" data-accept="컬러"></div>
-                                    <div class="avatar-slot" id="slot-line" data-accept="선"></div>
-                                    <div class="avatar-slot" id="slot-temp" data-accept="온도"></div>
-                                    <div class="avatar-slot" id="slot-pattern" data-accept="무늬"></div>
+                                    <div class="avatar-slot" id="slot-color" data-accept="컬러" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-line" data-accept="선" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-temp" data-accept="온도" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-pattern" data-accept="무늬" style="flex: 1;"></div>
                                 </div>
                             </div>
                             
