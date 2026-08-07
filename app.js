@@ -576,7 +576,7 @@ function startScreen2() {
     
     // 미션 1-1 (몽타주) 세팅
     const montageData = PUZZLE_DATA.stage1.montage[currentRole];
-    document.getElementById('montage-clue-text').textContent = montageData.text;
+    document.getElementById('montage-clue-text').innerHTML = montageData.text;
     
     const optionsContainer = document.getElementById('montage-options');
     optionsContainer.innerHTML = '';
@@ -591,6 +591,22 @@ function startScreen2() {
         optionsContainer.appendChild(btn);
     });
 
+    document.getElementById('btn-submit-mission-1-1').onclick = () => {
+        const selected = optionsContainer.querySelector('button.selected');
+        if (!selected) {
+            alert('항목을 선택해주세요.');
+            return;
+        }
+        if (selected.textContent === montageData.answer) {
+            alert('정답입니다! 다음 미션으로 진행하세요.');
+            document.getElementById('btn-submit-mission-1-1').disabled = true;
+            document.getElementById('btn-submit-mission-1-1').textContent = '제출 완료';
+            // Firebase에 상태 저장 가능
+        } else {
+            alert('틀렸습니다. 단서를 다시 확인해보세요.');
+        }
+    };
+
     // 미션 1-2 (원단 교집합) 세팅
     const fabricData = PUZZLE_DATA.stage1.fabricStandards[currentRole];
     document.getElementById('fabric-clue-title').textContent = fabricData.title;
@@ -600,6 +616,32 @@ function startScreen2() {
         // 복수 선택 가능하도록 토글
         btn.onclick = () => btn.classList.toggle('selected');
     });
+
+    document.getElementById('btn-submit-mission-1-2').onclick = () => {
+        const selectedButtons = Array.from(document.querySelectorAll('.fabric-btn.selected'));
+        if (selectedButtons.length === 0) {
+            alert('원단을 하나 이상 선택해주세요.');
+            return;
+        }
+        
+        const selectedValues = selectedButtons.map(btn => btn.getAttribute('data-val')).sort();
+        let isCorrect = false;
+        if (Array.isArray(fabricData.answer)) {
+            const answerValues = [...fabricData.answer].sort();
+            isCorrect = JSON.stringify(selectedValues) === JSON.stringify(answerValues);
+        } else {
+            isCorrect = selectedValues.length === 1 && selectedValues[0] === fabricData.answer;
+        }
+        
+        if (isCorrect) {
+            alert('정답입니다! 훌륭하게 원단을 골라냈습니다.');
+            document.getElementById('btn-submit-mission-1-2').disabled = true;
+            document.getElementById('btn-submit-mission-1-2').textContent = '제출 완료';
+            // Firebase에 상태 저장 가능
+        } else {
+            alert('틀렸습니다. 성분표와 조건을 다시 한번 꼼꼼히 확인하세요.');
+        }
+    };
 
     // 미션 1-3 (실천적 추론) 세팅
     const reasoningData = PUZZLE_DATA.stage1.reasoning;
