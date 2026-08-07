@@ -260,6 +260,62 @@
                     </div>
                 </div>
             </section>
+
+            <!-- 2단계 스토리 모달 -->
+            <div id="stage2-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">패턴/봉제실 진입 🔓</h2>
+                    <div id="stage2-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS에서 채움 -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage2-missions" class="btn-primary">암호 해독 시작</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2단계 방 (Screen 3) -->
+            <section id="screen-3" class="screen hidden" style="background-image: url('intro_bg.png'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>2단계: 패턴/봉제실 🧵</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">현재 역할: <span id="display-current-role-stage2"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">역할 변경(로그아웃)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage2-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 600px; margin: 0 auto;">
+                            <h3 id="stage2-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage2-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem;"></p>
+                            <p id="stage2-puzzle-hint" style="color: #aaa; font-size: 0.9rem; text-align: left; margin-top: 1rem;"></p>
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="number" id="stage2-answer-input" placeholder="정답 숫자 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 200px;">
+                                <button id="btn-stage2-submit" class="btn-primary">암호 해독 완료</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stage2-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 600px; margin: 0 auto; border: 2px solid var(--accent-gold);">
+                            <h3 style="color: var(--accent-gold);">👑 최종 생산 공장 제어판</h3>
+                            <div id="team-status-board-stage2" style="display: flex; gap: 1rem; margin: 1.5rem 0; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage2-인턴" style="background: rgba(0,0,0,0.5);">인턴: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage2-사원" style="background: rgba(0,0,0,0.5);">사원: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage2-차장" style="background: rgba(0,0,0,0.5);">차장: <span class="status-icon">❌</span></div>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">🗣️ 부장님은 팀원들이 해독한 숫자 3개를 모아 금고 비밀번호(3자리)를 완성하세요!</p>
+                            
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                                <input type="password" id="manager-vault-pw" placeholder="***" maxlength="3" style="font-size: 2rem; letter-spacing: 15px; text-align: center; width: 150px; padding: 0.5rem; background: #111; color: #0f0; border: 2px solid #555; border-radius: 8px;">
+                                <button id="btn-submit-stage2" class="btn-primary" disabled>공장 가동!</button>
+                            </div>
+                            <p id="manager-error-msg-stage2" class="error-text hidden" style="text-align: center;">비밀번호가 틀렸습니다. 순서(인턴-사원-차장)가 맞는지 확인하세요!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <!-- 1단계 스토리 모달 -->
             <div id="stage1-story-modal" class="modal hidden">
                 <div class="modal-content" style="background: rgba(10, 10, 10, 0.95); border: 2px solid var(--accent-gold); max-width: 600px;">

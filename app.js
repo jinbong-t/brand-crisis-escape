@@ -348,6 +348,9 @@ skipButtons.forEach(btn => {
                 } else if (targetStage === 1) {
                     document.getElementById('screen-2').classList.remove('hidden');
                     startScreen2();
+                } else if (targetStage === 2) {
+                    document.getElementById('screen-3').classList.remove('hidden');
+                    startScreen3();
                 } else {
                     alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱 🛠️`);
                 }
@@ -723,10 +726,21 @@ function startScreen2() {
             
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
-                alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 완벽하게 찾아냈습니다! (1단계 클리어)');
+                alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 완벽하게 찾아냈습니다! (1단계 클리어)\n\n2단계 방(패턴/봉제실)으로 자동 이동합니다!');
                 btnSubmitStage1.disabled = true;
                 btnSubmitStage1.textContent = '최종 승인 완료 (1단계 클리어)';
-                // 추후 2단계 방으로 넘어가는 로직 추가 가능
+                
+                // 2단계로 전환
+                updateDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: 2
+                }).then(() => {
+                    // Manager transitions locally too (or relies on the global listener if we add one)
+                    // Let's just transition locally here for the manager
+                    document.getElementById('screen-2').classList.add('hidden');
+                    document.getElementById('screen-3').classList.remove('hidden');
+                    startScreen3();
+                }).catch(e => console.error(e));
+                
             } else {
                 errorMsg.classList.remove('hidden');
                 errorMsg.textContent = '오답입니다! 팀원들이 모아온 단서(교집합)를 다시 한번 분석해보세요.';
@@ -762,6 +776,109 @@ function startScreen2() {
     }
 }
 
+// ==========================================
+// Screen 3: 2단계 (패턴/봉제실) 로직
+// ==========================================
+function startScreen3() {
+    mainHeader.classList.remove('hidden');
+    currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
+    
+    document.getElementById('display-current-role-stage2').textContent = currentRole;
+    
+    // 2단계 스토리 모달 띄우기
+    const storyModal = document.getElementById('stage2-story-modal');
+    storyModal.classList.remove('hidden');
+    
+    document.getElementById('stage2-intro-text').innerText = PUZZLE_DATA.stage2.intro;
+    
+    document.getElementById('btn-start-stage2-missions').onclick = () => {
+        storyModal.classList.add('hidden');
+    };
+    
+    const puzzleData = PUZZLE_DATA.stage2.puzzles[currentRole];
+    
+    if (currentRole === '부장') {
+        document.getElementById('stage2-employee-panel').classList.add('hidden');
+        document.getElementById('stage2-manager-panel').classList.remove('hidden');
+        
+        // 부장 현황판 리스너
+        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+            const roles = ['인턴', '사원', '차장'];
+            let allConfirmed = true;
+            
+            roles.forEach(role => {
+                const statusEl = document.getElementById(`status-stage2-${role}`);
+                if (!statusEl) return;
+                
+                const roleDoc = snapshot.docs.find(d => d.id === role);
+                const isConfirmed = roleDoc && roleDoc.data().stage2Confirmed;
+                
+                if (isConfirmed) {
+                    statusEl.classList.add('done');
+                    statusEl.querySelector('.status-icon').textContent = '✅';
+                    statusEl.style.background = 'rgba(0,100,0,0.5)';
+                } else {
+                    statusEl.classList.remove('done');
+                    statusEl.querySelector('.status-icon').textContent = '❌';
+                    statusEl.style.background = 'rgba(0,0,0,0.5)';
+                    allConfirmed = false;
+                }
+            });
+            
+            document.getElementById('btn-submit-stage2').disabled = !allConfirmed;
+        });
+        
+        // 부장 금고 가동 버튼
+        document.getElementById('btn-submit-stage2').onclick = () => {
+            const pw = document.getElementById('manager-vault-pw').value;
+            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
+                document.getElementById('manager-error-msg-stage2').classList.add('hidden');
+                alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이어집니다. 3단계는 추후 업데이트 됩니다!)");
+                // 3단계 업데이트 로직 연결 필요
+                updateDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: 3
+                }).catch(e => console.error(e));
+            } else {
+                document.getElementById('manager-error-msg-stage2').classList.remove('hidden');
+            }
+        };
+        
+    } else {
+        // 사원/인턴/차장
+        document.getElementById('stage2-employee-panel').classList.remove('hidden');
+        document.getElementById('stage2-manager-panel').classList.add('hidden');
+        
+        document.getElementById('stage2-puzzle-title').textContent = puzzleData.title;
+        document.getElementById('stage2-puzzle-text').textContent = puzzleData.text;
+        document.getElementById('stage2-puzzle-hint').textContent = `힌트: ${puzzleData.hint}`;
+        
+        const btnSubmit = document.getElementById('btn-stage2-submit');
+        const input = document.getElementById('stage2-answer-input');
+        
+        btnSubmit.onclick = async () => {
+            if (input.value === puzzleData.answer) {
+                alert(`정답입니다! 당신이 찾은 숫자는 [ ${puzzleData.answer} ] 입니다.\n부장님에게 이 숫자를 순서대로 알려주세요!`);
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = "해독 완료 (대기 중)";
+                input.disabled = true;
+                
+                // Firebase 업데이트
+                try {
+                    await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                        stage2Confirmed: true,
+                        stage2Answer: puzzleData.answer
+                    }, { merge: true });
+                } catch(e) {
+                    console.error(e);
+                }
+                
+            } else {
+                alert("비밀번호가 틀렸습니다. 힌트를 다시 읽어보세요!");
+            }
+        };
+    }
+}
+
 // 초기화 함수
 async function initApp() {
     renderDeptGrid();
@@ -769,30 +886,42 @@ async function initApp() {
     // 세션이 남아있다면 해당 단계로 바로 복구
     if (currentDeptId && currentRole) {
         try {
-            const snap = await getDoc(doc(db, 'departments', currentDeptId));
-            if (snap.exists()) {
-                const stage = snap.data().currentStage || 0; // 하위 호환성 (과거에 생성된 부서는 0단계로)
-                
-                deptSelection.classList.add('hidden');
-                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                
-                if (stage === 0) {
-                    screen1.classList.remove('hidden');
-                    startScreen1();
-                } else if (stage === 1) {
-                    const s2 = document.getElementById('screen-2');
-                    if(s2) {
-                        s2.classList.remove('hidden');
-                        startScreen2();
+            // 부서의 currentStage 변경을 실시간으로 감지하여 화면 자동 전환
+            onSnapshot(doc(db, 'departments', currentDeptId), (snap) => {
+                if (snap.exists()) {
+                    const stage = snap.data().currentStage || 0;
+                    
+                    deptSelection.classList.add('hidden');
+                    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    
+                    if (stage === 0) {
+                        screen1.classList.remove('hidden');
+                        startScreen1();
+                    } else if (stage === 1) {
+                        const s2 = document.getElementById('screen-2');
+                        if (s2) {
+                            s2.classList.remove('hidden');
+                            startScreen2();
+                        }
+                    } else if (stage === 2) {
+                        const s3 = document.getElementById('screen-3');
+                        if (s3) {
+                            s3.classList.remove('hidden');
+                            startScreen3();
+                        }
+                    } else {
+                        // 3단계 이상
+                        alert(`축하합니다! ${stage}단계에 진입하셨습니다. (화면 준비 중)`);
                     }
+                } else {
+                    // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
+                    clearSessionState();
+                    currentDeptId = null;
+                    currentRole = null;
+                    location.reload();
                 }
-            } else {
-                // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
-                clearSessionState();
-                currentDeptId = null;
-                currentRole = null;
-                // 스플래시 화면 유지됨
-            }
+            });
+            
         } catch(e) { 
             console.error(e); 
             clearSessionState();
