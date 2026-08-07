@@ -370,49 +370,56 @@
                             </div>
                             <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1.5rem; text-align: center;">🗣️ 팀원들의 보고를 종합하여 오지수 모델의 최종 스타일링을 완성하세요!</p>
                             
-                            <div class="styling-studio-container">
-                                <!-- 왼쪽: 마네킹 디스플레이 -->
-                                <div class="premium-mannequin-display" id="mannequin-display">
+                            <div class="paperdoll-studio-container" style="display: flex; gap: 2rem; align-items: flex-start; justify-content: space-between; margin-top: 1.5rem;">
+                                <!-- 왼쪽: 옷장 (인벤토리) -->
+                                <div class="closet-section" style="flex: 1; background: #e6cfa3; border: 4px solid #8b5a2b; border-radius: 12px; padding: 1rem; box-shadow: inset 0 0 20px rgba(139,90,43,0.5);">
+                                    <h4 style="text-align: center; color: #5a3a1b; margin-bottom: 1rem; font-family: var(--font-heading);">👗 오지수의 옷장</h4>
+                                    
+                                    <div class="closet-shelf">
+                                        <div class="closet-label">퍼스널 컬러</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="웜톤">💄 웜톤 팔레트</div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="쿨톤">💄 쿨톤 팔레트</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="closet-shelf">
+                                        <div class="closet-label">선 (착시효과)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="가로선">➖ 가로선 셔츠</div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="세로선">⏸️ 세로선 셔츠</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="closet-shelf">
+                                        <div class="closet-label">온도 (염료)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="temp" data-val="난색">🔥 난색(빨간) 스커트</div>
+                                            <div class="paperdoll-item" draggable="true" data-category="temp" data-val="한색">🧊 한색(파란) 스커트</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="closet-shelf">
+                                        <div class="closet-label">무늬 (패턴)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="큰무늬">🏵️ 큰무늬 자켓</div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="작은무늬">💮 작은무늬 자켓</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 오른쪽: 아바타 모델 (드롭존) -->
+                                <div id="avatar-dropzone" class="avatar-section" style="width: 280px; height: 500px; background-image: url('avatar_base.png'); background-size: cover; background-position: center; border-radius: 16px; border: 4px dashed #8b5a2b; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.3); overflow: hidden;">
+                                    <!-- 드롭되었을 때 효과가 나타날 오버레이 -->
                                     <div id="overlay-color" class="mannequin-overlay"></div>
                                     <div id="overlay-line" class="mannequin-overlay"></div>
                                     <div id="overlay-temp" class="mannequin-overlay"></div>
                                     <div id="overlay-pattern" class="mannequin-overlay"></div>
-                                    <div style="background: rgba(0,0,0,0.7); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-size: 0.9rem; font-weight: bold; backdrop-filter: blur(5px); z-index: 20;">오지수 모델 핏</div>
-                                </div>
-                                
-                                <!-- 오른쪽: 스타일링 제어 패널 (Glassmorphism) -->
-                                <div class="glass-panel">
-                                    <div class="category-row">
-                                        <div class="category-label">퍼스널 컬러</div>
-                                        <div class="premium-btn-group">
-                                            <button class="premium-toggle-btn" data-category="color" data-val="웜톤">🔴 웜톤 메이크업</button>
-                                            <button class="premium-toggle-btn" data-category="color" data-val="쿨톤">🔵 쿨톤 메이크업</button>
-                                        </div>
-                                    </div>
                                     
-                                    <div class="category-row">
-                                        <div class="category-label">착시효과 - 선</div>
-                                        <div class="premium-btn-group">
-                                            <button class="premium-toggle-btn" data-category="line" data-val="가로선">➖ 가로선 의상</button>
-                                            <button class="premium-toggle-btn" data-category="line" data-val="세로선">⏸️ 세로선 의상</button>
-                                        </div>
+                                    <div style="position: absolute; bottom: -10px; width: 100%; text-align: center;">
+                                        <div style="background: rgba(255,255,255,0.9); padding: 0.5rem 1rem; display: inline-block; border-radius: 20px; border: 2px solid #8b5a2b; color: #5a3a1b; font-size: 0.9rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">오지수 모델 핏</div>
                                     </div>
-                                    
-                                    <div class="category-row">
-                                        <div class="category-label">착시효과 - 온도</div>
-                                        <div class="premium-btn-group">
-                                            <button class="premium-toggle-btn" data-category="temp" data-val="난색">🔥 난색(따뜻한) 염료</button>
-                                            <button class="premium-toggle-btn" data-category="temp" data-val="한색">🧊 한색(차가운) 염료</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="category-row">
-                                        <div class="category-label">착시효과 - 무늬</div>
-                                        <div class="premium-btn-group">
-                                            <button class="premium-toggle-btn" data-category="pattern" data-val="큰무늬">🏵️ 큰 무늬 패턴</button>
-                                            <button class="premium-toggle-btn" data-category="pattern" data-val="작은무늬">💮 작은 무늬 패턴</button>
-                                        </div>
-                                    </div>
+                                    <div class="dropzone-hint" style="position: absolute; top: 10px; width: 100%; text-align: center; color: rgba(139,90,43,0.7); font-size: 0.8rem; font-weight: bold;">여기로 옷을 끌어오세요!</div>
                                 </div>
                             </div>
                             

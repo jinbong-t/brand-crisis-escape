@@ -932,41 +932,59 @@ function startScreen4() {
             });
         });
         
-        // 프리미엄 토글 로직
-        const toggleBtns = document.querySelectorAll('.premium-toggle-btn');
+        // 종이인형 드래그 앤 드롭 로직
+        const draggables = document.querySelectorAll('.paperdoll-item');
+        const dropzone = document.getElementById('avatar-dropzone');
         const btnSubmit = document.getElementById('btn-submit-stage3');
         const errorMsg = document.getElementById('manager-error-msg-stage3');
         
         let selectedItems = {}; // { color: '쿨톤', line: '세로선', ... }
         
-        toggleBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const category = btn.getAttribute('data-category');
-                const val = btn.getAttribute('data-val');
-                
-                // 같은 카테고리의 다른 버튼 active 제거
-                const siblings = document.querySelectorAll(`.premium-toggle-btn[data-category="${category}"]`);
-                siblings.forEach(s => {
-                    s.classList.remove('active');
-                    const oldVal = s.getAttribute('data-val');
-                    document.getElementById(`overlay-${category}`).classList.remove(`overlay-${category}-${oldVal}`);
-                });
-                
-                // 현재 버튼 active 추가
-                btn.classList.add('active');
-                
-                // CSS 오버레이 적용 (옷 입히기 효과)
-                const overlayDiv = document.getElementById(`overlay-${category}`);
-                overlayDiv.className = `mannequin-overlay overlay-${category}-${val}`;
-                
-                // 상태 저장
-                selectedItems[category] = val;
-                
-                // 4개 카테고리가 모두 선택되었는지 확인
-                if (Object.keys(selectedItems).length === 4) {
-                    btnSubmit.disabled = false;
-                }
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                e.dataTransfer.setData('category', item.getAttribute('data-category'));
+                e.dataTransfer.setData('val', item.getAttribute('data-val'));
             });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+        });
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault(); // 드롭 허용
+            dropzone.classList.add('dragover');
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            
+            const category = e.dataTransfer.getData('category');
+            const val = e.dataTransfer.getData('val');
+            
+            if (!category || !val) return;
+            
+            // 기존 오버레이 클래스 제거
+            const overlayDiv = document.getElementById(`overlay-${category}`);
+            if (selectedItems[category]) {
+                overlayDiv.classList.remove(`overlay-${category}-${selectedItems[category]}`);
+            }
+            
+            // 새 오버레이 클래스 추가 (옷 갈아입기 효과)
+            overlayDiv.classList.add(`overlay-${category}-${val}`);
+            
+            // 상태 저장
+            selectedItems[category] = val;
+            
+            // 4개 카테고리가 모두 장착되었는지 확인
+            if (Object.keys(selectedItems).length === 4) {
+                btnSubmit.disabled = false;
+            }
         });
         
         btnSubmit.onclick = () => {
