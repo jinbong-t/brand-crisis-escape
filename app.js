@@ -1066,6 +1066,204 @@ function startScreen4() {
     }
 }
 
+// 4단계: 런칭쇼 대기실 (T.P.O 및 환경점수)
+function startScreen5() {
+    document.getElementById('display-current-role-stage4').textContent = currentRole;
+    
+    // 모달 띄우기
+    const storyModal = document.getElementById('stage4-story-modal');
+    storyModal.classList.remove('hidden');
+    document.getElementById('stage4-intro-text').innerHTML = PUZZLE_DATA.stage4.intro.replace(/\n/g, '<br>');
+    
+    document.getElementById('btn-start-stage4-missions').onclick = () => {
+        storyModal.classList.add('hidden');
+    };
+    
+    const puzzleData = PUZZLE_DATA.stage4.puzzles[currentRole];
+    
+    if (currentRole === '부장') {
+        document.getElementById('stage4-employee-panel').classList.add('hidden');
+        document.getElementById('stage4-manager-panel').classList.remove('hidden');
+        
+        const btnLaunch = document.getElementById('btn-launch-show');
+        const scoreFill = document.getElementById('eco-score-fill');
+        const scoreText = document.getElementById('eco-score-text');
+        
+        // 팀원들의 정답 현황 실시간 감시하여 점수 합산
+        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+            let totalScore = 0;
+            let correctCount = 0;
+            
+            snapshot.forEach(docSnap => {
+                const r = docSnap.id;
+                const d = docSnap.data();
+                
+                if (['인턴', '사원', '차장'].includes(r)) {
+                    const statusEl = document.getElementById(`status-stage4-${r}`);
+                    if (statusEl) {
+                        if (d.stage4Confirmed) {
+                            statusEl.querySelector('.status-icon').textContent = '✅';
+                            // 해당 역할의 점수를 더함
+                            if (PUZZLE_DATA.stage4.puzzles[r]) {
+                                totalScore += PUZZLE_DATA.stage4.puzzles[r].score;
+                            }
+                            correctCount++;
+                        } else {
+                            statusEl.querySelector('.status-icon').textContent = '❌';
+                        }
+                    }
+                }
+            });
+            
+            // 게이지 바 업데이트
+            scoreFill.style.width = `${totalScore}%`;
+            scoreText.textContent = `${totalScore} / 100 점`;
+            
+            // 100점(3명 모두 정답) 달성 시 런칭 버튼 활성화
+            if (totalScore === 100 && correctCount === 3) {
+                btnLaunch.disabled = false;
+                btnLaunch.style.background = 'linear-gradient(45deg, #FFD700, #FFA500)';
+                btnLaunch.style.color = '#000';
+                btnLaunch.style.cursor = 'pointer';
+                btnLaunch.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.8)';
+                btnLaunch.textContent = "🌟 런칭쇼 가동 🌟";
+            } else {
+                btnLaunch.disabled = true;
+                btnLaunch.style.background = '#555';
+                btnLaunch.style.color = '#888';
+                btnLaunch.style.cursor = 'not-allowed';
+                btnLaunch.style.boxShadow = 'none';
+                btnLaunch.textContent = "100점 달성 시 런칭쇼 가동!";
+            }
+        });
+        
+        // 런칭 버튼 클릭 (엔딩)
+        btnLaunch.onclick = () => {
+            // 엔딩 스크린 표시
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            const endingScreen = document.getElementById('screen-ending');
+            endingScreen.classList.remove('hidden');
+            
+            // 폭죽 효과 (Confetti)
+            triggerConfetti();
+        };
+        
+    } else {
+        // 인턴, 사원, 차장
+        document.getElementById('stage4-employee-panel').classList.remove('hidden');
+        document.getElementById('stage4-manager-panel').classList.add('hidden');
+        
+        document.getElementById('stage4-puzzle-title').textContent = puzzleData.title;
+        document.getElementById('stage4-puzzle-text').textContent = puzzleData.text;
+        
+        const optionsContainer = document.getElementById('stage4-options-container');
+        optionsContainer.innerHTML = ''; // 초기화
+        
+        puzzleData.options.forEach((opt, idx) => {
+            const label = document.createElement('label');
+            label.style.display = 'block';
+            label.style.padding = '1rem';
+            label.style.background = 'rgba(255,255,255,0.1)';
+            label.style.border = '1px solid var(--accent-gold)';
+            label.style.borderRadius = '8px';
+            label.style.cursor = 'pointer';
+            label.style.fontSize = '1.1rem';
+            
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'stage4-option';
+            radio.value = opt;
+            radio.style.marginRight = '10px';
+            
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(opt));
+            optionsContainer.appendChild(label);
+        });
+        
+        const btnSubmit = document.getElementById('btn-stage4-submit');
+        const feedback = document.getElementById('stage4-employee-feedback');
+        
+        btnSubmit.onclick = async () => {
+            const selected = document.querySelector('input[name="stage4-option"]:checked');
+            if (!selected) {
+                alert('옵션을 선택해주세요.');
+                return;
+            }
+            
+            if (selected.value === puzzleData.answer) {
+                feedback.classList.add('hidden');
+                alert(`정답입니다! 환경 점수 +${puzzleData.score}점이 부장님 현황판에 추가되었습니다.`);
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = "기획안 확정 완료";
+                document.querySelectorAll('input[name="stage4-option"]').forEach(r => r.disabled = true);
+                
+                try {
+                    await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                        stage4Confirmed: true
+                    }, { merge: true });
+                } catch(e) {
+                    console.error(e);
+                }
+            } else {
+                feedback.textContent = "잘못된 기획안입니다! 환경 점수가 오르지 않습니다.";
+                feedback.classList.remove('hidden');
+            }
+        };
+    }
+}
+
+// 폭죽 (Confetti) 애니메이션 함수
+function triggerConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const particles = [];
+    const colors = ['#fce18a', '#ff726d', '#b48def', '#f4306d'];
+    
+    for (let i = 0; i < 150; i++) {
+        particles.push({
+            x: canvas.width / 2,
+            y: canvas.height / 2 + 200,
+            r: Math.random() * 6 + 4,
+            dx: Math.random() * 20 - 10,
+            dy: Math.random() * -20 - 10,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            tilt: Math.floor(Math.random() * 10) - 10,
+            tiltAngle: 0,
+            tiltAngleInc: (Math.random() * 0.07) + 0.05
+        });
+    }
+    
+    function draw() {
+        requestAnimationFrame(draw);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach((p, i) => {
+            p.tiltAngle += p.tiltAngleInc;
+            p.y += (Math.cos(p.tiltAngle) + 1 + p.r / 2) / 2;
+            p.x += Math.sin(p.tiltAngle) * 2 + p.dx;
+            p.dy += 0.5; // gravity
+            p.y += p.dy;
+            
+            ctx.beginPath();
+            ctx.lineWidth = p.r;
+            ctx.strokeStyle = p.color;
+            ctx.moveTo(p.x + p.tilt + p.r, p.y);
+            ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+            ctx.stroke();
+            
+            // Remove particles that fall off screen
+            if (p.y > canvas.height) {
+                particles[i] = { ...p, y: -20, x: Math.random() * canvas.width, dy: 0, dx: 0 };
+            }
+        });
+    }
+    draw();
+}
+
 // 초기화 함수
 async function initApp() {
     renderDeptGrid();
@@ -1102,8 +1300,14 @@ async function initApp() {
                             s4.classList.remove('hidden');
                             startScreen4();
                         }
+                    } else if (stage === 4) {
+                        const s5 = document.getElementById('screen-5');
+                        if (s5) {
+                            s5.classList.remove('hidden');
+                            startScreen5();
+                        }
                     } else {
-                        // 4단계 이상
+                        // 5단계 이상
                         alert(`축하합니다! ${stage}단계에 진입하셨습니다. (화면 준비 중)`);
                     }
                 } else {

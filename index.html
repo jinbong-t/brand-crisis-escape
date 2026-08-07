@@ -450,6 +450,86 @@
                     </div>
                 </div>
             </section>
+            <!-- 4단계 스토리 모달 -->
+            <div id="stage4-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">런칭쇼 대기실 진입 🔓</h2>
+                    <div id="stage4-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS에서 채움 -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage4-missions" class="btn-primary">런칭쇼 기획 시작</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4단계 방 (Screen 5) -->
+            <section id="screen-5" class="screen hidden" style="background-image: url('intro_bg.png'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>4단계: 런칭쇼 대기실 (T.P.O) 🎉</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">현재 역할: <span id="display-current-role-stage4"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">역할 변경(로그아웃)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage4-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 600px; margin: 0 auto; text-align: center;">
+                            <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage4-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem; margin-bottom: 1.5rem;"></p>
+                            
+                            <div id="stage4-options-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                                <!-- JS에서 라디오 버튼 옵션 생성 -->
+                            </div>
+                            
+                            <button id="btn-stage4-submit" class="btn-primary" style="width: 80%;">기획안 제출 (+환경 점수)</button>
+                            <p id="stage4-employee-feedback" class="error-text hidden" style="margin-top: 1rem;"></p>
+                        </div>
+                    </div>
+
+                    <div id="stage4-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; border: 2px solid var(--accent-gold); padding: 2rem;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem; font-size: 1.8rem;">🌍 환경 점수 현황판</h3>
+                            <p style="font-size: 1rem; color: #ccc; margin-bottom: 2rem; text-align: center;">팀원들이 T.P.O에 맞는 올바른 친환경 기획안을 제출하면 점수가 오릅니다.</p>
+                            
+                            <!-- 게이지 바 -->
+                            <div style="width: 100%; background: #333; border-radius: 20px; height: 40px; border: 2px solid var(--accent-gold); position: relative; overflow: hidden; margin-bottom: 1rem;">
+                                <div id="eco-score-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                                <div id="eco-score-text" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: white; text-shadow: 1px 1px 2px black;">0 / 100 점</div>
+                            </div>
+                            
+                            <div id="team-status-board-stage4" style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage4-인턴" style="background: rgba(0,0,0,0.5);">Time (인턴): <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage4-사원" style="background: rgba(0,0,0,0.5);">Place (사원): <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage4-차장" style="background: rgba(0,0,0,0.5);">Occasion (차장): <span class="status-icon">❌</span></div>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <button id="btn-launch-show" class="btn-primary" style="width: 100%; max-width: 400px; padding: 1.2rem; font-size: 1.3rem; background: #555; color: #888; border: none; cursor: not-allowed; transition: all 0.3s;" disabled>100점 달성 시 런칭쇼 가동!</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 최종 엔딩 스크린 -->
+            <section id="screen-ending" class="screen hidden" style="background: #000; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; overflow: hidden;">
+                <!-- 폭죽 캔버스 -->
+                <canvas id="confetti-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 101;"></canvas>
+                
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 102; width: 80%;">
+                    <h1 style="color: var(--accent-gold); font-size: 4rem; margin-bottom: 1rem; text-shadow: 0 0 20px rgba(212,175,55,0.8); font-family: var(--font-heading);">SUCCESS!</h1>
+                    <h2 style="color: white; font-size: 2rem; margin-bottom: 2rem;">완벽한 친환경 런칭쇼가 성공적으로 개최되었습니다!</h2>
+                    <p style="color: #ccc; font-size: 1.2rem; line-height: 1.8;">
+                        강태오 대표의 패스트 패션 계획을 막아내고,<br>
+                        지속 가능한 패션 브랜드 <b>RE:BRAND</b>의 진정한 가치를 세상에 알렸습니다.<br>
+                        여러분의 훌륭한 팀워크가 브랜드를 위기에서 구했습니다!
+                    </p>
+                    <button class="btn-primary btn-logout-role" style="margin-top: 3rem; padding: 1rem 2rem; font-size: 1.2rem;">메인 화면으로 돌아가기</button>
+                </div>
+            </section>
+
             <!-- 1단계 스토리 모달 -->
             <div id="stage1-story-modal" class="modal hidden">
                 <div class="modal-content" style="background: rgba(10, 10, 10, 0.95); border: 2px solid var(--accent-gold); max-width: 600px;">
