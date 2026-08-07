@@ -24,6 +24,7 @@ const adminDeptList = document.getElementById('admin-dept-list');
 const newDeptName = document.getElementById('new-dept-name');
 const btnAddDept = document.getElementById('btn-add-dept');
 const btnResetDepts = document.getElementById('btn-reset-depts');
+const btnAdminSkip = document.getElementById('btn-admin-skip');
 
 // Splash / Screen 0 DOM
 const screenSplash = document.getElementById('screen-splash');
@@ -260,13 +261,21 @@ btnAddDept.addEventListener('click', () => {
     }
 });
 
-btnResetDepts.addEventListener('click', () => {
-    if (confirm('부서 목록을 기본값으로 초기화하시겠습니까?')) {
-        saveDepartments(DEFAULT_DEPTS);
-        renderAdminDeptList();
-        renderDeptGrid();
+btnResetDepts.addEventListener('click', async () => {
+    if (confirm("정말 모든 부서 데이터와 직급 선택 기록을 초기화하시겠습니까? (되돌릴 수 없습니다!)")) {
+        localStorage.removeItem('rebrand_departments');
+        // Firebase의 기존 데이터도 날리는 로직 추가 (나중에 구현)
+        alert("초기화되었습니다.");
+        location.reload();
     }
 });
+
+if(btnAdminSkip) {
+    btnAdminSkip.addEventListener('click', () => {
+        alert("현재 단계를 강제 스킵합니다! (1단계 미션이 개발 완료되면 정상 작동합니다)");
+        // TODO: 단계별 스킵 로직 추가
+    });
+}
 
 // ==========================================
 // Screen 1: 오프닝 로직

@@ -143,15 +143,21 @@
             
             <div id="admin-dashboard-section" class="hidden">
                 <h3>부서 관리</h3>
-                <div class="add-dept-form">
-                    <input type="text" id="new-dept-name" placeholder="새 부서 이름 (예: 영업부)">
-                    <button id="btn-add-dept" class="btn-secondary">추가</button>
+                <div class="admin-controls">
+                    <input type="text" id="admin-new-dept" placeholder="새 부서명 (예: 디자인기획부)">
+                    <button id="btn-add-dept" class="btn-primary">부서 추가</button>
                 </div>
+                <div style="margin-top: 2rem;">
+                    <button id="btn-reset-depts" class="btn-danger">모든 부서 데이터 초기화 ⚠️</button>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button id="btn-admin-skip" class="btn-primary" style="background: var(--accent-gold); color: black;">현재 단계 강제 스킵 ⏭️</button>
+                </div>
+                <button id="btn-close-admin" class="btn-primary" style="margin-top: 1rem;">닫기</button>
                 <div id="admin-dept-list" class="admin-list">
                     <!-- JS 렌더링 -->
                 </div>
                 <div class="admin-actions">
-                    <button id="btn-reset-depts" class="btn-text danger">기본 부서로 초기화</button>
                     <button id="btn-reset-firebase" class="btn-text danger">모든 게임 데이터 초기화 (주의)</button>
                 </div>
             </div>
