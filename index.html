@@ -308,10 +308,10 @@
                             <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">🗣️ 부장님은 팀원들이 해독한 숫자 3개를 모아 금고 비밀번호(3자리)를 완성하세요!</p>
                             
                             <div class="factory-machine-container" style="position: relative; width: 100%; max-width: 600px; aspect-ratio: 3/2; margin: 0 auto; background-image: url('factory_panel.png'); background-size: cover; background-position: center; border-radius: 12px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-                                <!-- 화면 영역에 투명 input 덮어씌우기 -->
-                                <input type="password" id="manager-vault-pw" placeholder="" maxlength="3" style="position: absolute; top: 15%; left: 32%; width: 36%; height: 23%; background: transparent; border: none; color: #0f0; font-size: 4rem; text-align: center; letter-spacing: 20px; text-shadow: 0 0 15px #0f0; outline: none; z-index: 10;">
+                                <!-- 화면 영역의 기본 별 4개를 가리기 위한 배경(검은색에 가까운 짙은 녹색) 덮개 및 입력창 -->
+                                <input type="password" id="manager-vault-pw" placeholder="***" maxlength="3" style="position: absolute; top: 35%; left: 30%; width: 40%; height: 25%; background: #071007; border: none; color: #0f0; font-size: 4.5rem; text-align: center; letter-spacing: 20px; text-shadow: 0 0 15px #0f0; outline: none; z-index: 10;">
                                 <!-- 가동 버튼 영역에 투명 버튼 덮어씌우기 -->
-                                <button id="btn-submit-stage2" style="position: absolute; top: 48%; left: 37%; width: 26%; height: 40%; background: transparent; border: none; cursor: pointer; z-index: 10; border-radius: 50%;" disabled></button>
+                                <button id="btn-submit-stage2" style="position: absolute; top: 62%; left: 37%; width: 26%; height: 28%; background: transparent; border: none; cursor: pointer; z-index: 10; border-radius: 50%;" disabled></button>
                             </div>
                             
                             <p id="manager-error-msg-stage2" class="error-text hidden" style="text-align: center; margin-top: 1rem;">비밀번호가 틀렸습니다. 순서(인턴-사원-차장)가 맞는지 확인하세요!</p>
