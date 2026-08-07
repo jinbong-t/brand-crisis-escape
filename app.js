@@ -263,8 +263,18 @@ btnAddDept.addEventListener('click', () => {
 
 btnResetDepts.addEventListener('click', async () => {
     if (confirm("정말 모든 부서 데이터와 직급 선택 기록을 초기화하시겠습니까? (되돌릴 수 없습니다!)")) {
+        // Firebase 직급 선택 상태 초기화
+        const depts = getDepartments();
+        const roles = ['인턴', '사원', '차장', '부장'];
+        for (const dept of depts) {
+            for (const role of roles) {
+                try {
+                    await setDoc(doc(db, `departments/${dept.id}/roles`, role), { taken: false });
+                } catch(e) { console.error(e); }
+            }
+        }
+        
         localStorage.removeItem('rebrand_departments');
-        // Firebase의 기존 데이터도 날리는 로직 추가 (나중에 구현)
         alert("초기화되었습니다.");
         location.reload();
     }
