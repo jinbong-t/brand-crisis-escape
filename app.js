@@ -693,17 +693,18 @@ function startScreen2() {
         // 부장 전용 최종 제출 버튼
         const btnSubmitStage1 = document.getElementById('btn-submit-stage1');
         btnSubmitStage1.onclick = () => {
-            const finalAnswer = document.getElementById('manager-final-answer').value;
+            const finalAnswer1 = document.getElementById('manager-final-answer-1').value;
+            const finalAnswer2 = document.getElementById('manager-final-answer-2').value;
             const errorMsg = document.getElementById('manager-error-msg');
             
-            if (!finalAnswer) {
-                alert('최종 정답이 될 원단을 선택해주세요.');
+            if (!finalAnswer1 || !finalAnswer2) {
+                alert('미션 1(몽타주)과 미션 2(친환경)의 최종 정답을 모두 선택해주세요.');
                 return;
             }
             
-            if (finalAnswer === 'H') {
+            if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
-                alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 원단을 완벽하게 찾아냈습니다! (1단계 클리어)');
+                alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 완벽하게 찾아냈습니다! (1단계 클리어)');
                 btnSubmitStage1.disabled = true;
                 btnSubmitStage1.textContent = '최종 승인 완료 (1단계 클리어)';
                 // 추후 2단계 방으로 넘어가는 로직 추가 가능
