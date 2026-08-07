@@ -189,7 +189,19 @@ roleCards.forEach(card => {
             // 성공
             currentRole = role;
             alert(`${role} 직급으로 시작합니다!`);
-            startScreen1(); // 화면 1(오프닝)으로 이동
+            
+            // 다이어리 넘기는(페이지 턴) 애니메이션으로 화면 전환
+            screen0.classList.add('page-turn-out');
+            setTimeout(() => {
+                screen0.classList.add('hidden');
+                screen0.classList.remove('page-turn-out');
+                
+                screen1.classList.remove('hidden');
+                screen1.classList.add('page-turn-in');
+                setTimeout(() => screen1.classList.remove('page-turn-in'), 800);
+                
+                startScreen1(); // 화면 1(오프닝) 셋팅
+            }, 800);
             
         } catch (e) {
             alert(e);
@@ -260,8 +272,6 @@ btnResetDepts.addEventListener('click', () => {
 // Screen 1: 오프닝 로직
 // ==========================================
 function startScreen1() {
-    screen0.classList.add('hidden');
-    screen1.classList.remove('hidden');
     mainHeader.classList.remove('hidden');
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
 
@@ -295,6 +305,11 @@ function renderOpeningCards() {
         card.dataset.id = cardData.id;
         card.dataset.back = cardData.back;
 
+        // 어질러진 느낌을 위해 약간의 랜덤 회전과 오프셋 부여
+        const randomRot = (Math.random() - 0.5) * 30; // -15도 ~ +15도
+        const randomY = (Math.random() - 0.5) * 20;   // -10px ~ +10px
+        card.style.transform = `rotate(${randomRot}deg) translateY(${randomY}px)`;
+        
         card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front">

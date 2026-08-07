@@ -66,6 +66,22 @@ body {
     text-shadow: 0 0 15px rgba(255,255,255,0.7), 0 0 30px rgba(255,255,255,0.4);
 }
 
+/* 다이어리 페이지 넘김 효과 */
+@keyframes pageTurnOut {
+    0% { transform: perspective(1200px) rotateY(0deg); transform-origin: left center; opacity: 1; }
+    100% { transform: perspective(1200px) rotateY(-90deg); transform-origin: left center; opacity: 0; }
+}
+@keyframes pageTurnIn {
+    0% { transform: perspective(1200px) rotateY(90deg); transform-origin: right center; opacity: 0; }
+    100% { transform: perspective(1200px) rotateY(0deg); transform-origin: right center; opacity: 1; }
+}
+.page-turn-out {
+    animation: pageTurnOut 0.8s ease-in forwards;
+}
+.page-turn-in {
+    animation: pageTurnIn 0.8s ease-out forwards;
+}
+
 /* 헤더 */
 header {
     display: flex;
@@ -531,7 +547,10 @@ input:focus {
     touch-action: none; /* 모바일 드래그 방지 */
 }
 .flip-card.dragging {
-    opacity: 0.5;
+    opacity: 0.8;
+    z-index: 100;
+    transform: scale(1.05) rotate(0deg) !important; /* 드래그 중엔 똑바로 */
+    transition: none; /* 드래그 중 빠른 반응 */
 }
 
 /* 다이어리 및 스토리 컨텐츠 */
