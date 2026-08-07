@@ -216,9 +216,18 @@
                         <div id="manager-submit-panel" class="hidden mission-card" style="border: 2px solid var(--accent-gold); background: rgba(212, 175, 55, 0.1);">
                             <h3>👑 팀원 확인 현황 및 최종 제출</h3>
                             <div id="team-status-board" style="display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; flex-wrap: wrap;">
-                                <div class="status-item" id="status-인턴">인턴: <span class="status-icon">❌</span></div>
-                                <div class="status-item" id="status-사원">사원: <span class="status-icon">❌</span></div>
-                                <div class="status-item" id="status-차장">차장: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-인턴" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>인턴: <span class="status-icon">❌</span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                                <div class="status-item" id="status-사원" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>사원: <span class="status-icon">❌</span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                                <div class="status-item" id="status-차장" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>차장: <span class="status-icon">❌</span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
                             </div>
                             <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem; text-align: center;">모든 팀원이 단서 확인을 완료해야 최종 제출이 가능합니다.</p>
                             <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">

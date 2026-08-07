@@ -688,13 +688,20 @@ function startScreen2() {
                 
                 const roleDoc = snapshot.docs.find(d => d.id === role);
                 const isConfirmed = roleDoc && roleDoc.data().stage1Confirmed;
+                const reasoningText = roleDoc ? roleDoc.data().reasoning : "";
                 
+                const reasoningDisplay = statusEl.querySelector('.reasoning-display');
                 if (isConfirmed) {
                     statusEl.classList.add('done');
                     statusEl.querySelector('.status-icon').textContent = '✅';
+                    if (reasoningDisplay && reasoningText) {
+                        reasoningDisplay.textContent = `"${reasoningText}"`;
+                        reasoningDisplay.style.display = 'block';
+                    }
                 } else {
                     statusEl.classList.remove('done');
                     statusEl.querySelector('.status-icon').textContent = '❌';
+                    if (reasoningDisplay) reasoningDisplay.style.display = 'none';
                     allConfirmed = false;
                 }
             });
