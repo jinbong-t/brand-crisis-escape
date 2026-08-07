@@ -1348,4 +1348,26 @@ document.getElementById('dev-jump-stage3').onclick = async () => {
     }
 };
 
+// DEV 테스트용 강제 4단계 버튼 로직
+document.getElementById('dev-jump-stage4').onclick = async () => {
+    currentDeptId = 'test-dept-' + Date.now();
+    currentDeptName = '테스트부서';
+    currentRole = '부장';
+    saveSessionState();
+    
+    try {
+        await setDoc(doc(db, 'departments', currentDeptId), {
+            name: currentDeptName,
+            currentStage: 4,
+            startTime: Date.now()
+        }, { merge: true });
+        
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('screen-5').classList.remove('hidden');
+        startScreen5();
+    } catch(e) {
+        console.error(e);
+    }
+};
+
 initApp();
