@@ -233,16 +233,16 @@ btnBackToDept.addEventListener('click', () => {
 });
 
 // 역할 변경 (로그아웃 - 데이터 유지)
-const btnLogoutRole = document.getElementById('btn-logout-role');
-if (btnLogoutRole) {
-    btnLogoutRole.addEventListener('click', () => {
+const btnLogoutRoles = document.querySelectorAll('#btn-logout-role, .btn-logout-role');
+btnLogoutRoles.forEach(btn => {
+    btn.addEventListener('click', () => {
         if (confirm("현재 역할에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다!)")) {
             currentRole = null;
             sessionStorage.removeItem('currentRole');
             location.reload();
         }
     });
-}
+});
 
 // 관리자 모드 로직 (5번 클릭 시 활성화)
 adminToggleBtn.addEventListener('click', () => {
@@ -309,6 +309,40 @@ btnResetDepts.addEventListener('click', async () => {
     }
 });
 
+// 테스트용 빠른 전체 초기화 버튼
+const btnEasyReset = document.getElementById('btn-easy-reset');
+if (btnEasyReset) {
+    btnEasyReset.addEventListener('click', async () => {
+        if (confirm("모든 부서 기록과 데이터 베이스 진행 상황을 완전히 초기화하고 처음부터(0단계) 다시 시작하시겠습니까?")) {
+            const depts = getDepartments();
+            const roles = ['인턴', '사원', '차장', '부장'];
+            
+            // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기
+            for (const dept of depts) {
+                for (const role of roles) {
+                    try {
+                        await setDoc(doc(db, `departments/${dept.id}/roles`, role), { taken: false });
+                    } catch(e) { console.error(e); }
+                }
+                try {
+                    await setDoc(doc(db, 'departments', dept.id), { 
+                        currentStage: 0,
+                        showStage3Reasoning: false
+                    }, { merge: true });
+                } catch(e) { console.error(e); }
+            }
+            
+            localStorage.removeItem('rebrand_departments');
+            sessionStorage.clear();
+            currentDeptId = null;
+            currentRole = null;
+            
+            alert("완벽하게 초기화되었습니다! 깨끗한 상태에서 시작합니다.");
+            location.reload();
+        }
+    });
+}
+
 // 페이지 스킵 로직
 const skipButtons = document.querySelectorAll('.btn-skip');
 skipButtons.forEach(btn => {
@@ -354,6 +388,9 @@ skipButtons.forEach(btn => {
                 } else if (targetStage === 3) {
                     document.getElementById('screen-4').classList.remove('hidden');
                     startScreen4();
+                } else if (targetStage === 4) {
+                    document.getElementById('screen-5').classList.remove('hidden');
+                    startScreen5();
                 } else {
                     alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱 🛠️`);
                 }
@@ -712,7 +749,8 @@ function startScreen2() {
                 }
             });
             
-            document.getElementById('btn-submit-stage1').disabled = !allConfirmed;
+            // 테스트 편의를 위해 팀원이 모두 제출하지 않아도 부장 버튼 항상 활성화
+            document.getElementById('btn-submit-stage1').disabled = false;
         });
         
         // 부장 전용 최종 제출 버튼
@@ -827,7 +865,8 @@ function startScreen3() {
                 }
             });
             
-            document.getElementById('btn-submit-stage2').disabled = !allConfirmed;
+            // 테스트 편의를 위해 부장 버튼 항상 활성화
+            document.getElementById('btn-submit-stage2').disabled = false;
         });
         
         // 부장 금고 가동 버튼
@@ -932,6 +971,21 @@ function startScreen4() {
             });
         });
         
+        // 부장 단서 1 (텍스트 입력) 세팅
+        document.getElementById('stage3-manager-title').textContent = puzzleData.step1.title;
+        document.getElementById('stage3-manager-text').textContent = puzzleData.step1.text;
+        
+        document.getElementById('btn-stage3-manager-submit').onclick = () => {
+            const val = document.getElementById('stage3-manager-answer-input').value.replace(/\s+/g, '');
+            if (val === puzzleData.step1.answer) {
+                alert("정답입니다! 이제 팀원들이 모은 단서로 최종 스타일링을 완성하세요.");
+                document.getElementById('stage3-manager-step1').classList.add('hidden');
+                document.getElementById('stage3-manager-step2').classList.remove('hidden');
+            } else {
+                alert("오답입니다. 다시 생각해보세요.");
+            }
+        };
+
         // 종이인형 드래그 앤 드롭 로직
         const draggables = document.querySelectorAll('.paperdoll-item');
         const dropzone = document.getElementById('avatar-dropzone');
@@ -1012,18 +1066,17 @@ function startScreen4() {
         
         btnSubmit.onclick = () => {
             // 정답 확인: 쿨톤, 세로선, 한색, 작은무늬
-            if (selectedItems['color'] === '쿨톤' && 
-                selectedItems['line'] === '세로선' && 
-                selectedItems['temp'] === '한색' && 
-                selectedItems['pattern'] === '작은무늬') {
+            const targetAns = puzzleData.step2.answer;
+            if (selectedItems['color'] === targetAns.color && 
+                selectedItems['line'] === targetAns.line && 
+                selectedItems['temp'] === targetAns.temp && 
+                selectedItems['pattern'] === targetAns.pattern) {
                 
                 errorMsg.classList.add('hidden');
-                alert("🎉 완벽합니다! 오지수 모델의 체형과 톤을 완벽하게 보완한 스타일링이 완성되었습니다!\n\n(4단계 런칭쇼 대기실로 이동합니다.)");
+                alert("🎉 완벽합니다! 오지수 모델의 핏이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
-                updateDoc(doc(db, 'departments', currentDeptId), {
-                    currentStage: 4
-                }).catch(e => console.error(e));
+                showReasoningModal(PUZZLE_DATA.stage3, 4);
                 
             } else {
                 errorMsg.classList.remove('hidden');
@@ -1035,34 +1088,51 @@ function startScreen4() {
         document.getElementById('stage3-employee-panel').classList.remove('hidden');
         document.getElementById('stage3-manager-panel').classList.add('hidden');
         
-        document.getElementById('stage3-puzzle-title').textContent = puzzleData.title;
-        document.getElementById('stage3-puzzle-text').textContent = puzzleData.text;
-        document.getElementById('stage3-puzzle-hint').textContent = `힌트: ${puzzleData.hint}`;
+        document.getElementById('stage3-puzzle-title').textContent = puzzleData.step1.title;
+        document.getElementById('stage3-puzzle-text').textContent = puzzleData.step1.text;
+        document.getElementById('stage3-puzzle-hint').textContent = '';
         
         const btnSubmit = document.getElementById('btn-stage3-submit');
         const input = document.getElementById('stage3-answer-input');
         
+        let currentStep = 1;
+        
         btnSubmit.onclick = async () => {
-            if (input.value.replace(/\s+/g, '') === puzzleData.answer) {
-                alert(`정확한 단서를 찾았습니다! 당신이 찾은 단서 [ ${puzzleData.answer} ] 를 부장님에게 알려주세요!`);
-                btnSubmit.disabled = true;
-                btnSubmit.textContent = "전송 완료 (대기 중)";
-                input.disabled = true;
-                
-                // Firebase 업데이트
-                try {
-                    await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
-                        stage3Confirmed: true,
-                        stage3Answer: puzzleData.answer
-                    }, { merge: true });
-                } catch(e) {
-                    console.error(e);
+            const currentPuzzle = puzzleData[`step${currentStep}`];
+            if (input.value.replace(/\s+/g, '') === currentPuzzle.answer) {
+                if (currentStep === 1) {
+                    alert(`정확한 단서를 찾았습니다!\n다음 단서를 확인하세요.`);
+                    currentStep = 2;
+                    input.value = '';
+                    document.getElementById('stage3-puzzle-title').textContent = puzzleData.step2.title;
+                    document.getElementById('stage3-puzzle-text').textContent = puzzleData.step2.text;
+                } else {
+                    alert(`모든 단서를 찾았습니다! 부장님에게 알려주세요! (부장님이 미션을 완료하면 실천적 추론 자물쇠가 나타납니다)`);
+                    btnSubmit.disabled = true;
+                    btnSubmit.textContent = "전송 완료 (대기 중)";
+                    input.disabled = true;
+                    
+                    try {
+                        await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                            stage3Confirmed: true
+                        }, { merge: true });
+                    } catch(e) {
+                        console.error(e);
+                    }
                 }
-                
             } else {
-                alert("오답입니다. 힌트를 다시 확인해보세요!");
+                alert("오답입니다. 다시 생각해보세요!");
             }
         };
+        
+        // 팀원은 4단계 전환 감시만 수행 (기존 initApp에서 처리됨)
+        // 모달 띄우기 (실천적 추론은 부장이 트리거할 때 화면에 나타나도록 onSnapshot)
+        onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
+             const d = docSnap.data();
+             if (d && d.showStage3Reasoning) {
+                 showReasoningModal(PUZZLE_DATA.stage3, 4);
+             }
+        });
     }
 }
 
@@ -1085,42 +1155,50 @@ function startScreen5() {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
         
+        // 부장 Step 1: TPO 점검
+        document.getElementById('stage4-manager-step1-title').textContent = puzzleData.step1.title;
+        document.getElementById('stage4-manager-step1-text').textContent = puzzleData.step1.text;
+        
+        document.getElementById('btn-stage4-manager-step1').onclick = () => {
+            const val = document.getElementById('stage4-manager-step1-input').value.replace(/\s+/g, '');
+            if (val === puzzleData.step1.answer) {
+                alert('정답입니다! 이제 팀원들이 올린 단서를 모아 5R 순서를 맞추고 최종 환경 점수를 입력하세요.');
+                document.getElementById('stage4-manager-step1').classList.add('hidden');
+                document.getElementById('stage4-5r-puzzle').classList.remove('hidden');
+            } else {
+                alert('오답입니다. 다시 생각해보세요.');
+            }
+        };
+
+        // 5R 드래그 앤 드롭 로직
+        const draggables = document.querySelectorAll('.5r-item');
+        const slots = document.querySelectorAll('.5r-slot');
+        let selected5R = Array(5).fill(null);
+        
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('val', item.getAttribute('data-val'));
+                item.style.opacity = '0.5';
+            });
+            item.addEventListener('dragend', () => {
+                item.style.opacity = '1';
+            });
+        });
+        
         const btnLaunch = document.getElementById('btn-launch-show');
+        const scoreInput = document.getElementById('stage4-manager-score-input');
         const scoreFill = document.getElementById('eco-score-fill');
         const scoreText = document.getElementById('eco-score-text');
-        
-        // 팀원들의 정답 현황 실시간 감시하여 점수 합산
-        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            let totalScore = 0;
-            let correctCount = 0;
+
+        let teamCorrectCount = 0;
+
+        function checkManagerStage4Complete() {
+            const is5RCorrect = JSON.stringify(selected5R) === JSON.stringify(puzzleData.step2.answer);
+            const isScoreCorrect = scoreInput.value.trim() === puzzleData.step3.answer;
+            const isTeamDone = teamCorrectCount === 3;
             
-            snapshot.forEach(docSnap => {
-                const r = docSnap.id;
-                const d = docSnap.data();
-                
-                if (['인턴', '사원', '차장'].includes(r)) {
-                    const statusEl = document.getElementById(`status-stage4-${r}`);
-                    if (statusEl) {
-                        if (d.stage4Confirmed) {
-                            statusEl.querySelector('.status-icon').textContent = '✅';
-                            // 해당 역할의 점수를 더함
-                            if (PUZZLE_DATA.stage4.puzzles[r]) {
-                                totalScore += PUZZLE_DATA.stage4.puzzles[r].score;
-                            }
-                            correctCount++;
-                        } else {
-                            statusEl.querySelector('.status-icon').textContent = '❌';
-                        }
-                    }
-                }
-            });
-            
-            // 게이지 바 업데이트
-            scoreFill.style.width = `${totalScore}%`;
-            scoreText.textContent = `${totalScore} / 100 점`;
-            
-            // 100점(3명 모두 정답) 달성 시 런칭 버튼 활성화
-            if (totalScore === 100 && correctCount === 3) {
+            // 혼자 테스트하기 쉽도록 isTeamDone 조건 임시 해제
+            if (is5RCorrect && isScoreCorrect) {
                 btnLaunch.disabled = false;
                 btnLaunch.style.background = 'linear-gradient(45deg, #FFD700, #FFA500)';
                 btnLaunch.style.color = '#000';
@@ -1133,8 +1211,55 @@ function startScreen5() {
                 btnLaunch.style.color = '#888';
                 btnLaunch.style.cursor = 'not-allowed';
                 btnLaunch.style.boxShadow = 'none';
-                btnLaunch.textContent = "100점 달성 시 런칭쇼 가동!";
+                btnLaunch.textContent = "조건 달성 시 런칭쇼 가동!";
             }
+        }
+
+        slots.forEach((slot, index) => {
+            slot.addEventListener('dragover', e => e.preventDefault());
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const val = e.dataTransfer.getData('val');
+                if(val) {
+                    slot.textContent = val;
+                    slot.style.border = '2px solid #4caf50';
+                    slot.style.color = '#fff';
+                    selected5R[index] = val;
+                    checkManagerStage4Complete();
+                }
+            });
+        });
+        
+        scoreInput.addEventListener('input', checkManagerStage4Complete);
+        
+        // 팀원들의 정답 현황 실시간 감시
+        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+            let correctCount = 0;
+            
+            snapshot.forEach(docSnap => {
+                const r = docSnap.id;
+                const d = docSnap.data();
+                
+                if (['인턴', '사원', '차장'].includes(r)) {
+                    const statusEl = document.getElementById(`status-stage4-${r}`);
+                    if (statusEl) {
+                        if (d.stage4Confirmed) {
+                            statusEl.querySelector('.status-icon').textContent = '✅';
+                            correctCount++;
+                        } else {
+                            statusEl.querySelector('.status-icon').textContent = '❌';
+                        }
+                    }
+                }
+            });
+            
+            teamCorrectCount = correctCount;
+            // 게이지 바 업데이트 (팀원 달성도 기반)
+            const simulatedScore = Math.floor((correctCount / 3) * 100);
+            scoreFill.style.width = `${simulatedScore}%`;
+            scoreText.textContent = `${simulatedScore} / 100 점`;
+            
+            checkManagerStage4Complete();
         });
         
         // 런칭 버튼 클릭 (엔딩)
@@ -1326,48 +1451,63 @@ async function initApp() {
     }
 }
 
-// DEV 테스트용 강제 3단계 버튼 로직
-document.getElementById('dev-jump-stage3').onclick = async () => {
-    currentDeptId = 'test-dept-' + Date.now();
-    currentDeptName = '테스트부서';
-    currentRole = '부장';
-    saveSessionState();
-    
-    try {
-        await setDoc(doc(db, 'departments', currentDeptId), {
-            name: currentDeptName,
-            currentStage: 3,
-            startTime: Date.now()
-        }, { merge: true });
-        
-        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-        document.getElementById('screen-4').classList.remove('hidden');
-        startScreen4();
-    } catch(e) {
-        console.error(e);
-    }
-};
+// Removed dev test buttons logic to ensure clean production feel
 
-// DEV 테스트용 강제 4단계 버튼 로직
-document.getElementById('dev-jump-stage4').onclick = async () => {
-    currentDeptId = 'test-dept-' + Date.now();
-    currentDeptName = '테스트부서';
-    currentRole = '부장';
-    saveSessionState();
-    
-    try {
-        await setDoc(doc(db, 'departments', currentDeptId), {
-            name: currentDeptName,
-            currentStage: 4,
-            startTime: Date.now()
-        }, { merge: true });
-        
-        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-        document.getElementById('screen-5').classList.remove('hidden');
-        startScreen5();
-    } catch(e) {
-        console.error(e);
-    }
-};
+// 전체 화면 모아보기 (God Mode)
+const devGodModeBtn = document.getElementById('dev-god-mode');
+if (devGodModeBtn) {
+    let godMode = false;
+    devGodModeBtn.addEventListener('click', () => {
+        godMode = !godMode;
+        if (godMode) {
+            devGodModeBtn.textContent = '❌ 원래대로 복구하기 (새로고침)';
+            devGodModeBtn.style.background = '#ff0055';
+            
+            // 헤더 표시
+            document.getElementById('main-header').classList.remove('hidden');
+            
+            // 모든 스크린 표시 (스플래시, 부서 선택 제외)
+            document.getElementById('screen-splash').classList.add('hidden');
+            document.getElementById('dept-selection').classList.add('hidden');
+            
+            document.querySelectorAll('.screen').forEach(s => {
+                if (s.id !== 'screen-splash' && s.id !== 'dept-selection') {
+                    s.classList.remove('hidden');
+                    s.style.borderBottom = '10px dashed #d4af37';
+                    s.style.paddingBottom = '50px';
+                    s.style.marginBottom = '50px';
+                }
+            });
+            
+            // 모든 부장/팀원 패널, 모달 등 숨김 해제
+            const hideables = [
+                'manager-montage-panel', 'manager-submit-panel',
+                'stage2-employee-panel', 'stage2-manager-panel',
+                'stage3-employee-panel', 'stage3-manager-panel',
+                'stage4-employee-panel', 'stage4-manager-panel',
+                'mission-1-3'
+            ];
+            hideables.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('hidden');
+            });
+            
+            // 스토리 모달창들을 인라인으로 표시
+            document.querySelectorAll('.modal').forEach(m => {
+                m.classList.remove('hidden');
+                m.style.position = 'relative';
+                m.style.background = 'rgba(0,0,0,0.5)';
+                m.style.border = '2px solid #d4af37';
+                m.style.padding = '20px';
+                m.style.margin = '20px 0';
+                m.style.zIndex = '1';
+                m.style.height = 'auto';
+            });
+            
+        } else {
+            location.reload();
+        }
+    });
+}
 
 initApp();

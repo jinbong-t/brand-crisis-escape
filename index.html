@@ -11,12 +11,6 @@
     <link rel="stylesheet" href="style.css?v=1.1">
 </head>
 <body>
-    <!-- DEV 테스트용 강제 이동 버튼 -->
-    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; display: flex; gap: 10px;">
-        <button id="dev-jump-stage3" style="background: #ff0055; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">🚀 3단계로</button>
-        <button id="dev-jump-stage4" style="background: #4caf50; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">🚀 4단계로(엔딩)</button>
-    </div>
-    
     <div id="app-container">
         <!-- 상단 고정 헤더 -->
         <header id="main-header" class="hidden">
@@ -41,6 +35,9 @@
                     <h1 class="splash-title">브랜드 위기 탈출</h1>
                     <p class="splash-subtitle">위기에 빠진 브랜드를 구출하라</p>
                     <button id="btn-enter-game" class="btn-genius pulse-glow">게임 입장</button>
+                    <div style="margin-top: 3rem;">
+                        <button id="btn-easy-reset" class="btn-secondary" style="border-color: #ff4757; color: #ff4757; padding: 0.8rem 1.5rem; font-weight: bold;">💥 모든 데이터 초기화 (처음부터 테스트) 💥</button>
+                    </div>
                 </div>
             </section>
 
@@ -371,9 +368,21 @@
                                 <div class="status-item" id="status-stage3-사원" style="background: rgba(0,0,0,0.5);">사원: <span class="status-icon">❌</span></div>
                                 <div class="status-item" id="status-stage3-차장" style="background: rgba(0,0,0,0.5);">차장: <span class="status-icon">❌</span></div>
                             </div>
-                            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1.5rem; text-align: center;">🗣️ 팀원들의 보고를 종합하여 오지수 모델의 최종 스타일링을 완성하세요!</p>
                             
-                            <div class="paperdoll-studio-container" style="display: flex; gap: 1rem; align-items: flex-start; justify-content: center; margin-top: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                            <!-- 부장 단서 1 (퍼스널 컬러) -->
+                            <div id="stage3-manager-step1" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 id="stage3-manager-title" style="color: #c7a477; margin-bottom: 1rem;"></h4>
+                                <p id="stage3-manager-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
+                                <input type="text" id="stage3-manager-answer-input" placeholder="정답 텍스트 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 60%; margin-bottom: 1rem;">
+                                <br>
+                                <button id="btn-stage3-manager-submit" class="btn-primary" style="width: 60%;">단서 전송</button>
+                            </div>
+
+                            <!-- 부장 단서 2 (종이인형) -->
+                            <div id="stage3-manager-step2" class="hidden">
+                                <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">🗣️ 팀원들이 알아낸 4가지 요소(컬러/선/온도/무늬)에 정확히 맞는 옷을 왼쪽 옷장에서 골라 아바타나 우측 슬롯에 입히세요!</p>
+                                
+                                <div class="paperdoll-studio-container" style="display: flex; gap: 1rem; align-items: flex-start; justify-content: center; margin-top: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">
                                 <!-- 왼쪽: 옷장 (인벤토리) - 나중에 옷 종류가 늘어날 것에 대비해 초소형 패딩 적용 -->
                                 <div class="closet-section" style="flex: 1; background: #e6cfa3; border: 3px solid #8b5a2b; border-radius: 10px; padding: 0.5rem; box-shadow: inset 0 0 10px rgba(139,90,43,0.3);">
                                     <h4 style="text-align: center; color: #5a3a1b; margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 0.9rem;">👗 패션쇼 백스테이지 (Showroom)</h4>
@@ -449,6 +458,7 @@
                                 <button id="btn-submit-stage3" class="btn-primary" style="width: 100%; max-width: 400px;" disabled>스타일링 확정 및 런칭쇼 준비!</button>
                                 <p id="manager-error-msg-stage3" class="error-text hidden" style="margin-top: 1rem;">오답입니다! 팀원들이 알아낸 4가지 요소가 정확히 선택되었는지 확인하세요!</p>
                             </div>
+                            </div> <!-- End stage3-manager-step2 -->
                         </div>
                     </div>
                 </div>
@@ -482,8 +492,8 @@
                             <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
                             <p id="stage4-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem; margin-bottom: 1.5rem;"></p>
                             
-                            <div id="stage4-options-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
-                                <!-- JS에서 라디오 버튼 옵션 생성 -->
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="text" id="stage4-answer-input" placeholder="정답 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
                             </div>
                             
                             <button id="btn-stage4-submit" class="btn-primary" style="width: 80%;">기획안 제출 (+환경 점수)</button>
@@ -495,7 +505,39 @@
                         <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; border: 2px solid var(--accent-gold); padding: 2rem;">
                             <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem; font-size: 1.8rem;">🌍 환경 점수 현황판</h3>
                             <p style="font-size: 1rem; color: #ccc; margin-bottom: 2rem; text-align: center;">팀원들이 T.P.O에 맞는 올바른 친환경 기획안을 제출하면 점수가 오릅니다.</p>
+                            <!-- 부장 기획 1: TPO 종합 -->
+                            <div id="stage4-manager-step1" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 id="stage4-manager-step1-title" style="color: #c7a477; margin-bottom: 1rem;"></h4>
+                                <p id="stage4-manager-step1-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
+                                <input type="text" id="stage4-manager-step1-input" placeholder="정답 텍스트 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 60%; margin-bottom: 1rem;">
+                                <br>
+                                <button id="btn-stage4-manager-step1" class="btn-primary" style="width: 60%;">단서 전송</button>
+                            </div>
                             
+                            <!-- 5R 드래그 앤 드롭 퍼즐 영역 -->
+                            <div id="stage4-5r-puzzle" class="hidden" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: #c7a477; margin-bottom: 1rem;">1. 5R 순서 조립</h4>
+                                <div id="5r-options" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    <div class="5r-item" draggable="true" data-val="거절하기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">거절하기</div>
+                                    <div class="5r-item" draggable="true" data-val="줄이기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">줄이기</div>
+                                    <div class="5r-item" draggable="true" data-val="재사용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재사용</div>
+                                    <div class="5r-item" draggable="true" data-val="수선" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">수선</div>
+                                    <div class="5r-item" draggable="true" data-val="재활용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재활용</div>
+                                </div>
+                                <div id="5r-slots" style="display: flex; gap: 10px; justify-content: center;">
+                                    <div class="5r-slot" data-index="0" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">1순위</div>
+                                    <div class="5r-slot" data-index="1" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">2순위</div>
+                                    <div class="5r-slot" data-index="2" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">3순위</div>
+                                    <div class="5r-slot" data-index="3" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">4순위</div>
+                                    <div class="5r-slot" data-index="4" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">5순위</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: #c7a477; margin-bottom: 1rem;">2. 환경 점수 합산</h4>
+                                <input type="number" id="stage4-manager-score-input" placeholder="총합 점수 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
+                            </div>
+
                             <!-- 게이지 바 -->
                             <div style="width: 100%; background: #333; border-radius: 20px; height: 40px; border: 2px solid var(--accent-gold); position: relative; overflow: hidden; margin-bottom: 1rem;">
                                 <div id="eco-score-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
@@ -503,9 +545,9 @@
                             </div>
                             
                             <div id="team-status-board-stage4" style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; flex-wrap: wrap;">
-                                <div class="status-item" id="status-stage4-인턴" style="background: rgba(0,0,0,0.5);">Time (인턴): <span class="status-icon">❌</span></div>
-                                <div class="status-item" id="status-stage4-사원" style="background: rgba(0,0,0,0.5);">Place (사원): <span class="status-icon">❌</span></div>
-                                <div class="status-item" id="status-stage4-차장" style="background: rgba(0,0,0,0.5);">Occasion (차장): <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage4-인턴" style="background: rgba(0,0,0,0.5);">인턴: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage4-사원" style="background: rgba(0,0,0,0.5);">사원: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage4-차장" style="background: rgba(0,0,0,0.5);">차장: <span class="status-icon">❌</span></div>
                             </div>
                             
                             <div style="text-align: center;">
@@ -545,6 +587,36 @@
                         팀원들과 단서를 모아 진짜 원단이 무엇인지 알아내세요!
                     </p>
                     <button id="btn-start-stage1-missions" class="btn-primary" style="width: 100%;">단서 확인하기 🔍</button>
+                </div>
+            </div>
+
+            <!-- 실천적 추론 (키워드 자물쇠) 모달 -->
+            <div id="reasoning-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 800px; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 id="reasoning-title" style="color: var(--accent-gold); margin-bottom: 1rem;">실천적 추론</h2>
+                    <div id="reasoning-intro" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem; text-align: left;"></div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                        <!-- 왼쪽: 키워드 풀 -->
+                        <div style="flex: 1; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                            <h4 style="color: #c7a477; margin-bottom: 1rem;">흩어진 단어 조각 (드래그)</h4>
+                            <div id="reasoning-keywords" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                                <!-- JS에서 동적 생성 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 오른쪽: 자물쇠 문장 -->
+                        <div style="flex: 1.5; border: 1px solid var(--accent-gold); padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.5);">
+                            <h4 style="color: #c7a477; margin-bottom: 1rem;">최종 결정문 조립 (부장 전용)</h4>
+                            <div id="reasoning-sentence" style="line-height: 2; font-size: 1.1rem; text-align: left;">
+                                <!-- JS에서 동적 생성 (빈칸 포함) -->
+                            </div>
+                            <div style="margin-top: 1.5rem; text-align: center;">
+                                <button id="btn-submit-reasoning" class="btn-primary" style="display: none;">자물쇠 풀기</button>
+                                <p id="reasoning-error" class="error-text hidden" style="margin-top: 0.5rem;">논리에 맞지 않는 단어가 있습니다. 다시 의논하세요!</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
