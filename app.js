@@ -288,6 +288,10 @@ btnResetDepts.addEventListener('click', async () => {
         }
         
         localStorage.removeItem('rebrand_departments');
+        clearSessionState();
+        currentDeptId = null;
+        currentRole = null;
+        
         alert("초기화되었습니다.");
         location.reload();
     }
