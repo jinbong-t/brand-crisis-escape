@@ -591,7 +591,7 @@ async function initApp() {
         try {
             const snap = await getDoc(doc(db, 'departments', currentDeptId));
             if (snap.exists()) {
-                const stage = snap.data().currentStage;
+                const stage = snap.data().currentStage || 0; // 하위 호환성 (과거에 생성된 부서는 0단계로)
                 
                 deptSelection.classList.add('hidden');
                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
