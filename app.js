@@ -313,12 +313,12 @@ function renderOpeningCards() {
         card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; border: 2px solid var(--accent-gold);">
-                    <!-- 앞면은 숨겨진 상태 (배경 이미지나 패턴) -->
-                    <span style="background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px; font-weight: bold;">조사 카드</span>
+                    <!-- 앞면은 숨겨진 상태 -->
+                    <span style="background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px; font-weight: bold; color: white;">조사 카드</span>
                 </div>
-                <div class="flip-card-back" style="display: flex; flex-direction: column; justify-content: space-between;">
-                    <span style="font-size: 0.8rem; font-family: 'Noto Sans KR'; font-weight: normal; word-break: keep-all; line-height: 1.4; flex-grow: 1; display: flex; align-items: center;">${cardData.text}</span>
-                    <span style="font-size: 2rem; border-top: 1px solid rgba(212,175,55,0.3); margin-top: 5px; padding-top: 5px;">${cardData.back}</span>
+                <div class="flip-card-back" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1rem;">
+                    <span style="font-size: 0.85rem; font-family: 'Noto Sans KR'; font-weight: 500; word-break: keep-all; line-height: 1.5; color: var(--text-main);">${cardData.text}</span>
+                    <!-- 숫자는 화면에 보여주지 않고 오직 정렬 순서 체크용으로만 사용합니다 -->
                 </div>
             </div>
         `;
