@@ -305,8 +305,19 @@ skipButtons.forEach(btn => {
                     startTime: Date.now()
                 }, { merge: true });
                 
-                alert(`이동 완료! (화면 미구현 시 빈 화면이 뜰 수 있습니다)`);
-                // TODO: 스킵 시 화면 전환 렌더링 함수 호출 로직 구현 예정
+                // 모달 닫기
+                adminModal.classList.add('hidden');
+                
+                // 모든 화면 숨기기
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                
+                if (targetStage === 0) {
+                    screen1.classList.remove('hidden');
+                    startScreen1();
+                } else {
+                    alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱 🛠️`);
+                }
+                
             } catch(e) {
                 console.error(e);
             }
