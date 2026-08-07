@@ -107,6 +107,27 @@ body {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* 3단계 드래그 아이템 */
+.draggable-item {
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+    cursor: grab;
+    user-select: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: transform 0.1s;
+}
+
+.draggable-item:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.draggable-item.dragging {
+    opacity: 0.5;
+}
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

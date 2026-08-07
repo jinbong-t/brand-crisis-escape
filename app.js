@@ -351,6 +351,9 @@ skipButtons.forEach(btn => {
                 } else if (targetStage === 2) {
                     document.getElementById('screen-3').classList.remove('hidden');
                     startScreen3();
+                } else if (targetStage === 3) {
+                    document.getElementById('screen-4').classList.remove('hidden');
+                    startScreen4();
                 } else {
                     alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱 🛠️`);
                 }
@@ -879,6 +882,179 @@ function startScreen3() {
     }
 }
 
+// ==========================================
+// Screen 4: 3단계 (스타일링실) 로직
+// ==========================================
+function startScreen4() {
+    mainHeader.classList.remove('hidden');
+    currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
+    document.getElementById('display-current-role-stage3').textContent = currentRole;
+    
+    // 모달 띄우기
+    const storyModal = document.getElementById('stage3-story-modal');
+    storyModal.classList.remove('hidden');
+    document.getElementById('stage3-intro-text').innerText = PUZZLE_DATA.stage3.intro;
+    
+    document.getElementById('btn-start-stage3-missions').onclick = () => {
+        storyModal.classList.add('hidden');
+    };
+    
+    const puzzleData = PUZZLE_DATA.stage3.puzzles[currentRole];
+    
+    if (currentRole === '부장') {
+        document.getElementById('stage3-employee-panel').classList.add('hidden');
+        document.getElementById('stage3-manager-panel').classList.remove('hidden');
+        
+        // 부장 현황판 리스너
+        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+            const roles = ['인턴', '사원', '차장'];
+            roles.forEach(role => {
+                const statusEl = document.getElementById(`status-stage3-${role}`);
+                if (!statusEl) return;
+                
+                const roleDoc = snapshot.docs.find(d => d.id === role);
+                const isConfirmed = roleDoc && roleDoc.data().stage3Confirmed;
+                
+                if (isConfirmed) {
+                    statusEl.classList.add('done');
+                    statusEl.querySelector('.status-icon').textContent = '✅';
+                    statusEl.style.background = 'rgba(0,100,0,0.5)';
+                } else {
+                    statusEl.classList.remove('done');
+                    statusEl.querySelector('.status-icon').textContent = '❌';
+                    statusEl.style.background = 'rgba(0,0,0,0.5)';
+                }
+            });
+        });
+        
+        // 드래그 앤 드롭 로직
+        const draggables = document.querySelectorAll('.draggable-item');
+        const dropzone = document.getElementById('mannequin-dropzone');
+        const droppedContainer = document.getElementById('dropped-items-container');
+        const btnSubmit = document.getElementById('btn-submit-stage3');
+        const btnReset = document.getElementById('btn-reset-mannequin');
+        const errorMsg = document.getElementById('manager-error-msg-stage3');
+        
+        let droppedItems = {}; // { color: '쿨톤', line: '세로선', ... }
+        
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                e.dataTransfer.setData('type', item.getAttribute('data-type'));
+                e.dataTransfer.setData('value', item.getAttribute('data-value'));
+                e.dataTransfer.setData('html', item.innerHTML);
+                e.dataTransfer.setData('bg', item.style.background);
+                e.dataTransfer.setData('color', item.style.color);
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+        });
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault(); // 드롭 허용
+            dropzone.style.borderColor = 'white';
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = 'var(--accent-gold)';
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'var(--accent-gold)';
+            
+            const type = e.dataTransfer.getData('type');
+            const value = e.dataTransfer.getData('value');
+            const html = e.dataTransfer.getData('html');
+            const bg = e.dataTransfer.getData('bg');
+            const color = e.dataTransfer.getData('color');
+            
+            if (!type || droppedItems[type]) return; // 이미 같은 타입(예: 컬러)이 있으면 추가 불가
+            
+            droppedItems[type] = value;
+            
+            // 시각적 추가
+            const el = document.createElement('div');
+            el.style.background = bg;
+            el.style.color = color;
+            el.style.padding = '0.5rem';
+            el.style.borderRadius = '4px';
+            el.style.textAlign = 'center';
+            el.style.fontWeight = 'bold';
+            el.style.fontSize = '0.9rem';
+            el.innerHTML = html;
+            droppedContainer.appendChild(el);
+            
+            // 4개가 모이면 제출 활성화
+            if (Object.keys(droppedItems).length === 4) {
+                btnSubmit.disabled = false;
+            }
+        });
+        
+        btnReset.onclick = () => {
+            droppedItems = {};
+            droppedContainer.innerHTML = '';
+            btnSubmit.disabled = true;
+            errorMsg.classList.add('hidden');
+        };
+        
+        btnSubmit.onclick = () => {
+            // 정답 확인: 쿨톤, 세로선, 한색, 작은무늬
+            if (droppedItems['color'] === '쿨톤' && 
+                droppedItems['line'] === '세로선' && 
+                droppedItems['temp'] === '한색' && 
+                droppedItems['pattern'] === '작은무늬') {
+                
+                errorMsg.classList.add('hidden');
+                alert("🎉 완벽합니다! 오지수 모델의 체형과 톤을 완벽하게 보완한 스타일링이 완성되었습니다!\n\n(4단계 런칭쇼 대기실로 이동합니다.)");
+                btnSubmit.disabled = true;
+                
+                updateDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: 4
+                }).catch(e => console.error(e));
+                
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        };
+        
+    } else {
+        // 사원/인턴/차장
+        document.getElementById('stage3-employee-panel').classList.remove('hidden');
+        document.getElementById('stage3-manager-panel').classList.add('hidden');
+        
+        document.getElementById('stage3-puzzle-title').textContent = puzzleData.title;
+        document.getElementById('stage3-puzzle-text').textContent = puzzleData.text;
+        document.getElementById('stage3-puzzle-hint').textContent = `힌트: ${puzzleData.hint}`;
+        
+        const btnSubmit = document.getElementById('btn-stage3-submit');
+        const input = document.getElementById('stage3-answer-input');
+        
+        btnSubmit.onclick = async () => {
+            if (input.value.replace(/\s+/g, '') === puzzleData.answer) {
+                alert(`정확한 단서를 찾았습니다! 당신이 찾은 단서 [ ${puzzleData.answer} ] 를 부장님에게 알려주세요!`);
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = "전송 완료 (대기 중)";
+                input.disabled = true;
+                
+                // Firebase 업데이트
+                try {
+                    await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                        stage3Confirmed: true,
+                        stage3Answer: puzzleData.answer
+                    }, { merge: true });
+                } catch(e) {
+                    console.error(e);
+                }
+                
+            } else {
+                alert("오답입니다. 힌트를 다시 확인해보세요!");
+            }
+        };
+    }
+}
+
 // 초기화 함수
 async function initApp() {
     renderDeptGrid();
@@ -909,8 +1085,14 @@ async function initApp() {
                             s3.classList.remove('hidden');
                             startScreen3();
                         }
+                    } else if (stage === 3) {
+                        const s4 = document.getElementById('screen-4');
+                        if (s4) {
+                            s4.classList.remove('hidden');
+                            startScreen4();
+                        }
                     } else {
-                        // 3단계 이상
+                        // 4단계 이상
                         alert(`축하합니다! ${stage}단계에 진입하셨습니다. (화면 준비 중)`);
                     }
                 } else {
