@@ -353,7 +353,7 @@ function startScreen1() {
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
 
     // 인트로 영상/모달 띄우기
-    introText.textContent = PUZZLE_DATA.opening.introText;
+    introText.innerHTML = PUZZLE_DATA.opening.introText;
     introModal.classList.remove('hidden');
     // 영상 자동 재생 시도
     if (introVideo) {
