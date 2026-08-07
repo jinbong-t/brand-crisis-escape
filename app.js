@@ -284,18 +284,29 @@ const skipButtons = document.querySelectorAll('.btn-skip');
 skipButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
         const targetStage = parseInt(btn.getAttribute('data-target'));
-        if (!currentDeptId) {
-            alert("부서와 직급을 먼저 선택한 상태에서 스킵해 주세요!");
-            return;
+        
+        if (!currentDeptId || !currentRole) {
+            const forceTest = confirm("현재 선택된 부서나 직급이 없습니다! 테스트용 '테스트부서-부장' 권한으로 강제 입장하시겠습니까?");
+            if (forceTest) {
+                currentDeptId = 'test-dept-' + Date.now(); // 임시 부서 생성
+                currentDeptName = '테스트부서';
+                currentRole = '부장';
+            } else {
+                return;
+            }
         }
         
         if (confirm(`${targetStage}단계로 강제 이동하시겠습니까?`)) {
             try {
-                await updateDoc(doc(db, 'departments', currentDeptId), {
-                    currentStage: targetStage
-                });
-                alert(`이동 신호를 보냈습니다. (화면 미구현 시 오류가 날 수 있습니다)`);
-                // location.reload(); 또는 렌더링 함수 호출
+                // 부서 문서가 없으면 임시 생성
+                await setDoc(doc(db, 'departments', currentDeptId), {
+                    name: currentDeptName,
+                    currentStage: targetStage,
+                    startTime: Date.now()
+                }, { merge: true });
+                
+                alert(`이동 완료! (화면 미구현 시 빈 화면이 뜰 수 있습니다)`);
+                // TODO: 스킵 시 화면 전환 렌더링 함수 호출 로직 구현 예정
             } catch(e) {
                 console.error(e);
             }
