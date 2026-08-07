@@ -161,13 +161,27 @@
                             </div>
                         </div>
 
-                        <!-- 1-2. 원단 교집합 찾기 -->
+                        <!-- 1-2. 원단 선별 (직급별 비대칭 단서) -->
                         <div class="mission-card" id="mission-1-2">
                             <h3>[미션 2] 진짜 원단을 가려내라</h3>
                             <div class="clue-box">
-                                <h4 id="fabric-clue-title" style="color: var(--accent-gold); margin-bottom: 0.5rem;">기준 제목</h4>
-                                <p id="fabric-clue-text" style="font-size: 1.05rem; margin-bottom: 1rem; font-style: italic;">단서 내용</p>
-                                <div id="fabric-options" class="options-group">
+                                <h4 id="fabric-clue-title" style="margin-bottom: 0.5rem; color: var(--accent-gold);">물 사용량 기준</h4>
+                                <p id="fabric-clue-text" style="font-size: 1rem; margin-bottom: 1rem; white-space: pre-line;">"단서 텍스트가 여기에 표시됩니다."</p>
+                                
+                                <!-- 학생들에게 제공되는 공통 데이터베이스 표 -->
+                                <div style="margin-bottom: 1rem; background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px;">
+                                    <h4 style="margin-bottom: 0.5rem; color: #a4b0be;">[참고 자료: 원단 환경 성분표]</h4>
+                                    <table class="clue-table" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem;">
+                                        <tr style="background: rgba(255,255,255,0.1);"><th>원단명</th><th>물 사용량</th><th>재활용 여부</th><th>유해물질 배출</th></tr>
+                                        <tr><td>원단 E</td><td>낮음</td><td>가능</td><td>있음</td></tr>
+                                        <tr><td>원단 F</td><td>높음</td><td>가능</td><td>없음</td></tr>
+                                        <tr><td>원단 G</td><td>낮음</td><td>불가능</td><td>없음</td></tr>
+                                        <tr><td>원단 H</td><td style="color:var(--accent-gold);">낮음</td><td style="color:var(--accent-gold);">가능</td><td style="color:var(--accent-gold);">없음</td></tr>
+                                        <tr><td>원단 I</td><td>높음</td><td>불가능</td><td>있음</td></tr>
+                                    </table>
+                                </div>
+
+                                <div class="options-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
                                     <button class="btn-secondary fabric-btn" data-val="E">원단 E</button>
                                     <button class="btn-secondary fabric-btn" data-val="F">원단 F</button>
                                     <button class="btn-secondary fabric-btn" data-val="G">원단 G</button>
