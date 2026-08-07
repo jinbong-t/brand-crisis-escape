@@ -143,7 +143,6 @@
                                 <div id="montage-options" class="options-group">
                                     <!-- JS 렌더링 -->
                                 </div>
-                                <button id="btn-montage-confirm" class="btn-primary" style="margin-top: 1rem; display: none;">확인 완료 (부장에게 전달)</button>
                                 
                                 <!-- 부장 전용 -->
                                 <div id="manager-montage-panel" class="hidden manager-panel" style="margin-top: 1rem;">
@@ -158,6 +157,35 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 1-2. 원단 교집합 찾기 -->
+                        <div class="mission-card" id="mission-1-2">
+                            <h3>[미션 2] 진짜 원단을 가려내라</h3>
+                            <div class="clue-box">
+                                <h4 id="fabric-clue-title" style="color: var(--accent-gold); margin-bottom: 0.5rem;">기준 제목</h4>
+                                <p id="fabric-clue-text" style="font-size: 1.05rem; margin-bottom: 1rem; font-style: italic;">단서 내용</p>
+                                <div id="fabric-options" class="options-group">
+                                    <button class="btn-secondary fabric-btn" data-val="E">원단 E</button>
+                                    <button class="btn-secondary fabric-btn" data-val="F">원단 F</button>
+                                    <button class="btn-secondary fabric-btn" data-val="G">원단 G</button>
+                                    <button class="btn-secondary fabric-btn" data-val="H">원단 H</button>
+                                    <button class="btn-secondary fabric-btn" data-val="I">원단 I</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1-3. 실천적 추론 -->
+                        <div class="mission-card" id="mission-1-3">
+                            <h3>[미션 3] 실천적 추론</h3>
+                            <div class="clue-box">
+                                <div id="reasoning-context" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; line-height: 1.6;">
+                                </div>
+                                <h4 id="reasoning-role-label" style="color: var(--accent-gold); margin-bottom: 0.5rem;">입장 정리</h4>
+                                <textarea id="reasoning-textarea" placeholder="이곳에 의견을 자유롭게 서술해 주세요. (최소 15자 이상, '환경' 등 관련 키워드 포함)" style="width: 100%; height: 100px; padding: 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border-color); border-radius: 4px; resize: vertical;"></textarea>
+                            </div>
+                        </div>
+
+                        <button id="btn-stage1-confirm-all" class="btn-primary" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem; width: 100%;">이 화면의 단서 확인 완료 (부장에게 전달)</button>
 
                         <!-- 부장 전용 팀원 확인 현황판 및 최종 제출 -->
                         <div id="manager-submit-panel" class="hidden mission-card" style="border: 2px solid var(--accent-gold); background: rgba(212, 175, 55, 0.1);">
@@ -183,6 +211,20 @@
                     </div>
                 </div>
             </section>
+            <!-- 1단계 스토리 모달 -->
+            <div id="stage1-story-modal" class="modal hidden">
+                <div class="modal-content" style="background: rgba(10, 10, 10, 0.95); border: 2px solid var(--accent-gold); max-width: 600px;">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">디자인요소실 진입</h2>
+                    <p style="line-height: 1.6; margin-bottom: 1rem; font-size: 1.1rem; text-align: left;">
+                        비밀번호가 풀리며 문이 열립니다. 이곳은 <strong>디자인요소실</strong>입니다.<br><br>
+                        한서연 디자이너가 진짜 컬렉션 원단을 숨겨둔 첫 번째 방입니다.<br>
+                        하지만 강태오 대표가 고용한 사람들이 이미 방을 헤집어 놓았습니다.<br><br>
+                        다행히 바닥에 찢어진 목격자 진술서 조각들과, 5개의 보조 원단 후보들이 떨어져 있습니다.<br>
+                        팀원들과 단서를 모아 진짜 원단이 무엇인지 알아내세요!
+                    </p>
+                    <button id="btn-start-stage1-missions" class="btn-primary" style="width: 100%;">단서 확인하기 🔍</button>
+                </div>
+            </div>
         </main>
     </div>
 

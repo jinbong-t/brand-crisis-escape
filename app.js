@@ -533,7 +533,14 @@ function startScreen2() {
     
     document.getElementById('display-current-role').textContent = currentRole;
     
-    // 몽타주 미션 세팅
+    // 1단계 스토리 모달 띄우기
+    document.getElementById('stage1-story-modal').classList.remove('hidden');
+    
+    document.getElementById('btn-start-stage1-missions').onclick = () => {
+        document.getElementById('stage1-story-modal').classList.add('hidden');
+    };
+    
+    // 미션 1-1 (몽타주) 세팅
     const montageData = PUZZLE_DATA.stage1.montage[currentRole];
     document.getElementById('montage-clue-text').textContent = montageData.text;
     
@@ -546,15 +553,29 @@ function startScreen2() {
         btn.addEventListener('click', () => {
             optionsContainer.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            document.getElementById('btn-montage-confirm').style.display = 'block';
         });
         optionsContainer.appendChild(btn);
     });
 
+    // 미션 1-2 (원단 교집합) 세팅
+    const fabricData = PUZZLE_DATA.stage1.fabricStandards[currentRole];
+    document.getElementById('fabric-clue-title').textContent = fabricData.title;
+    document.getElementById('fabric-clue-text').textContent = fabricData.text;
+    
+    document.querySelectorAll('.fabric-btn').forEach(btn => {
+        // 복수 선택 가능하도록 토글
+        btn.onclick = () => btn.classList.toggle('selected');
+    });
+
+    // 미션 1-3 (실천적 추론) 세팅
+    const reasoningData = PUZZLE_DATA.stage1.reasoning;
+    document.getElementById('reasoning-context').innerHTML = reasoningData.context.replace(/\n/g, '<br>');
+    document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
+
     if (currentRole === '부장') {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
-        document.getElementById('btn-montage-confirm').style.display = 'none'; // 부장은 현황판에서 확인
+        document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부장은 전체 제출 창 이용
     } else {
         document.getElementById('manager-montage-panel').classList.add('hidden');
         document.getElementById('manager-submit-panel').classList.add('hidden');
