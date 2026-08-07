@@ -88,7 +88,12 @@
                 
                 <div id="intro-modal" class="modal hidden">
                     <div class="modal-content" style="max-width: 600px; position: relative; padding-bottom: 4rem;">
-                        <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 1rem; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
+                        <h3 style="margin-bottom: 1rem; text-align: center;">사건의 시작</h3>
+                        <video id="intro-video" controls width="100%" class="intro-video-player" style="margin-bottom: 1rem; border-radius: 8px;">
+                            <source src="인트로영상_컴.mp4" type="video/mp4">
+                            브라우저가 비디오 태그를 지원하지 않습니다.
+                        </video>
+                        <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 1rem; max-height: 30vh; overflow-y: auto; padding-right: 10px;">
                             <!-- JS에서 문단별로 렌더링 -->
                         </div>
                         <button id="btn-intro-next" class="btn-primary" style="position: absolute; bottom: 1.5rem; right: 1.5rem;">다음 ▶</button>
