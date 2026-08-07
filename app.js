@@ -832,15 +832,21 @@ function startScreen3() {
         });
         
         // 부장 금고 가동 버튼
-        document.getElementById('btn-submit-stage2').onclick = () => {
+        document.getElementById('btn-submit-stage2').onclick = async () => {
             const pw = document.getElementById('manager-vault-pw').value;
             if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
-                alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이어집니다. 3단계는 추후 업데이트 됩니다!)");
-                // 3단계 업데이트 로직 연결 필요
-                updateDoc(doc(db, 'departments', currentDeptId), {
-                    currentStage: 3
-                }).catch(e => console.error(e));
+                
+                // Firestore를 먼저 업데이트하여 다른 팀원들의 화면이 넘어가게 함
+                try {
+                    await updateDoc(doc(db, 'departments', currentDeptId), {
+                        currentStage: 3
+                    });
+                    
+                    alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이동합니다.)");
+                } catch(e) {
+                    console.error(e);
+                }
             } else {
                 document.getElementById('manager-error-msg-stage2').classList.remove('hidden');
             }
