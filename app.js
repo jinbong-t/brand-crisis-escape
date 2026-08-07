@@ -606,8 +606,17 @@ async function initApp() {
                         startScreen2();
                     }
                 }
+            } else {
+                // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
+                clearSessionState();
+                currentDeptId = null;
+                currentRole = null;
+                // 스플래시 화면 유지됨
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error(e); 
+            clearSessionState();
+        }
     }
 }
 
