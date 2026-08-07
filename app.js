@@ -587,25 +587,22 @@ function startScreen2() {
         btn.addEventListener('click', () => {
             optionsContainer.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
+            
+            if (btn.textContent === montageData.answer) {
+                alert('정답입니다! 다음 미션이 열렸습니다.');
+                optionsContainer.querySelectorAll('button').forEach(b => b.disabled = true);
+                const m2 = document.getElementById('mission-1-2');
+                if (m2) {
+                    m2.classList.remove('hidden');
+                    m2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } else {
+                alert('틀렸습니다. 단서를 다시 확인해보세요.');
+                btn.classList.remove('selected');
+            }
         });
         optionsContainer.appendChild(btn);
     });
-
-    document.getElementById('btn-submit-mission-1-1').onclick = () => {
-        const selected = optionsContainer.querySelector('button.selected');
-        if (!selected) {
-            alert('항목을 선택해주세요.');
-            return;
-        }
-        if (selected.textContent === montageData.answer) {
-            alert('정답입니다! 다음 미션으로 진행하세요.');
-            document.getElementById('btn-submit-mission-1-1').disabled = true;
-            document.getElementById('btn-submit-mission-1-1').textContent = '제출 완료';
-            // Firebase에 상태 저장 가능
-        } else {
-            alert('틀렸습니다. 단서를 다시 확인해보세요.');
-        }
-    };
 
     // 미션 1-2 (원단 교집합) 세팅
     const fabricData = PUZZLE_DATA.stage1.fabricStandards[currentRole];
@@ -637,7 +634,13 @@ function startScreen2() {
             alert('정답입니다! 훌륭하게 원단을 골라냈습니다.');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
             document.getElementById('btn-submit-mission-1-2').textContent = '제출 완료';
-            // Firebase에 상태 저장 가능
+            document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
+            
+            const m3 = document.getElementById('mission-1-3');
+            if (m3) {
+                m3.classList.remove('hidden');
+                m3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         } else {
             alert('틀렸습니다. 성분표와 조건을 다시 한번 꼼꼼히 확인하세요.');
         }

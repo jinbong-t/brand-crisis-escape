@@ -80,7 +80,7 @@ body {
 }
 
 .mission-card {
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
@@ -519,6 +519,10 @@ input:focus {
     cursor: pointer;
 }
 .btn-secondary:hover { background-color: var(--bg-panel-hover); }
+.btn-secondary.selected {
+    background-color: var(--accent-gold);
+    color: var(--bg-dark);
+}
 
 .btn-text {
     background: none; border: none;

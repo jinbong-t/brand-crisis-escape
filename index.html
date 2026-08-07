@@ -130,7 +130,8 @@
 
             <!-- Screen 2 (1단계: 디자인요소실) -->
             <section id="screen-2" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
-                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto;">
+                <style>.glass-overlay::-webkit-scrollbar { display: none; }</style>
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <header class="stage-header">
                         <h2>1단계: 디자인요소실 🔍</h2>
                         <div id="role-badge" class="badge">현재 역할: <span id="display-current-role">인턴</span></div>
@@ -145,10 +146,6 @@
                                 <p id="montage-clue-text" style="font-size: 1.1rem; margin-bottom: 1rem; font-style: italic;">"단서 텍스트가 여기에 표시됩니다."</p>
                                 <div id="montage-options" class="options-group">
                                     <!-- JS 렌더링 -->
-                                </div>
-                                
-                                <div style="margin-top: 1rem; text-align: center;">
-                                    <button id="btn-submit-mission-1-1" class="btn-primary">정답 제출하기</button>
                                 </div>
                                 
                                 <!-- 부장 전용 -->
@@ -166,7 +163,7 @@
                         </div>
 
                         <!-- 1-2. 원단 선별 (직급별 비대칭 단서) -->
-                        <div class="mission-card" id="mission-1-2">
+                        <div class="mission-card hidden" id="mission-1-2">
                             <h3>[미션 2] 진짜 원단을 가려내라</h3>
                             <div class="clue-box">
                                 <h4 id="fabric-clue-title" style="margin-bottom: 0.5rem; color: var(--accent-gold);">물 사용량 기준</h4>
@@ -200,8 +197,8 @@
                         </div>
 
                         <!-- 1-3. 실천적 추론 -->
-                        <div class="mission-card" id="mission-1-3">
-                            <h3>[미션 3] 실천적 추론</h3>
+                        <div class="mission-card hidden" id="mission-1-3">
+                            <h3>[미션 3] 실천적 추론 - 대표의 쪽지</h3>
                             <div class="clue-box">
                                 <div id="reasoning-context" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; line-height: 1.6;">
                                 </div>
