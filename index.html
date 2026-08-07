@@ -125,7 +125,64 @@
                 </div>
             </section>
 
-            <!-- 다른 화면들은 app.js 개발 시 추가 -->
+            <!-- Screen 2 (1단계: 디자인요소실) -->
+            <section id="screen-2" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto;">
+                    <header class="stage-header">
+                        <h2>1단계: 디자인요소실 🔍</h2>
+                        <div id="role-badge" class="badge">현재 역할: <span id="display-current-role">인턴</span></div>
+                    </header>
+
+                    <!-- 미션 컨테이너 -->
+                    <div class="mission-container">
+                        <!-- 1-1. 몽타주 추리 (직급별 비대칭 단서) -->
+                        <div class="mission-card" id="mission-1-1">
+                            <h3>[미션 1] 목격자의 몽타주 조각</h3>
+                            <div class="clue-box">
+                                <p id="montage-clue-text" style="font-size: 1.1rem; margin-bottom: 1rem; font-style: italic;">"단서 텍스트가 여기에 표시됩니다."</p>
+                                <div id="montage-options" class="options-group">
+                                    <!-- JS 렌더링 -->
+                                </div>
+                                <button id="btn-montage-confirm" class="btn-primary" style="margin-top: 1rem; display: none;">확인 완료 (부장에게 전달)</button>
+                                
+                                <!-- 부장 전용 -->
+                                <div id="manager-montage-panel" class="hidden manager-panel" style="margin-top: 1rem;">
+                                    <h4 style="margin-bottom: 0.5rem; color: var(--accent-gold);">전체 원단 대조표 (부장 전용)</h4>
+                                    <table class="clue-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                                        <tr style="background: rgba(0,0,0,0.3);"><th>원단</th><th>선</th><th>색</th><th>재질</th><th>무늬</th></tr>
+                                        <tr><td>A</td><td>세로선</td><td>난색</td><td>부드러운</td><td>큰무늬</td></tr>
+                                        <tr><td>B</td><td>세로선</td><td>한색</td><td>뻣뻣한</td><td>작은무늬</td></tr>
+                                        <tr><td>C</td><td>가로선</td><td>한색</td><td>뻣뻣한</td><td>큰무늬</td></tr>
+                                        <tr><td>D</td><td>가로선</td><td>난색</td><td>부드러운</td><td>작은무늬</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 부장 전용 팀원 확인 현황판 및 최종 제출 -->
+                        <div id="manager-submit-panel" class="hidden mission-card" style="border: 2px solid var(--accent-gold); background: rgba(212, 175, 55, 0.1);">
+                            <h3>👑 팀원 확인 현황 및 최종 제출</h3>
+                            <div id="team-status-board" style="display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-intern">인턴: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-clerk">사원: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-deputy">차장: <span class="status-icon">❌</span></div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem; text-align: center;">모든 팀원이 단서 확인을 완료해야 최종 제출이 가능합니다.</p>
+                            <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                <select id="manager-final-answer" class="manager-select" style="padding: 0.5rem; background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--accent-gold); border-radius: 4px;">
+                                    <option value="">진짜 원단 선택</option>
+                                    <option value="A">원단 A</option>
+                                    <option value="B">원단 B</option>
+                                    <option value="C">원단 C</option>
+                                    <option value="D">원단 D</option>
+                                </select>
+                                <button id="btn-submit-stage1" class="btn-primary" disabled>최종 정답 제출</button>
+                            </div>
+                            <p id="manager-error-msg" class="error-text hidden" style="text-align: center; margin-top: 1rem;">오답입니다! 팀원들의 단서를 다시 확인해보세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 

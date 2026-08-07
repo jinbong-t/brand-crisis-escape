@@ -38,6 +38,10 @@ body {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
 @keyframes titleGlow {
     0% { text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(212, 175, 55, 0.3); }
@@ -64,6 +68,62 @@ body {
 }
 .glow-text {
     text-shadow: 0 0 15px rgba(255,255,255,0.7), 0 0 30px rgba(255,255,255,0.4);
+}
+
+/* 1단계 (Stage 1) 스타일 */
+.mission-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.mission-card {
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.mission-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--accent-gold);
+    font-family: var(--font-heading);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+.options-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.options-group button {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.8rem;
+}
+
+.clue-table th, .clue-table td {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.status-item {
+    background: rgba(255,255,255,0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+}
+.status-item.done {
+    background: rgba(0, 200, 80, 0.2);
+    color: #4ade80;
+    border: 1px solid #4ade80;
 }
 
 /* 다이어리 페이지 넘김 효과 */
