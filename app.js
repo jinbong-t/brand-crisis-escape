@@ -21,10 +21,9 @@ const pinErrorMsg = document.getElementById('pin-error-msg');
 const pinEntrySection = document.getElementById('pin-entry-section');
 const adminDashboardSection = document.getElementById('admin-dashboard-section');
 const adminDeptList = document.getElementById('admin-dept-list');
-const newDeptName = document.getElementById('new-dept-name');
+const newDeptName = document.getElementById('admin-new-dept');
 const btnAddDept = document.getElementById('btn-add-dept');
 const btnResetDepts = document.getElementById('btn-reset-depts');
-const btnAdminSkip = document.getElementById('btn-admin-skip');
 
 // Splash / Screen 0 DOM
 const screenSplash = document.getElementById('screen-splash');
@@ -280,12 +279,29 @@ btnResetDepts.addEventListener('click', async () => {
     }
 });
 
-if(btnAdminSkip) {
-    btnAdminSkip.addEventListener('click', () => {
-        alert("현재 단계를 강제 스킵합니다! (1단계 미션이 개발 완료되면 정상 작동합니다)");
-        // TODO: 단계별 스킵 로직 추가
+// 페이지 스킵 로직
+const skipButtons = document.querySelectorAll('.btn-skip');
+skipButtons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const targetStage = parseInt(btn.getAttribute('data-target'));
+        if (!currentDeptId) {
+            alert("부서와 직급을 먼저 선택한 상태에서 스킵해 주세요!");
+            return;
+        }
+        
+        if (confirm(`${targetStage}단계로 강제 이동하시겠습니까?`)) {
+            try {
+                await updateDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: targetStage
+                });
+                alert(`이동 신호를 보냈습니다. (화면 미구현 시 오류가 날 수 있습니다)`);
+                // location.reload(); 또는 렌더링 함수 호출
+            } catch(e) {
+                console.error(e);
+            }
+        }
     });
-}
+});
 
 // ==========================================
 // Screen 1: 오프닝 로직

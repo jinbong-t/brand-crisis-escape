@@ -150,10 +150,17 @@
                 <div style="margin-top: 2rem;">
                     <button id="btn-reset-depts" class="btn-danger">모든 부서 데이터 초기화 ⚠️</button>
                 </div>
-                <div style="margin-top: 1rem;">
-                    <button id="btn-admin-skip" class="btn-primary" style="background: var(--accent-gold); color: black;">현재 단계 강제 스킵 ⏭️</button>
+                <div style="margin-top: 1.5rem;">
+                    <h4 style="margin-bottom: 0.5rem;">페이지 강제 이동 (스킵)</h4>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn-primary btn-skip" data-target="0" style="background: var(--accent-gold); color: black;">오프닝(0단계)</button>
+                        <button class="btn-primary btn-skip" data-target="1" style="background: var(--accent-gold); color: black;">1단계(요소실)</button>
+                        <button class="btn-primary btn-skip" data-target="2" style="background: var(--accent-gold); color: black;">2단계(스타일링)</button>
+                        <button class="btn-primary btn-skip" data-target="3" style="background: var(--accent-gold); color: black;">3단계(TPO)</button>
+                        <button class="btn-primary btn-skip" data-target="4" style="background: var(--accent-gold); color: black;">제출 및 소감</button>
+                    </div>
                 </div>
-                <button id="btn-close-admin" class="btn-primary" style="margin-top: 1rem;">닫기</button>
+                <button id="btn-close-admin" class="btn-primary" style="margin-top: 2rem;">닫기</button>
                 <div id="admin-dept-list" class="admin-list">
                     <!-- JS 렌더링 -->
                 </div>
