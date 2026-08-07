@@ -946,10 +946,18 @@ function startScreen4() {
                 
                 // 같은 카테고리의 다른 버튼 active 제거
                 const siblings = document.querySelectorAll(`.premium-toggle-btn[data-category="${category}"]`);
-                siblings.forEach(s => s.classList.remove('active'));
+                siblings.forEach(s => {
+                    s.classList.remove('active');
+                    const oldVal = s.getAttribute('data-val');
+                    document.getElementById(`overlay-${category}`).classList.remove(`overlay-${category}-${oldVal}`);
+                });
                 
                 // 현재 버튼 active 추가
                 btn.classList.add('active');
+                
+                // CSS 오버레이 적용 (옷 입히기 효과)
+                const overlayDiv = document.getElementById(`overlay-${category}`);
+                overlayDiv.className = `mannequin-overlay overlay-${category}-${val}`;
                 
                 // 상태 저장
                 selectedItems[category] = val;

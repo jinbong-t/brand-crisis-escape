@@ -369,8 +369,12 @@
                             
                             <div class="styling-studio-container">
                                 <!-- 왼쪽: 마네킹 디스플레이 -->
-                                <div class="premium-mannequin-display">
-                                    <div style="background: rgba(0,0,0,0.7); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-size: 0.9rem; font-weight: bold; backdrop-filter: blur(5px);">오지수 모델 핏</div>
+                                <div class="premium-mannequin-display" id="mannequin-display">
+                                    <div id="overlay-color" class="mannequin-overlay"></div>
+                                    <div id="overlay-line" class="mannequin-overlay"></div>
+                                    <div id="overlay-temp" class="mannequin-overlay"></div>
+                                    <div id="overlay-pattern" class="mannequin-overlay"></div>
+                                    <div style="background: rgba(0,0,0,0.7); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-size: 0.9rem; font-weight: bold; backdrop-filter: blur(5px); z-index: 20;">오지수 모델 핏</div>
                                 </div>
                                 
                                 <!-- 오른쪽: 스타일링 제어 패널 (Glassmorphism) -->

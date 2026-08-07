@@ -171,6 +171,48 @@ body {
     align-items: flex-end;
     justify-content: center;
     padding-bottom: 1rem;
+    overflow: hidden;
+}
+
+/* ==================================
+   Mannequin Visual Overlays
+================================== */
+.mannequin-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    border-radius: 16px;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    /* 옷 부위(중앙)에만 효과가 들어가도록 마스크 적용 */
+    -webkit-mask-image: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 50%);
+    mask-image: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 50%);
+}
+
+.overlay-color-웜톤 { background: rgba(255, 100, 0, 0.4); mix-blend-mode: overlay; opacity: 1; }
+.overlay-color-쿨톤 { background: rgba(0, 150, 255, 0.4); mix-blend-mode: overlay; opacity: 1; }
+
+.overlay-line-가로선 { 
+    background: repeating-linear-gradient(0deg, transparent, transparent 5px, rgba(255,255,255,0.7) 5px, rgba(255,255,255,0.7) 10px); 
+    mix-blend-mode: overlay; opacity: 1; 
+}
+.overlay-line-세로선 { 
+    background: repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(255,255,255,0.7) 5px, rgba(255,255,255,0.7) 10px); 
+    mix-blend-mode: overlay; opacity: 1; 
+}
+
+.overlay-temp-난색 { background: rgba(255, 0, 0, 0.6); mix-blend-mode: color; opacity: 1; }
+.overlay-temp-한색 { background: rgba(0, 50, 255, 0.6); mix-blend-mode: color; opacity: 1; }
+
+.overlay-pattern-큰무늬 {
+    background-image: radial-gradient(circle, rgba(255,255,255,0.8) 6px, transparent 6px);
+    background-size: 30px 30px;
+    mix-blend-mode: overlay; opacity: 1;
+}
+.overlay-pattern-작은무늬 {
+    background-image: radial-gradient(circle, rgba(255,255,255,0.8) 2px, transparent 2px);
+    background-size: 10px 10px;
+    mix-blend-mode: overlay; opacity: 1;
 }
 
 .category-row {
