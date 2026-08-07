@@ -1,4 +1,4 @@
-import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 // DOM 요소
@@ -660,6 +660,31 @@ function startScreen2() {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
         document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부장은 전체 제출 창 이용
+        
+        // 부장 전용 실시간 팀원 현황 모니터링
+        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+            let allConfirmed = true;
+            const requiredRoles = ['인턴', '사원', '차장'];
+            
+            requiredRoles.forEach(role => {
+                const statusEl = document.getElementById(`status-${role}`);
+                if (!statusEl) return;
+                
+                const roleDoc = snapshot.docs.find(d => d.id === role);
+                const isConfirmed = roleDoc && roleDoc.data().stage1Confirmed;
+                
+                if (isConfirmed) {
+                    statusEl.classList.add('done');
+                    statusEl.querySelector('.status-icon').textContent = '✅';
+                } else {
+                    statusEl.classList.remove('done');
+                    statusEl.querySelector('.status-icon').textContent = '❌';
+                    allConfirmed = false;
+                }
+            });
+            
+            document.getElementById('btn-submit-stage1').disabled = !allConfirmed;
+        });
     } else {
         document.getElementById('manager-montage-panel').classList.add('hidden');
         document.getElementById('manager-submit-panel').classList.add('hidden');
