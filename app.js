@@ -1081,4 +1081,26 @@ async function initApp() {
     }
 }
 
+// DEV 테스트용 강제 3단계 버튼 로직
+document.getElementById('dev-jump-stage3').onclick = async () => {
+    currentDeptId = 'test-dept-' + Date.now();
+    currentDeptName = '테스트부서';
+    currentRole = '부장';
+    saveSessionState();
+    
+    try {
+        await setDoc(doc(db, 'departments', currentDeptId), {
+            name: currentDeptName,
+            currentStage: 3,
+            startTime: Date.now()
+        }, { merge: true });
+        
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('screen-4').classList.remove('hidden');
+        startScreen4();
+    } catch(e) {
+        console.error(e);
+    }
+};
+
 initApp();
