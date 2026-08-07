@@ -348,13 +348,46 @@ skipButtons.forEach(btn => {
 // ==========================================
 // Screen 1: 오프닝 로직
 // ==========================================
+let introParagraphs = [];
+let currentIntroIndex = 0;
+
 function startScreen1() {
     mainHeader.classList.remove('hidden');
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
 
-    // 인트로 영상/모달 띄우기
-    introText.innerHTML = PUZZLE_DATA.opening.introText;
+    // 인트로 스토리 문단별 렌더링
+    introParagraphs = PUZZLE_DATA.opening.introText.split('<br><br>');
+    currentIntroIndex = 0;
+    const container = document.getElementById('intro-text-container');
+    container.innerHTML = `<p style="margin-bottom: 1rem; animation: fadeIn 0.5s;">${introParagraphs[0]}</p>`;
+    
+    const btnNext = document.getElementById('btn-intro-next');
+    const btnClose = document.getElementById('close-intro-modal');
+    
+    btnNext.classList.remove('hidden');
+    btnClose.classList.add('hidden');
+    
+    btnNext.onclick = () => {
+        currentIntroIndex++;
+        if (currentIntroIndex < introParagraphs.length) {
+            const p = document.createElement('p');
+            p.style.marginBottom = '1rem';
+            p.style.animation = 'fadeIn 0.5s';
+            p.innerHTML = introParagraphs[currentIntroIndex];
+            container.appendChild(p);
+            
+            // 컨테이너 스크롤 맨 아래로
+            container.parentElement.scrollTop = container.parentElement.scrollHeight;
+            
+            if (currentIntroIndex === introParagraphs.length - 1) {
+                btnNext.classList.add('hidden');
+                btnClose.classList.remove('hidden');
+            }
+        }
+    };
+
     introModal.classList.remove('hidden');
+    
     // 영상 자동 재생 시도
     if (introVideo) {
         introVideo.play().catch(e => console.log("자동 재생 방지됨", e));
@@ -518,7 +551,10 @@ btnSubmitOpening.addEventListener('click', async () => {
             });
         } catch(e) { console.error(e); }
 
-        // TODO: 1단계 화면 렌더링 함수 호출
+        // 1단계 화면으로 전환
+        document.getElementById('screen-1').classList.add('hidden');
+        document.getElementById('screen-2').classList.remove('hidden');
+        startScreen2();
     } else {
         openingErrorMsg.classList.remove('hidden');
     }

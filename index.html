@@ -87,14 +87,12 @@
                 <p class="guide-text">조사 카드 4장을 뒤집어 단서를 확인하고, 올바른 순서로 정렬하여 잠금을 해제하세요.</p>
                 
                 <div id="intro-modal" class="modal hidden">
-                    <div class="modal-content story-content">
-                        <h3>사건의 시작</h3>
-                        <video id="intro-video" controls width="100%" class="intro-video-player">
-                            <source src="인트로영상_컴.mp4" type="video/mp4">
-                            브라우저가 비디오 태그를 지원하지 않습니다.
-                        </video>
-                        <p id="intro-text"></p>
-                        <button id="btn-start-investigation" class="btn-primary">조사 시작</button>
+                    <div class="modal-content" style="max-width: 600px; position: relative; padding-bottom: 4rem;">
+                        <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 1rem; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
+                            <!-- JS에서 문단별로 렌더링 -->
+                        </div>
+                        <button id="btn-intro-next" class="btn-primary" style="position: absolute; bottom: 1.5rem; right: 1.5rem;">다음 ▶</button>
+                        <button id="close-intro-modal" class="btn-primary hidden" style="position: absolute; bottom: 1.5rem; right: 1.5rem; width: auto;">단서 찾기 시작!</button>
                     </div>
                 </div>
 
