@@ -768,15 +768,14 @@ function startScreen2() {
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
                 btnSubmitStage1.disabled = true;
-                btnSubmitStage1.textContent = '최종 승인 완료 (1단계 클리어)';
+                btnSubmitStage1.textContent = '최종 승인 완료 (실천적 추론 진행중)';
                 
-                // Firestore를 먼저 업데이트하여 팀원들의 화면이 넘어가게 함
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
-                        currentStage: 2
+                        showStage1Reasoning: true
                     });
-                    
-                    alert('🎉 축하합니다! 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 완벽하게 찾아냈습니다! (1단계 클리어)\n\n2단계 방(패턴/봉제실)으로 자동 이동합니다!');
+                    alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n이제 팝업되는 \'실천적 추론\' 문제를 부서원들과 토론하여 해결하세요!');
+                    showReasoningModal(PUZZLE_DATA.stage1, 2);
                 } catch(e) {
                     console.error(e);
                 }
@@ -813,6 +812,13 @@ function startScreen2() {
                 }
             };
         }
+        
+        onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
+             const d = docSnap.data();
+             if (d && d.showStage1Reasoning) {
+                 showReasoningModal(PUZZLE_DATA.stage1, 2);
+             }
+        });
     }
 }
 
@@ -934,7 +940,6 @@ function startScreen4() {
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
     document.getElementById('display-current-role-stage3').textContent = currentRole;
     
-    // 모달 띄우기
     const storyModal = document.getElementById('stage3-story-modal');
     storyModal.classList.remove('hidden');
     document.getElementById('stage3-intro-text').innerText = PUZZLE_DATA.stage3.intro;
@@ -943,13 +948,13 @@ function startScreen4() {
         storyModal.classList.add('hidden');
     };
     
-    const puzzleData = PUZZLE_DATA.stage3.puzzles[currentRole];
+    const personalColorData = PUZZLE_DATA.stage3.personalColor[currentRole];
+    const bodyTypeData = PUZZLE_DATA.stage3.bodyType[currentRole];
     
     if (currentRole === '부장') {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
-        // 부장 현황판 리스너
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             const roles = ['인턴', '사원', '차장'];
             roles.forEach(role => {
@@ -971,13 +976,12 @@ function startScreen4() {
             });
         });
         
-        // 부장 단서 1 (텍스트 입력) 세팅
-        document.getElementById('stage3-manager-title').textContent = puzzleData.step1.title;
-        document.getElementById('stage3-manager-text').textContent = puzzleData.step1.text;
+        document.getElementById('stage3-manager-title').textContent = "단서 1: 퍼스널 컬러 종합";
+        document.getElementById('stage3-manager-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         
         document.getElementById('btn-stage3-manager-submit').onclick = () => {
             const val = document.getElementById('stage3-manager-answer-input').value.replace(/\s+/g, '');
-            if (val === puzzleData.step1.answer) {
+            if (val === personalColorData.answer) {
                 alert("정답입니다! 이제 팀원들이 모은 단서로 최종 스타일링을 완성하세요.");
                 document.getElementById('stage3-manager-step1').classList.add('hidden');
                 document.getElementById('stage3-manager-step2').classList.remove('hidden');
@@ -986,25 +990,22 @@ function startScreen4() {
             }
         };
 
-        // 종이인형 드래그 앤 드롭 로직
         const draggables = document.querySelectorAll('.paperdoll-item');
         const dropzone = document.getElementById('avatar-dropzone');
         const btnSubmit = document.getElementById('btn-submit-stage3');
         const errorMsg = document.getElementById('manager-error-msg-stage3');
         
-        let selectedItems = {}; // { color: '쿨톤', line: '세로선', ... }
+        let selectedItems = {};
         
         draggables.forEach(item => {
-            // 원본 부모 요소 저장 (다시 돌려놓기 위해)
             if (!item.dataset.originalParent) {
-                item.dataset.originalParent = item.parentElement.className; // 'shelf-items'
+                item.dataset.originalParent = item.parentElement.className;
             }
             
             item.addEventListener('dragstart', (e) => {
                 item.classList.add('dragging');
                 e.dataTransfer.setData('category', item.getAttribute('data-category'));
                 e.dataTransfer.setData('val', item.getAttribute('data-val'));
-                // 아이템의 DOM ID나 참조를 전달하기 위해 고유 ID 부여
                 if (!item.id) item.id = 'item-' + Date.now() + Math.floor(Math.random()*1000);
                 e.dataTransfer.setData('itemId', item.id);
             });
@@ -1014,7 +1015,7 @@ function startScreen4() {
         });
         
         dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault(); // 드롭 허용
+            e.preventDefault();
             dropzone.classList.add('dragover');
         });
         
@@ -1035,48 +1036,45 @@ function startScreen4() {
             const draggedItem = document.getElementById(itemId);
             if (!draggedItem) return;
             
-            // 기존에 해당 슬롯에 있던 아이템은 다시 옷장으로 돌려보냄
             const targetSlot = document.getElementById(`slot-${category}`);
-            if (targetSlot.children.length > 0) {
+            if (targetSlot && targetSlot.children.length > 0) {
                 const oldItem = targetSlot.children[0];
-                // 옷장의 원래 카테고리 선반 찾기
                 const shelves = document.querySelectorAll('.shelf-items');
-                // 같은 카테고리를 가진 첫번째 아이템이 있는 선반에 넣거나, 그냥 부모를 찾아 넣어야 하는데 
-                // 안전하게 카테고리 라벨로 찾기
                 let targetShelf = Array.from(shelves).find(s => s.querySelector(`[data-category="${category}"]`));
                 if (!targetShelf && draggedItem.parentElement.classList.contains('shelf-items')) {
-                    targetShelf = draggedItem.parentElement; // 방금 드래그해온 곳
+                    targetShelf = draggedItem.parentElement;
                 }
                 if (targetShelf) {
                     targetShelf.appendChild(oldItem);
                 }
             }
             
-            // 새 아이템을 슬롯에 부착 (물리적 이동)
-            targetSlot.appendChild(draggedItem);
+            if(targetSlot) targetSlot.appendChild(draggedItem);
             
-            // 상태 저장
             selectedItems[category] = val;
             
-            // 4개 카테고리가 모두 장착되었는지 확인
-            if (Object.keys(selectedItems).length === 4) {
+            if (selectedItems['line'] && selectedItems['temp'] && selectedItems['neckline']) {
                 btnSubmit.disabled = false;
             }
         });
         
         btnSubmit.onclick = () => {
-            // 정답 확인: 쿨톤, 세로선, 한색, 작은무늬
-            const targetAns = puzzleData.step2.answer;
-            if (selectedItems['color'] === targetAns.color && 
-                selectedItems['line'] === targetAns.line && 
-                selectedItems['temp'] === targetAns.temp && 
-                selectedItems['pattern'] === targetAns.pattern) {
+            if (selectedItems['line'] === '세로선' && 
+                selectedItems['temp'] === '한색' && 
+                selectedItems['neckline'] === 'V넥') {
                 
                 errorMsg.classList.add('hidden');
                 alert("🎉 완벽합니다! 오지수 모델의 핏이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
-                showReasoningModal(PUZZLE_DATA.stage3, 4);
+                try {
+                    await updateDoc(doc(db, 'departments', currentDeptId), {
+                        showStage3Reasoning: true
+                    });
+                    showReasoningModal(PUZZLE_DATA.stage3, 4);
+                } catch(e) {
+                    console.error(e);
+                }
                 
             } else {
                 errorMsg.classList.remove('hidden');
@@ -1084,12 +1082,11 @@ function startScreen4() {
         };
         
     } else {
-        // 사원/인턴/차장
         document.getElementById('stage3-employee-panel').classList.remove('hidden');
         document.getElementById('stage3-manager-panel').classList.add('hidden');
         
-        document.getElementById('stage3-puzzle-title').textContent = puzzleData.step1.title;
-        document.getElementById('stage3-puzzle-text').textContent = puzzleData.step1.text;
+        document.getElementById('stage3-puzzle-title').textContent = "단서 1: 퍼스널 컬러";
+        document.getElementById('stage3-puzzle-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         document.getElementById('stage3-puzzle-hint').textContent = '';
         
         const btnSubmit = document.getElementById('btn-stage3-submit');
@@ -1098,16 +1095,19 @@ function startScreen4() {
         let currentStep = 1;
         
         btnSubmit.onclick = async () => {
-            const currentPuzzle = puzzleData[`step${currentStep}`];
-            if (input.value.replace(/\s+/g, '') === currentPuzzle.answer) {
-                if (currentStep === 1) {
+            if (currentStep === 1) {
+                if (input.value.replace(/\s+/g, '') === personalColorData.answer) {
                     alert(`정확한 단서를 찾았습니다!\n다음 단서를 확인하세요.`);
                     currentStep = 2;
                     input.value = '';
-                    document.getElementById('stage3-puzzle-title').textContent = puzzleData.step2.title;
-                    document.getElementById('stage3-puzzle-text').textContent = puzzleData.step2.text;
+                    document.getElementById('stage3-puzzle-title').textContent = "단서 2: 착시효과 선택";
+                    document.getElementById('stage3-puzzle-text').innerHTML = PUZZLE_DATA.stage3.bodyType.memo.replace(/\n/g, '<br>') + '<br><br>' + bodyTypeData.text;
                 } else {
-                    alert(`모든 단서를 찾았습니다! 부장님에게 알려주세요! (부장님이 미션을 완료하면 실천적 추론 자물쇠가 나타납니다)`);
+                    alert("오답입니다. 쿨톤과 웜톤 중 하나를 입력하세요!");
+                }
+            } else if (currentStep === 2) {
+                if (input.value.replace(/\s+/g, '') === bodyTypeData.answer) {
+                    alert(`모든 단서를 찾았습니다! 부장님에게 알려주세요!`);
                     btnSubmit.disabled = true;
                     btnSubmit.textContent = "전송 완료 (대기 중)";
                     input.disabled = true;
@@ -1119,14 +1119,12 @@ function startScreen4() {
                     } catch(e) {
                         console.error(e);
                     }
+                } else {
+                    alert("오답입니다. 다시 생각해보세요!");
                 }
-            } else {
-                alert("오답입니다. 다시 생각해보세요!");
             }
         };
         
-        // 팀원은 4단계 전환 감시만 수행 (기존 initApp에서 처리됨)
-        // 모달 띄우기 (실천적 추론은 부장이 트리거할 때 화면에 나타나도록 onSnapshot)
         onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
              const d = docSnap.data();
              if (d && d.showStage3Reasoning) {
@@ -1262,75 +1260,120 @@ function startScreen5() {
             checkManagerStage4Complete();
         });
         
-        // 런칭 버튼 클릭 (엔딩)
+        // 런칭 버튼 클릭 (Screen 6으로 이동)
         btnLaunch.onclick = () => {
-            // 엔딩 스크린 표시
+            // Screen 6 표시
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-            const endingScreen = document.getElementById('screen-ending');
-            endingScreen.classList.remove('hidden');
-            
-            // 폭죽 효과 (Confetti)
-            triggerConfetti();
+            document.getElementById('screen-6').classList.remove('hidden');
+            document.getElementById('display-current-role-stage6').textContent = currentRole;
         };
+        
+        // --- Screen 6 및 7 이벤트 리스너 세팅 ---
+        // 파일 업로드 시 AI 분석 호출 임시 로직
+        const fileUpload = document.getElementById('design-upload');
+        const aiFeedback = document.getElementById('ai-feedback-panel');
+        const aiFeedbackText = document.getElementById('ai-feedback-text');
+        
+        if (fileUpload) {
+            fileUpload.addEventListener('change', () => {
+                if(fileUpload.files && fileUpload.files[0]) {
+                    aiFeedback.classList.remove('hidden');
+                    aiFeedbackText.textContent = "이미지를 분석 중입니다...";
+                    // 임시 분석 지연 시간
+                    setTimeout(() => {
+                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
+                    }, 2500);
+                }
+            });
+        }
+        
+        const btnSubmitPersonal = document.getElementById('btn-submit-personal-design');
+        if (btnSubmitPersonal) {
+            btnSubmitPersonal.onclick = () => {
+                const reason = document.getElementById('personal-reason').value;
+                const r5 = document.getElementById('personal-5r').value;
+                if (!reason || !r5) {
+                    alert('필수 선택 요소(5R)와 이유를 적어주세요.');
+                    return;
+                }
+                alert('개인 디자인 제출이 완료되었습니다! 활동 소감 페이지로 넘어갑니다.');
+                document.getElementById('screen-6').classList.add('hidden');
+                document.getElementById('screen-7').classList.remove('hidden');
+            };
+        }
+        
+        const btnSubmitReflections = document.getElementById('btn-submit-reflections');
+        if (btnSubmitReflections) {
+            btnSubmitReflections.onclick = () => {
+                const q1 = document.getElementById('reflection-q1').value;
+                const q2 = document.getElementById('reflection-q2').value;
+                if (!q1 || !q2) {
+                    alert('모든 질문에 답해주세요.');
+                    return;
+                }
+                alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
+                document.getElementById('screen-7').classList.add('hidden');
+                const endingScreen = document.getElementById('screen-ending');
+                endingScreen.classList.remove('hidden');
+                triggerConfetti();
+            };
+        }
+        // ------------------------------------
         
     } else {
         // 인턴, 사원, 차장
         document.getElementById('stage4-employee-panel').classList.remove('hidden');
         document.getElementById('stage4-manager-panel').classList.add('hidden');
         
-        document.getElementById('stage4-puzzle-title').textContent = puzzleData.title;
-        document.getElementById('stage4-puzzle-text').textContent = puzzleData.text;
-        
         const optionsContainer = document.getElementById('stage4-options-container');
-        optionsContainer.innerHTML = ''; // 초기화
+        optionsContainer.innerHTML = `
+            <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+            <p id="stage4-puzzle-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
+            <input type="text" id="stage4-employee-input" placeholder="정답 입력" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
+        `;
         
-        puzzleData.options.forEach((opt, idx) => {
-            const label = document.createElement('label');
-            label.style.display = 'block';
-            label.style.padding = '1rem';
-            label.style.background = 'rgba(255,255,255,0.1)';
-            label.style.border = '1px solid var(--accent-gold)';
-            label.style.borderRadius = '8px';
-            label.style.cursor = 'pointer';
-            label.style.fontSize = '1.1rem';
-            
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'stage4-option';
-            radio.value = opt;
-            radio.style.marginRight = '10px';
-            
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(opt));
-            optionsContainer.appendChild(label);
-        });
+        const input = document.getElementById('stage4-employee-input');
+        const titleEl = document.getElementById('stage4-puzzle-title');
+        const textEl = document.getElementById('stage4-puzzle-text');
+        
+        let currentStep = 'bonus';
+        const stepsSequence = ['bonus', 'step1', 'step2', 'step3'];
+        let stepIdx = 0;
+        
+        titleEl.textContent = puzzleData[currentStep].title;
+        textEl.textContent = puzzleData[currentStep].text;
         
         const btnSubmit = document.getElementById('btn-stage4-submit');
         const feedback = document.getElementById('stage4-employee-feedback');
         
         btnSubmit.onclick = async () => {
-            const selected = document.querySelector('input[name="stage4-option"]:checked');
-            if (!selected) {
-                alert('옵션을 선택해주세요.');
-                return;
-            }
-            
-            if (selected.value === puzzleData.answer) {
+            const val = input.value.replace(/\s+/g, '');
+            if (val === puzzleData[currentStep].answer) {
                 feedback.classList.add('hidden');
-                alert(`정답입니다! 환경 점수 +${puzzleData.score}점이 부장님 현황판에 추가되었습니다.`);
-                btnSubmit.disabled = true;
-                btnSubmit.textContent = "기획안 확정 완료";
-                document.querySelectorAll('input[name="stage4-option"]').forEach(r => r.disabled = true);
                 
-                try {
-                    await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
-                        stage4Confirmed: true
-                    }, { merge: true });
-                } catch(e) {
-                    console.error(e);
+                stepIdx++;
+                if (stepIdx < stepsSequence.length) {
+                    alert('정답입니다! 다음 미션으로 넘어갑니다.');
+                    currentStep = stepsSequence[stepIdx];
+                    titleEl.textContent = puzzleData[currentStep].title;
+                    textEl.textContent = puzzleData[currentStep].text;
+                    input.value = '';
+                } else {
+                    alert(`모든 기획안 검토가 완료되었습니다! 부장님 현황판에 반영되었습니다.`);
+                    btnSubmit.disabled = true;
+                    btnSubmit.textContent = "기획안 확정 완료";
+                    input.disabled = true;
+                    
+                    try {
+                        await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                            stage4Confirmed: true
+                        }, { merge: true });
+                    } catch(e) {
+                        console.error(e);
+                    }
                 }
             } else {
-                feedback.textContent = "잘못된 기획안입니다! 환경 점수가 오르지 않습니다.";
+                feedback.textContent = "잘못된 정답입니다! 다시 생각해보세요.";
                 feedback.classList.remove('hidden');
             }
         };
@@ -1387,6 +1430,135 @@ function triggerConfetti() {
         });
     }
     draw();
+}
+
+// 실천적 추론 모달 로직
+function showReasoningModal(stageData, targetStageNum) {
+    const rData = stageData.reasoning;
+    if (!rData) return;
+    
+    const modal = document.getElementById('reasoning-modal');
+    modal.classList.remove('hidden');
+    
+    document.getElementById('reasoning-title').textContent = rData.title;
+    
+    let introHtml = `<p>${rData.intro ? rData.intro.replace(/\\n/g, '<br>') : (rData.context ? rData.context.replace(/\\n/g, '<br>') : '')}</p>`;
+    
+    if (rData.roleLabels) {
+        introHtml += `<ul style="margin-top: 10px; font-size: 0.95rem; color: #aaa;">`;
+        for (const [role, label] of Object.entries(rData.roleLabels)) {
+            introHtml += `<li style="margin-bottom: 5px;"><b>[${role}]</b>: ${label}</li>`;
+        }
+        introHtml += `</ul>`;
+    }
+    
+    document.getElementById('reasoning-intro').innerHTML = introHtml;
+    
+    const keywordsContainer = document.getElementById('reasoning-keywords');
+    keywordsContainer.innerHTML = '';
+    
+    const sentenceContainer = document.getElementById('reasoning-sentence');
+    sentenceContainer.innerHTML = '';
+    
+    const dropzones = [];
+    
+    if (rData.keywordLock) {
+        keywordsContainer.parentElement.style.display = 'block';
+        let allKeywords = [];
+        if (rData.teamKeywords) {
+            Object.values(rData.teamKeywords).forEach(list => allKeywords.push(...list));
+        } else if (rData.answers) {
+            allKeywords = rData.answers.concat(['잘못된', '단어', '추가']);
+        }
+        allKeywords = [...new Set(allKeywords)].sort(() => Math.random() - 0.5);
+        
+        allKeywords.forEach(kw => {
+            const div = document.createElement('div');
+            div.textContent = kw;
+            div.className = 'keyword-chip';
+            div.draggable = true;
+            div.dataset.val = kw;
+            div.style.padding = '8px 12px';
+            div.style.background = 'rgba(212,175,55,0.2)';
+            div.style.border = '1px solid var(--accent-gold)';
+            div.style.borderRadius = '20px';
+            div.style.cursor = 'grab';
+            
+            div.ondragstart = (e) => {
+                e.dataTransfer.setData('text/plain', kw);
+            };
+            keywordsContainer.appendChild(div);
+        });
+        
+        const parts = rData.keywordLock.split(/\\[\\s*\\]/);
+        parts.forEach((part, index) => {
+            sentenceContainer.appendChild(document.createTextNode(part));
+            if (index < parts.length - 1) {
+                const dropzone = document.createElement('span');
+                dropzone.className = 'reasoning-dropzone';
+                dropzone.style.display = 'inline-block';
+                dropzone.style.minWidth = '80px';
+                dropzone.style.height = '30px';
+                dropzone.style.borderBottom = '2px solid var(--accent-gold)';
+                dropzone.style.margin = '0 5px';
+                dropzone.style.textAlign = 'center';
+                dropzone.style.color = 'var(--accent-gold)';
+                dropzone.style.fontWeight = 'bold';
+                
+                dropzone.ondragover = (e) => e.preventDefault();
+                dropzone.ondrop = (e) => {
+                    e.preventDefault();
+                    const data = e.dataTransfer.getData('text/plain');
+                    if (data) {
+                        dropzone.textContent = data;
+                    }
+                };
+                dropzones.push(dropzone);
+                sentenceContainer.appendChild(dropzone);
+            }
+        });
+    } else {
+        // 키워드 자물쇠가 없는 경우 (단순 토론)
+        keywordsContainer.parentElement.style.display = 'none';
+        sentenceContainer.innerHTML = '<p style="color: var(--accent-gold); text-align: center;">팀원들과 충분히 토론을 진행한 후, 부장님이 <b>[합의 완료]</b> 버튼을 눌러주세요.</p>';
+    }
+    
+    const btnSubmit = document.getElementById('btn-submit-reasoning');
+    btnSubmit.onclick = async () => {
+        if (currentRole !== '부장') {
+            alert('최종 결정 및 제출은 [부장]만 가능합니다. 부서원들과 상의하여 부장님이 결정을 내려주세요!');
+            return;
+        }
+        
+        let isCorrect = true;
+        if (rData.keywordLock && rData.answers) {
+            const userAnswers = dropzones.map(d => d.textContent.trim());
+            const correctAnswers = rData.answers;
+            for (let i = 0; i < correctAnswers.length; i++) {
+                if (userAnswers[i] !== correctAnswers[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+        }
+        
+        if (isCorrect) {
+            alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
+            modal.classList.add('hidden');
+            
+            try {
+                await updateDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: targetStageNum,
+                    showStage1Reasoning: false,
+                    showStage3Reasoning: false
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        } else {
+            alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
+        }
+    };
 }
 
 // 초기화 함수

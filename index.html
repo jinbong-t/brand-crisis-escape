@@ -160,7 +160,7 @@
                                     <table class="clue-table" style="width: 100%; border-collapse: collapse; text-align: center;">
                                         <tr style="background: rgba(0,0,0,0.3);"><th>원단</th><th>선</th><th>색</th><th>재질</th><th>무늬</th></tr>
                                         <tr><td>A</td><td>세로선</td><td>난색</td><td>부드러운</td><td>큰무늬</td></tr>
-                                        <tr><td>B</td><td>세로선</td><td>한색</td><td>뻣뻣한</td><td>작은무늬</td></tr>
+                                        <tr><td>B</td><td>가로선</td><td>한색</td><td>뻣뻣한</td><td>작은무늬</td></tr>
                                         <tr><td>C</td><td>가로선</td><td>한색</td><td>뻣뻣한</td><td>큰무늬</td></tr>
                                         <tr><td>D</td><td>가로선</td><td>난색</td><td>부드러운</td><td>작은무늬</td></tr>
                                     </table>
@@ -434,6 +434,18 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">목둘레선 (네크라인)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="neckline" data-val="V넥">
+                                                <div style="background: rgba(255,255,255,0.7); border:1px solid #333; padding:5px; font-size:12px; font-weight:bold; border-radius:5px; color:#333;">V넥</div>
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="neckline" data-val="U넥">
+                                                <div style="background: rgba(255,255,255,0.7); border:1px solid #333; padding:5px; font-size:12px; font-weight:bold; border-radius:5px; color:#333;">U넥</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <!-- 가운데: 아바타 모델 (드롭존) - 크기 100% 유지(상대적 축소) -->
@@ -451,6 +463,7 @@
                                     <div class="avatar-slot" id="slot-line" data-accept="선" style="flex: 1;"></div>
                                     <div class="avatar-slot" id="slot-temp" data-accept="온도" style="flex: 1;"></div>
                                     <div class="avatar-slot" id="slot-pattern" data-accept="무늬" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-neckline" data-accept="목둘레선" style="flex: 1;"></div>
                                 </div>
                             </div>
                             
@@ -521,8 +534,8 @@
                                     <div class="5r-item" draggable="true" data-val="거절하기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">거절하기</div>
                                     <div class="5r-item" draggable="true" data-val="줄이기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">줄이기</div>
                                     <div class="5r-item" draggable="true" data-val="재사용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재사용</div>
-                                    <div class="5r-item" draggable="true" data-val="수선" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">수선</div>
                                     <div class="5r-item" draggable="true" data-val="재활용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재활용</div>
+                                    <div class="5r-item" draggable="true" data-val="썩히기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">썩히기</div>
                                 </div>
                                 <div id="5r-slots" style="display: flex; gap: 10px; justify-content: center;">
                                     <div class="5r-slot" data-index="0" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">1순위</div>
@@ -619,6 +632,119 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Screen 6: 개인 디자인 및 5R 제출 -->
+            <section id="screen-6" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>개인 미션: 나에게 어울리는 디자인 🎨</h2>
+                        <div class="badge">현재 역할: <span id="display-current-role-stage6"></span></div>
+                    </header>
+
+                    <div class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; text-align: left;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">1. 직접 그린 디자인 업로드</h3>
+                            <p style="color: #ccc; margin-bottom: 1rem; font-size: 0.95rem;">오토드로우(AutoDraw)나 종이에 직접 그린 '나에게 어울리는 옷차림' 사진을 업로드해주세요.</p>
+                            <input type="file" id="design-upload" accept="image/*" style="margin-bottom: 1rem; color: white;">
+                            
+                            <div id="ai-feedback-panel" class="hidden" style="margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid #4caf50;">
+                                <h4 style="color: #4caf50; margin-bottom: 0.5rem;">🤖 AI 디자인 분석 피드백</h4>
+                                <p id="ai-feedback-text" style="font-size: 0.95rem; line-height: 1.5;">분석 중...</p>
+                                <p style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">* AI의 분석은 참고용이며, 최종 판단은 학생 자신이 내립니다.</p>
+                            </div>
+
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">2. 디자인 요소 및 T.P.O 선택</h3>
+                            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">선 (착시효과)</label>
+                                    <select id="personal-line" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="세로선">세로선</option>
+                                        <option value="가로선">가로선</option>
+                                        <option value="사선">사선</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">색 온도</label>
+                                    <select id="personal-temp" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="난색">난색</option>
+                                        <option value="한색">한색</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">재질</label>
+                                    <select id="personal-material" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="부드러운">부드러운 재질</option>
+                                        <option value="뻣뻣한">뻣뻣한 재질</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">무늬 크기</label>
+                                    <select id="personal-pattern" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="큰무늬">큰 무늬</option>
+                                        <option value="작은무늬">작은 무늬</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">T.P.O (상황)</label>
+                                    <select id="personal-tpo" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="평상복">평상복 (집, 근처)</option>
+                                        <option value="외출복">외출복 (쇼핑, 모임)</option>
+                                        <option value="운동복">운동복 (스포츠)</option>
+                                        <option value="예복">예복 (결혼식, 행사)</option>
+                                        <option value="작업복">작업복</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">지속가능성 요소 (5R)</label>
+                                    <select id="personal-5r" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">가장 먼저 실천할 1가지 선택</option>
+                                        <option value="거절하기">거절하기(Refuse)</option>
+                                        <option value="줄이기">줄이기(Reduce)</option>
+                                        <option value="재사용">재사용(Reuse)</option>
+                                        <option value="재활용">재활용(Recycle)</option>
+                                        <option value="썩히기">썩히기(Rot)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">3. 선택 이유</h3>
+                            <textarea id="personal-reason" placeholder="이 디자인 조합이 나에게 왜 어울린다고 생각하는지, T.P.O와 지속가능성을 어떻게 고려했는지 1~2문장으로 자유롭게 적어주세요." style="width: 100%; height: 100px; padding: 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--accent-gold); border-radius: 4px; resize: vertical; margin-bottom: 2rem;"></textarea>
+                            
+                            <div style="text-align: center;">
+                                <button id="btn-submit-personal-design" class="btn-primary" style="width: 100%; max-width: 300px;">디자인 제출 및 평가 가기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 7: 활동 소감 -->
+            <section id="screen-7" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 600px; margin: 0 auto; text-align: left;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 2rem; text-align: center;">오늘의 미션 소감 📝</h2>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: white; margin-bottom: 0.5rem; display: block; font-size: 1.1rem;">Q1. 오늘 미션 중 가장 기억에 남는 순간은?</label>
+                            <textarea id="reflection-q1" placeholder="인상 깊었던 장면을 적어주세요." style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <label style="color: white; margin-bottom: 0.5rem; display: block; font-size: 1.1rem;">Q2. 오늘 배운 것 중 나의 삶에서 실천해보고 싶은 한 가지는?</label>
+                            <textarea id="reflection-q2" placeholder="구체적인 실천 다짐을 적어주세요." style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <button id="btn-submit-reflections" class="btn-primary" style="width: 100%; max-width: 300px; font-size: 1.2rem;">최종 제출 완료 🎉</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
