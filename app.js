@@ -1058,7 +1058,7 @@ function startScreen4() {
             }
         });
         
-        btnSubmit.onclick = () => {
+        btnSubmit.onclick = async () => {
             if (selectedItems['line'] === '세로선' && 
                 selectedItems['temp'] === '한색' && 
                 selectedItems['neckline'] === 'V넥') {
