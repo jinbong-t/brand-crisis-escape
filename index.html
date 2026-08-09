@@ -38,6 +38,16 @@
                     <div style="margin-top: 3rem;">
                         <button id="btn-easy-reset" class="btn-secondary" style="border-color: #ff4757; color: #ff4757; padding: 0.8rem 1.5rem; font-weight: bold;">💥 모든 데이터 초기화 (처음부터 테스트) 💥</button>
                     </div>
+                    <!-- 실천적 추론 바로 테스트 영역 -->
+                    <div style="margin-top: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.5);">
+                        <p style="color: var(--accent-gold); margin-bottom: 0.5rem; font-size: 0.9rem;">🧪 [테스트] 실천적 추론(대표의 쪽지) 바로가기</p>
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <button class="btn-secondary btn-debug-role" data-role="인턴" style="padding: 0.5rem 1rem;">인턴</button>
+                            <button class="btn-secondary btn-debug-role" data-role="사원" style="padding: 0.5rem 1rem;">사원</button>
+                            <button class="btn-secondary btn-debug-role" data-role="차장" style="padding: 0.5rem 1rem;">차장</button>
+                            <button class="btn-secondary btn-debug-role" data-role="부장" style="padding: 0.5rem 1rem;">부장</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -85,7 +95,7 @@
             </section>
 
             <!-- Screen 1: 오프닝 -->
-            <section id="screen-1" class="screen hidden">
+            <section id="screen-1" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
                 <h2>사건의 시작: 잠긴 다이어리</h2>
                 <p class="guide-text">조사 카드 4장을 뒤집어 단서를 확인하고, 올바른 순서로 정렬하여 잠금을 해제하세요.</p>
                 
@@ -93,7 +103,7 @@
                     <div class="modal-content" style="max-width: 600px; position: relative; padding-bottom: 4rem;">
                         <h3 style="margin-bottom: 1rem; text-align: center;">사건의 시작</h3>
                         <video id="intro-video" controls width="100%" class="intro-video-player" style="margin-bottom: 1rem; border-radius: 8px;">
-                            <source src="인트로영상_컴.mp4" type="video/mp4">
+                            <source src="intro_video.mp4" type="video/mp4">
                             브라우저가 비디오 태그를 지원하지 않습니다.
                         </video>
                         <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 1rem; padding-right: 10px;">
@@ -132,7 +142,7 @@
             </section>
 
             <!-- Screen 2 (1단계: 디자인요소실) -->
-            <section id="screen-2" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+            <section id="screen-2" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1556740714-a8395b3bf30f'); background-size: cover; background-position: center; min-height: 100vh;">
                 <style>.glass-overlay::-webkit-scrollbar { display: none; }</style>
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <header class="stage-header">
@@ -278,7 +288,7 @@
             </div>
 
             <!-- 2단계 방 (Screen 3) -->
-            <section id="screen-3" class="screen hidden" style="background-image: url('intro_bg.png'); background-size: cover; background-position: center; position: relative;">
+            <section id="screen-3" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1581093450021-4a7360e9a6b5'); background-size: cover; background-position: center; position: relative;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <header class="stage-header">
                         <h2>2단계: 패턴/봉제실 🧵</h2>
@@ -337,7 +347,7 @@
             </div>
 
             <!-- 3단계 방 (Screen 4) -->
-            <section id="screen-4" class="screen hidden" style="background-image: url('intro_bg.png'); background-size: cover; background-position: center; position: relative;">
+            <section id="screen-4" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1567113463300-102a7eb3cb26'); background-size: cover; background-position: center; position: relative;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <header class="stage-header">
                         <h2>3단계: 스타일링실 👗</h2>
@@ -388,37 +398,55 @@
                                     <h4 style="text-align: center; color: #5a3a1b; margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 0.9rem;">👗 패션쇼 백스테이지 (Showroom)</h4>
                                     
                                     <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
-                                        <div class="closet-label" style="font-size: 0.7rem;">퍼스널 컬러 (메이크업)</div>
-                                        <div class="shelf-items">
-                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="웜톤">
-                                                <img src="item_makeup_warm.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
-                                            </div>
-                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="쿨톤">
-                                                <img src="item_makeup_cool.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
                                         <div class="closet-label" style="font-size: 0.7rem;">선 (착시효과)</div>
                                         <div class="shelf-items">
-                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="가로선">
-                                                <img src="item_shirt_horizontal.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
-                                            </div>
                                             <div class="paperdoll-item" draggable="true" data-category="line" data-val="세로선">
-                                                <img src="item_shirt_vertical.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                                <img src="cloth_line_v_1786282011681.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="가로선">
+                                                <img src="cloth_line_h_1786282021678.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="사선">
+                                                <img src="cloth_line_d_1786282163630.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="무지">
+                                                <img src="cloth_line_n_1786282235174.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
-                                        <div class="closet-label" style="font-size: 0.7rem;">온도 (염료)</div>
+                                        <div class="closet-label" style="font-size: 0.7rem;">색 (온도)</div>
                                         <div class="shelf-items">
-                                            <div class="paperdoll-item" draggable="true" data-category="temp" data-val="난색">
-                                                <img src="item_skirt_warm.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="한색">
+                                                <img src="cloth_color_cool_1786282244609.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
                                             </div>
-                                            <div class="paperdoll-item" draggable="true" data-category="temp" data-val="한색">
-                                                <img src="item_skirt_cool.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="난색">
+                                                <img src="cloth_color_warm_1786282255619.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="뉴트럴">
+                                                <img src="cloth_color_neutral_1786282265966.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="무채색">
+                                                <img src="cloth_color_mono_1786282373249.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">재질 (촉감)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="뻣뻣한">
+                                                <img src="cloth_mat_stiff_1786282385072.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="부드러운">
+                                                <img src="cloth_mat_soft_1786282395544.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="얇은">
+                                                <img src="cloth_mat_thin_1786282406556.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="두꺼운">
+                                                <img src="cloth_mat_thick_1786282421305.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
                                             </div>
                                         </div>
                                     </div>
@@ -426,23 +454,17 @@
                                     <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
                                         <div class="closet-label" style="font-size: 0.7rem;">무늬 (패턴)</div>
                                         <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="작은무늬">
+                                                <img src="cloth_pat_small_1786282434396.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
                                             <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="큰무늬">
                                                 <img src="item_jacket_large.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
                                             </div>
-                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="작은무늬">
-                                                <img src="item_jacket_small.png" style="width: 100%; height: auto; mix-blend-mode: multiply; filter: hue-rotate(90deg);">
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="체크무늬">
+                                                <div style="width: 100%; height: 100%; min-height: 40px; background: repeating-linear-gradient(45deg, #ccc, #ccc 5px, #fff 5px, #fff 10px); border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border-radius: 4px; color: #333;">체크</div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
-                                        <div class="closet-label" style="font-size: 0.7rem;">목둘레선 (네크라인)</div>
-                                        <div class="shelf-items">
-                                            <div class="paperdoll-item" draggable="true" data-category="neckline" data-val="V넥">
-                                                <div style="background: rgba(255,255,255,0.7); border:1px solid #333; padding:5px; font-size:12px; font-weight:bold; border-radius:5px; color:#333;">V넥</div>
-                                            </div>
-                                            <div class="paperdoll-item" draggable="true" data-category="neckline" data-val="U넥">
-                                                <div style="background: rgba(255,255,255,0.7); border:1px solid #333; padding:5px; font-size:12px; font-weight:bold; border-radius:5px; color:#333;">U넥</div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="무늬없음">
+                                                <img src="cloth_line_n_1786282235174.png" style="width: 100%; height: auto; mix-blend-mode: multiply; filter: hue-rotate(180deg);">
                                             </div>
                                         </div>
                                     </div>
@@ -459,11 +481,10 @@
                                 <!-- 오른쪽: 장착된 아이템 표시 패널 (아바타 높이에 맞춤) -->
                                 <div class="equipped-panel" style="width: 110px; height: 400px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 2px solid #c7a477;">
                                     <div style="text-align: center; font-size: 0.75rem; font-weight: bold; color: #5a3a1b;">장착 슬롯</div>
-                                    <div class="avatar-slot" id="slot-color" data-accept="컬러" style="flex: 1;"></div>
                                     <div class="avatar-slot" id="slot-line" data-accept="선" style="flex: 1;"></div>
-                                    <div class="avatar-slot" id="slot-temp" data-accept="온도" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-color" data-accept="색" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-material" data-accept="재질" style="flex: 1;"></div>
                                     <div class="avatar-slot" id="slot-pattern" data-accept="무늬" style="flex: 1;"></div>
-                                    <div class="avatar-slot" id="slot-neckline" data-accept="목둘레선" style="flex: 1;"></div>
                                 </div>
                             </div>
                             
@@ -490,7 +511,7 @@
             </div>
 
             <!-- 4단계 방 (Screen 5) -->
-            <section id="screen-5" class="screen hidden" style="background-image: url('intro_bg.png'); background-size: cover; background-position: center; position: relative;">
+            <section id="screen-5" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1537832816519-689ad163238b'); background-size: cover; background-position: center; position: relative;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <header class="stage-header">
                         <h2>4단계: 런칭쇼 대기실 (T.P.O) 🎉</h2>
@@ -531,18 +552,18 @@
                             <div id="stage4-5r-puzzle" class="hidden" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
                                 <h4 style="color: #c7a477; margin-bottom: 1rem;">1. 5R 순서 조립</h4>
                                 <div id="5r-options" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap;">
-                                    <div class="5r-item" draggable="true" data-val="거절하기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">거절하기</div>
-                                    <div class="5r-item" draggable="true" data-val="줄이기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">줄이기</div>
-                                    <div class="5r-item" draggable="true" data-val="재사용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재사용</div>
-                                    <div class="5r-item" draggable="true" data-val="재활용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재활용</div>
-                                    <div class="5r-item" draggable="true" data-val="썩히기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">썩히기</div>
+                                    <div class="item-5r" draggable="true" data-val="줄이기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">줄이기</div>
+                                    <div class="item-5r" draggable="true" data-val="재활용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재활용</div>
+                                    <div class="item-5r" draggable="true" data-val="거절하기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">거절하기</div>
+                                    <div class="item-5r" draggable="true" data-val="썩히기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">썩히기</div>
+                                    <div class="item-5r" draggable="true" data-val="재사용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재사용</div>
                                 </div>
                                 <div id="5r-slots" style="display: flex; gap: 10px; justify-content: center;">
-                                    <div class="5r-slot" data-index="0" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">1순위</div>
-                                    <div class="5r-slot" data-index="1" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">2순위</div>
-                                    <div class="5r-slot" data-index="2" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">3순위</div>
-                                    <div class="5r-slot" data-index="3" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">4순위</div>
-                                    <div class="5r-slot" data-index="4" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">5순위</div>
+                                    <div class="slot-5r" data-index="0" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">1순위</div>
+                                    <div class="slot-5r" data-index="1" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">2순위</div>
+                                    <div class="slot-5r" data-index="2" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">3순위</div>
+                                    <div class="slot-5r" data-index="3" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">4순위</div>
+                                    <div class="slot-5r" data-index="4" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">5순위</div>
                                 </div>
                             </div>
 
@@ -572,21 +593,49 @@
             </section>
             
             <!-- 최종 엔딩 스크린 -->
-            <section id="screen-ending" class="screen hidden" style="background: #000; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; overflow: hidden;">
+            <section id="screen-ending" class="screen hidden" style="background: #000; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                 <!-- 폭죽 캔버스 -->
                 <canvas id="confetti-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 101;"></canvas>
                 
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 102; width: 80%;">
-                    <h1 style="color: var(--accent-gold); font-size: 4rem; margin-bottom: 1rem; text-shadow: 0 0 20px rgba(212,175,55,0.8); font-family: var(--font-heading);">SUCCESS!</h1>
-                    <h2 style="color: white; font-size: 2rem; margin-bottom: 2rem;">완벽한 친환경 런칭쇼가 성공적으로 개최되었습니다!</h2>
-                    <p style="color: #ccc; font-size: 1.2rem; line-height: 1.8;">
-                        강태오 대표의 패스트 패션 계획을 막아내고,<br>
-                        지속 가능한 패션 브랜드 <b>RE:BRAND</b>의 진정한 가치를 세상에 알렸습니다.<br>
-                        여러분의 훌륭한 팀워크가 브랜드를 위기에서 구했습니다!
+                <div id="certificate-container" style="background: white; width: 80%; max-width: 600px; padding: 2rem; border: 15px solid #d4af37; border-style: double; box-shadow: 0 0 30px rgba(212,175,55,0.5); text-align: center; color: black; font-family: 'Playfair Display', serif; z-index: 102;">
+                    <img src="https://images.unsplash.com/photo-1598284617181-4203da3b45a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="seal" style="width: 80px; height: 80px; margin: 0 auto 1rem auto; border-radius: 50%;">
+                    <h1 style="color: #8b5a2b; font-size: 2.5rem; margin-bottom: 1rem; border-bottom: 2px solid #8b5a2b; padding-bottom: 0.5rem; display: inline-block;">수석 에코 디자이너 임명장</h1>
+                    
+                    <h2 style="font-size: 1.8rem; margin: 1.5rem 0; color: #333;">소속: <span id="certificate-dept-name" style="text-decoration: underline; color: #000;"></span></h2>
+                    
+                    <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; font-family: 'Noto Sans KR', sans-serif;">
+                        위 부서는 강태오 대표의 패스트 패션 계획을 훌륭히 저지하고,<br>
+                        지속 가능한 패션 브랜드 <b>RE:BRAND</b>의 진정한 가치를 세상에 알리는 데<br>
+                        지대한 공헌을 하였으므로 이 임명장을 수여합니다.
                     </p>
-                    <button class="btn-primary btn-logout-role" style="margin-top: 3rem; padding: 1rem 2rem; font-size: 1.2rem;">메인 화면으로 돌아가기</button>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3rem; padding: 0 2rem;">
+                        <div style="text-align: left; font-family: 'Noto Sans KR', sans-serif;">
+                            <p style="margin-bottom: 0.5rem;">날짜: 2026년 8월 9일</p>
+                            <p>발급자: 수석 디자이너 한서연</p>
+                        </div>
+                        <div style="font-size: 2rem; font-family: 'Great Vibes', cursive; color: #8b5a2b;">Han Seo-yeon</div>
+                    </div>
                 </div>
+                
+                <button class="btn-primary btn-logout-role" style="position: absolute; bottom: 5%; z-index: 103; padding: 1rem 2rem; font-size: 1.2rem;">메인 화면으로 돌아가기</button>
             </section>
+            
+            <!-- 에필로그 모달 -->
+            <div id="epilogue-modal" class="modal hidden" style="z-index: 1000;">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem; text-align: center;">에필로그: 런칭쇼 그 후... 🌿</h2>
+                    <p style="line-height: 1.8; margin-bottom: 1rem; font-size: 1.1rem; color: #eee;">
+                        여러분의 활약으로 RE:BRAND의 친환경 컬렉션 런칭쇼는 대성공을 거두었습니다!<br><br>
+                        소비자들은 단순한 화려함을 넘어, <b>옷에 담긴 지구를 향한 배려와 5R의 가치</b>에 열광했습니다. 매출은 폭발적으로 증가했고, 언론은 '윤리적 패션의 승리'라며 찬사를 보냈습니다.<br><br>
+                        자신의 고집이 틀렸음을 깨달은 <b>강태오 대표</b>는 깊이 반성하며 패스트 패션 생산 라인을 전면 폐기하고, 여러분과 한서연 디자이너의 비전에 적극 동참하기로 약속했습니다.<br><br>
+                        위기에 빠진 브랜드를 구해주셔서 감사합니다!
+                    </p>
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button id="btn-close-epilogue" class="btn-primary">임명장 수여식으로 이동</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- 1단계 스토리 모달 -->
             <div id="stage1-story-modal" class="modal hidden">
@@ -633,8 +682,65 @@
                 </div>
             </div>
 
+            <!-- 3단계 완료 및 암호 발급 모달 -->
+            <div id="stage3-success-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 500px; text-align: center; border: 2px solid #4caf50;">
+                    <h2 style="color: #4caf50; margin-bottom: 1rem;">🎉 3단계 미션 완료!</h2>
+                    <p style="font-size: 1.1rem; margin-bottom: 1rem;">모든 미션을 완벽하게 수행했습니다.</p>
+                    <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <p style="color: var(--accent-gold); font-size: 1.2rem; margin-bottom: 0.5rem;">우리 부서의 숨겨진 원단 조각을 찾으세요!</p>
+                    </div>
+                    <p id="stage3-guide-text" style="color: #ccc; line-height: 1.6; margin-bottom: 1.5rem;">
+                        교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>
+                        원단을 찾은 뒤, 원단에 붙어 있는 <strong>QR 코드</strong>를 휴대폰 카메라로 스캔하여 <strong>'숨겨진 메시지'</strong>를 알아내야 합니다.
+                    </p>
+                    <button id="btn-close-stage3-success" class="btn-primary" style="width: 100%;">암호 확인 완료 (직접 스캔 시도)</button>
+                    <p id="stage3-waiting-msg" class="hidden" style="color: var(--accent-gold); font-weight: bold; margin-top: 1rem; font-size: 1.1rem; animation: pulse 2s infinite;">부장님이 조각을 스캔하고 암호를 입력할 때까지 기다려주세요...</p>
+                </div>
+            </div>
+
+            <!-- Screen QR: QR 조각 찾기 화면 -->
+            <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 500px; text-align: center;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">🔎 조각 찾기 미션!</h2>
+                        <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
+                            교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>스캔 후 나타나는 <strong>'숨겨진 메시지'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
+                        </p>
+                        <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 입력 (띄어쓰기 포함)" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;">
+                        <div>
+                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">잠금 해제</button>
+                        </div>
+                        <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.1rem;">이건 우리 조각이 아니에요! 다른 조각을 찾아보세요.</p>
+                        
+                        <div id="qr-success-panel" class="hidden" style="margin-top: 2rem;">
+                            <h3 style="color: #4caf50; margin-bottom: 1rem;">🎉 우리 부서 조각을 찾았습니다!</h3>
+                            <button id="btn-go-to-personal" class="btn-secondary" style="border-color: var(--accent-gold); color: var(--accent-gold);">다음 미션으로 이동</button>
+                            <button id="btn-view-dashboard" class="btn-text" style="display: block; margin: 1rem auto 0 auto;">학급 전체 진행 상황 보기</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen Dashboard: 교사용 대시보드 (학급 전체 현황) -->
+            <section id="screen-dashboard" class="screen hidden" style="background-color: #0f1115; min-height: 100vh; overflow: hidden; position: relative;">
+                <button id="btn-close-dashboard" class="btn-text" style="position: absolute; top: 1rem; left: 1rem; z-index: 100;">← 돌아가기</button>
+                <div style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+                    <h1 style="color: var(--accent-gold); margin-bottom: 2rem; font-family: 'Playfair Display', serif; font-size: 2.5rem;">RE:BRAND 컬렉션 완성도</h1>
+                    
+                    <div id="fabric-puzzle-container" style="display: flex; width: 80%; max-width: 1000px; height: 500px; background: rgba(255,255,255,0.05); border: 4px solid #333; border-radius: 8px; overflow: hidden; position: relative; transition: transform 1s ease;">
+                        <!-- JS에서 부서 수만큼 6등분 슬롯 자동 생성 -->
+                    </div>
+
+                    <div id="dashboard-final-message" class="hidden" style="margin-top: 2rem; background: rgba(0,0,0,0.8); border: 2px solid var(--accent-gold); padding: 2rem; border-radius: 8px; max-width: 800px; text-align: center; animation: fadeIn 2s;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">수석 디자이너 한서연</h2>
+                        <p id="dashboard-final-text" style="font-size: 1.2rem; line-height: 1.6; color: #fff;"></p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Screen 6: 개인 디자인 및 5R 제출 -->
-            <section id="screen-6" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+            <section id="screen-6" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1513364776144-60967b0f800f'); background-size: cover; background-position: center; min-height: 100vh;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <header class="stage-header">
                         <h2>개인 미션: 나에게 어울리는 디자인 🎨</h2>
@@ -643,9 +749,29 @@
 
                     <div class="mission-container">
                         <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; text-align: left;">
-                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">1. 직접 그린 디자인 업로드</h3>
-                            <p style="color: #ccc; margin-bottom: 1rem; font-size: 0.95rem;">오토드로우(AutoDraw)나 종이에 직접 그린 '나에게 어울리는 옷차림' 사진을 업로드해주세요.</p>
-                            <input type="file" id="design-upload" accept="image/*" style="margin-bottom: 1rem; color: white;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">1. 직접 디자인 그리기 / 파일 업로드</h3>
+                            <p style="color: #ccc; margin-bottom: 1rem; font-size: 0.95rem;">나에게 어울리는 옷차림을 아래 캔버스에 직접 그리거나, 이미 그린 사진을 업로드해주세요.</p>
+                            
+                            <!-- 캔버스 드로잉 영역 -->
+                            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="btn-secondary" id="btn-color-black" style="background: black; width: 30px; height: 30px; border-radius: 50%; border: 2px solid white;"></button>
+                                    <button class="btn-secondary" id="btn-color-red" style="background: red; width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent;"></button>
+                                    <button class="btn-secondary" id="btn-color-blue" style="background: blue; width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent;"></button>
+                                    <button class="btn-secondary" id="btn-color-green" style="background: green; width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent;"></button>
+                                    <button class="btn-secondary" id="btn-tool-eraser" style="padding: 0 10px;">지우개</button>
+                                    <button class="btn-secondary" id="btn-tool-clear" style="padding: 0 10px;">전체 지우기</button>
+                                </div>
+                                <div style="display: flex; justify-content: center;">
+                                    <canvas id="design-canvas" width="400" height="400" style="background: white; border-radius: 8px; cursor: crosshair; touch-action: none; max-width: 100%;"></canvas>
+                                </div>
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <button id="btn-analyze-canvas" class="btn-primary" style="padding: 0.5rem 1rem;">🎨 내 그림 AI 분석하기</button>
+                                </div>
+                            </div>
+                            
+                            <p style="color: #ccc; margin-bottom: 0.5rem; font-size: 0.9rem; text-align: center;">또는 파일 업로드하기:</p>
+                            <input type="file" id="design-upload" accept="image/*" style="margin-bottom: 1rem; color: white; display: block; margin-left: auto; margin-right: auto;">
                             
                             <div id="ai-feedback-panel" class="hidden" style="margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid #4caf50;">
                                 <h4 style="color: #4caf50; margin-bottom: 0.5rem;">🤖 AI 디자인 분석 피드백</h4>
@@ -767,6 +893,7 @@
                     <button id="btn-add-dept" class="btn-primary">부서 추가</button>
                 </div>
                 <div style="margin-top: 2rem;">
+                    <button id="btn-open-dashboard" class="btn-primary" style="background: #4caf50; color: white; width: 100%; margin-bottom: 1rem;">학급 전체 현황판(대시보드) 열기</button>
                     <button id="btn-reset-depts" class="btn-danger">모든 부서 데이터 초기화 ⚠️</button>
                 </div>
                 <div style="margin-top: 1.5rem;">

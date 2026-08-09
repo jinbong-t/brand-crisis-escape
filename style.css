@@ -161,21 +161,24 @@ body {
 
 .shelf-items {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.3rem;
 }
 
 .paperdoll-item {
     background: white;
     border: 2px solid #c7a477;
     border-radius: 6px;
-    padding: 0.5rem;
+    padding: 0.2rem;
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #5a3a1b;
     cursor: grab;
     transition: transform 0.1s;
     user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .paperdoll-item:active {
@@ -933,4 +936,44 @@ input:focus {
     width: 100%;
     max-width: 300px;
     margin: 0 auto;
+}
+
+/* ==================================
+   QR Scan & Dashboard Puzzle Styles
+================================== */
+.fabric-slot {
+    flex: 1;
+    height: 100%;
+    background-image: url('조각 원단.png');
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    border-right: 1px dashed rgba(255,255,255,0.2);
+}
+.fabric-slot:last-child {
+    border-right: none;
+}
+.fabric-slot.unlocked {
+    opacity: 1;
+}
+
+/* We have 6 slots, each takes 1/6 of the width. 
+   Background size should be 600% width and 100% height to fit the original image correctly. */
+.fabric-slot {
+    background-size: 600% 100%;
+}
+.fabric-slot[data-slot="0"] { background-position: 0% 0; }
+.fabric-slot[data-slot="1"] { background-position: 20% 0; }
+.fabric-slot[data-slot="2"] { background-position: 40% 0; }
+.fabric-slot[data-slot="3"] { background-position: 60% 0; }
+.fabric-slot[data-slot="4"] { background-position: 80% 0; }
+.fabric-slot[data-slot="5"] { background-position: 100% 0; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.scale-up-anim {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px var(--accent-gold);
 }

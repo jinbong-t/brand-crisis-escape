@@ -288,15 +288,36 @@ btnAddDept.addEventListener('click', () => {
 
 btnResetDepts.addEventListener('click', async () => {
     if (confirm("정말 모든 부서 데이터와 직급 선택 기록을 초기화하시겠습니까? (되돌릴 수 없습니다!)")) {
-        // Firebase 직급 선택 상태 초기화
         const depts = getDepartments();
         const roles = ['인턴', '사원', '차장', '부장'];
         for (const dept of depts) {
-            for (const role of roles) {
-                try {
-                    await setDoc(doc(db, `departments/${dept.id}/roles`, role), { taken: false });
-                } catch(e) { console.error(e); }
-            }
+            try {
+                // 부서 기본 정보 및 스테이지 초기화
+                await setDoc(doc(db, 'departments', dept.id), {
+                    name: dept.name,
+                    currentStage: 0,
+                    managerFinalAnswer1: "",
+                    managerFinalAnswer2: "",
+                    stage2Pw: "",
+                    reasoningWords: [],
+                    qrScanned: false
+                });
+                
+                // QR 피스 상태 초기화
+                await setDoc(doc(db, 'pieces', dept.id), {
+                    unlocked: false
+                });
+
+                // 직급 상태 초기화
+                for (const role of roles) {
+                    await setDoc(doc(db, `departments/${dept.id}/roles`, role), { 
+                        taken: false,
+                        stage1Confirmed: false,
+                        stage4Confirmed: false,
+                        stage2Ready: false
+                    });
+                }
+            } catch(e) { console.error(e); }
         }
         
         localStorage.removeItem('rebrand_departments');
@@ -317,19 +338,31 @@ if (btnEasyReset) {
             const depts = getDepartments();
             const roles = ['인턴', '사원', '차장', '부장'];
             
-            // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기
+            // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기 (완전 초기화)
             for (const dept of depts) {
+                try {
+                    await setDoc(doc(db, 'departments', dept.id), {
+                        name: dept.name,
+                        currentStage: 0,
+                        managerFinalAnswer1: "",
+                        managerFinalAnswer2: "",
+                        stage2Pw: "",
+                        reasoningWords: [],
+                        qrScanned: false
+                    });
+                    await setDoc(doc(db, 'pieces', dept.id), { unlocked: false });
+                } catch(e) { console.error(e); }
+
                 for (const role of roles) {
                     try {
-                        await setDoc(doc(db, `departments/${dept.id}/roles`, role), { taken: false });
+                        await setDoc(doc(db, `departments/${dept.id}/roles`, role), { 
+                            taken: false,
+                            stage1Confirmed: false,
+                            stage4Confirmed: false,
+                            stage2Ready: false
+                        });
                     } catch(e) { console.error(e); }
                 }
-                try {
-                    await setDoc(doc(db, 'departments', dept.id), { 
-                        currentStage: 0,
-                        showStage3Reasoning: false
-                    }, { merge: true });
-                } catch(e) { console.error(e); }
             }
             
             localStorage.removeItem('rebrand_departments');
@@ -342,6 +375,32 @@ if (btnEasyReset) {
         }
     });
 }
+
+// 테스트용 실천적 추론 바로가기 버튼
+const debugRoleBtns = document.querySelectorAll('.btn-debug-role');
+debugRoleBtns.forEach(btn => {
+    btn.addEventListener('click', async () => {
+        currentDeptId = 'test-dept'; // 임의의 부서
+        currentRole = btn.getAttribute('data-role');
+        currentDeptName = '테스트부서';
+        sessionStorage.setItem('currentRole', currentRole);
+        
+        // 부서 문서 강제 생성 (updateDoc 오류 방지)
+        try {
+            await setDoc(doc(db, 'departments', currentDeptId), {
+                name: '테스트부서',
+                currentStage: 1
+            }, { merge: true });
+        } catch(e) { console.error(e); }
+
+        document.getElementById('screen-splash').classList.remove('active');
+        
+        // 정식 앱 초기화 (이 과정에서 onSnapshot이 제대로 묶이고 화면 1이 정상 셋팅됨)
+        initApp();
+        
+        setTimeout(() => showReasoningModal(PUZZLE_DATA.stage1, 2), 800);
+    });
+});
 
 // 페이지 스킵 로직
 const skipButtons = document.querySelectorAll('.btn-skip');
@@ -1053,18 +1112,19 @@ function startScreen4() {
             
             selectedItems[category] = val;
             
-            if (selectedItems['line'] && selectedItems['temp'] && selectedItems['neckline']) {
+            if (selectedItems['line'] && selectedItems['color'] && selectedItems['material'] && selectedItems['pattern']) {
                 btnSubmit.disabled = false;
             }
         });
         
         btnSubmit.onclick = async () => {
-            if (selectedItems['line'] === '세로선' && 
-                selectedItems['temp'] === '한색' && 
-                selectedItems['neckline'] === 'V넥') {
+            if (selectedItems['line'] === '가로선' && 
+                selectedItems['color'] === '한색' && 
+                selectedItems['material'] === '뻣뻣한' &&
+                selectedItems['pattern'] === '작은무늬') {
                 
                 errorMsg.classList.add('hidden');
-                alert("🎉 완벽합니다! 오지수 모델의 핏이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
+                alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
                 try {
@@ -1169,8 +1229,8 @@ function startScreen5() {
         };
 
         // 5R 드래그 앤 드롭 로직
-        const draggables = document.querySelectorAll('.5r-item');
-        const slots = document.querySelectorAll('.5r-slot');
+        const draggables = document.querySelectorAll('.item-5r');
+        const slots = document.querySelectorAll('.slot-5r');
         let selected5R = Array(5).fill(null);
         
         draggables.forEach(item => {
@@ -1182,6 +1242,93 @@ function startScreen5() {
                 item.style.opacity = '1';
             });
         });
+        
+        // ------------------------------------
+        // --- 캔버스 스케치북 로직 ---
+        const canvas = document.getElementById('design-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = 'black';
+            
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            function startDrawing(e) {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                lastX = (e.clientX || e.touches[0].clientX) - rect.left;
+                lastY = (e.clientY || e.touches[0].clientY) - rect.top;
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault(); // 스크롤 방지
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+                const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                lastX = x;
+                lastY = y;
+            }
+
+            function stopDrawing() {
+                isDrawing = false;
+            }
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            canvas.addEventListener('touchstart', startDrawing, {passive: false});
+            canvas.addEventListener('touchmove', draw, {passive: false});
+            canvas.addEventListener('touchend', stopDrawing);
+
+            document.getElementById('btn-color-black').onclick = () => { ctx.strokeStyle = 'black'; ctx.lineWidth = 5; };
+            document.getElementById('btn-color-red').onclick = () => { ctx.strokeStyle = 'red'; ctx.lineWidth = 5; };
+            document.getElementById('btn-color-blue').onclick = () => { ctx.strokeStyle = 'blue'; ctx.lineWidth = 5; };
+            document.getElementById('btn-color-green').onclick = () => { ctx.strokeStyle = 'green'; ctx.lineWidth = 5; };
+            document.getElementById('btn-tool-eraser').onclick = () => { ctx.strokeStyle = 'white'; ctx.lineWidth = 20; }; // 지우개는 굵게
+            document.getElementById('btn-tool-clear').onclick = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); };
+        }
+        
+        // 캔버스 AI 분석 버튼
+        const btnAnalyzeCanvas = document.getElementById('btn-analyze-canvas');
+        if (btnAnalyzeCanvas) {
+            btnAnalyzeCanvas.onclick = () => {
+                aiFeedback.classList.remove('hidden');
+                aiFeedbackText.textContent = "캔버스 이미지를 분석 중입니다...";
+                setTimeout(() => {
+                    aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
+                }, 2500);
+            };
+        }
+        
+        // 파일 업로드 시 AI 분석 호출 임시 로직
+        const fileUpload = document.getElementById('design-upload');
+        const aiFeedback = document.getElementById('ai-feedback-panel');
+        const aiFeedbackText = document.getElementById('ai-feedback-text');
+        
+        if (fileUpload) {
+            fileUpload.addEventListener('change', () => {
+                if(fileUpload.files && fileUpload.files[0]) {
+                    aiFeedback.classList.remove('hidden');
+                    aiFeedbackText.textContent = "이미지를 분석 중입니다...";
+                    // 임시 분석 지연 시간
+                    setTimeout(() => {
+                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
+                    }, 2500);
+                }
+            });
+        }
         
         const btnLaunch = document.getElementById('btn-launch-show');
         const scoreInput = document.getElementById('stage4-manager-score-input');
@@ -1260,32 +1407,17 @@ function startScreen5() {
             checkManagerStage4Complete();
         });
         
-        // 런칭 버튼 클릭 (Screen 6으로 이동)
-        btnLaunch.onclick = () => {
-            // Screen 6 표시
-            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-            document.getElementById('screen-6').classList.remove('hidden');
-            document.getElementById('display-current-role-stage6').textContent = currentRole;
+        // 런칭 버튼 클릭 (3단계 완료) - 이제 DB를 업데이트하여 모두에게 런칭을 알림
+        btnLaunch.onclick = async () => {
+            try {
+                await updateDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: 5
+                });
+            } catch(e) {
+                console.error("런칭쇼 가동 실패:", e);
+                alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+            }
         };
-        
-        // --- Screen 6 및 7 이벤트 리스너 세팅 ---
-        // 파일 업로드 시 AI 분석 호출 임시 로직
-        const fileUpload = document.getElementById('design-upload');
-        const aiFeedback = document.getElementById('ai-feedback-panel');
-        const aiFeedbackText = document.getElementById('ai-feedback-text');
-        
-        if (fileUpload) {
-            fileUpload.addEventListener('change', () => {
-                if(fileUpload.files && fileUpload.files[0]) {
-                    aiFeedback.classList.remove('hidden');
-                    aiFeedbackText.textContent = "이미지를 분석 중입니다...";
-                    // 임시 분석 지연 시간
-                    setTimeout(() => {
-                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
-                    }, 2500);
-                }
-            });
-        }
         
         const btnSubmitPersonal = document.getElementById('btn-submit-personal-design');
         if (btnSubmitPersonal) {
@@ -1313,9 +1445,31 @@ function startScreen5() {
                 }
                 alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
                 document.getElementById('screen-7').classList.add('hidden');
-                const endingScreen = document.getElementById('screen-ending');
-                endingScreen.classList.remove('hidden');
-                triggerConfetti();
+                
+                // 에필로그 모달 표시
+                const epilogueModal = document.getElementById('epilogue-modal');
+                if (epilogueModal) epilogueModal.classList.remove('hidden');
+                
+                // 에필로그 닫고 임명장 화면으로
+                const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
+                if (btnCloseEpilogue) {
+                    btnCloseEpilogue.onclick = () => {
+                        epilogueModal.classList.add('hidden');
+                        const endingScreen = document.getElementById('screen-ending');
+                        if (endingScreen) endingScreen.classList.remove('hidden');
+                        
+                        // 부서명 설정
+                        let deptName = '우리 부서';
+                        if (PUZZLE_DATA.departments) {
+                            const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
+                            if (found) deptName = found.name;
+                        }
+                        const certDeptName = document.getElementById('certificate-dept-name');
+                        if (certDeptName) certDeptName.textContent = deptName;
+                        
+                        triggerConfetti();
+                    };
+                }
             };
         }
         // ------------------------------------
@@ -1376,6 +1530,52 @@ function startScreen5() {
                 feedback.textContent = "잘못된 정답입니다! 다시 생각해보세요.";
                 feedback.classList.remove('hidden');
             }
+        };
+    }
+    
+    // 부장 및 팀원 모두에게 적용되는 전역 리스너 (Stage 5 / QR 스캔 단계 진입)
+    onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
+        const d = docSnap.data();
+        if (d && d.currentStage === 5) {
+            const successModal = document.getElementById('stage3-success-modal');
+            const pwDisplay = document.getElementById('stage3-revealed-password');
+            const guideText = document.getElementById('stage3-guide-text');
+            const closeBtn = document.getElementById('btn-close-stage3-success');
+            const waitingMsg = document.getElementById('stage3-waiting-msg');
+
+            if (successModal && successModal.classList.contains('hidden')) {
+                // pwDisplay 관련 로직은 제거됨
+                if (guideText) {
+                    guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
+                }
+                
+                closeBtn.classList.remove('hidden'); // 누구나 스캔 창을 열 수 있음
+                if(waitingMsg) waitingMsg.classList.add('hidden');
+                
+                successModal.classList.remove('hidden');
+
+                // 누군가 QR을 찍어 조각을 획득하면 모두가 6단계로 넘어감
+                const unsub = onSnapshot(doc(db, 'pieces', currentDeptId), (pieceSnap) => {
+                    if (pieceSnap.exists() && pieceSnap.data().unlocked) {
+                        unsub();
+                        document.getElementById('stage3-success-modal').classList.add('hidden');
+                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                        document.getElementById('screen-6').classList.remove('hidden');
+                        document.getElementById('display-current-role-stage6').textContent = currentRole;
+                        alert('🎉 팀원이 조각을 성공적으로 찾았습니다! 다음 미션으로 넘어갑니다.');
+                    }
+                });
+            }
+        }
+    });
+
+    const btnCloseStage3Success = document.getElementById('btn-close-stage3-success');
+    if (btnCloseStage3Success) {
+        btnCloseStage3Success.onclick = () => {
+            document.getElementById('stage3-success-modal').classList.add('hidden');
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById('screen-qr').classList.remove('hidden');
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
         };
     }
 }
@@ -1520,10 +1720,15 @@ function showReasoningModal(stageData, targetStageNum) {
     } else {
         // 키워드 자물쇠가 없는 경우 (단순 토론)
         keywordsContainer.parentElement.style.display = 'none';
-        sentenceContainer.innerHTML = '<p style="color: var(--accent-gold); text-align: center;">팀원들과 충분히 토론을 진행한 후, 부장님이 <b>[합의 완료]</b> 버튼을 눌러주세요.</p>';
+        sentenceContainer.innerHTML = `
+            <p style="color: var(--accent-gold); text-align: center; margin-bottom: 1rem;">팀원들과 충분히 토론을 진행한 후, 부장님이 <b>[합의 완료]</b> 버튼을 눌러주세요.</p>
+            <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="팀의 최종 합의 내용을 이곳에 자유롭게 정리하세요..."></textarea>
+        `;
     }
     
     const btnSubmit = document.getElementById('btn-submit-reasoning');
+    btnSubmit.style.display = 'inline-block';
+    btnSubmit.textContent = rData.keywordLock ? '자물쇠 풀기' : '합의 완료';
     btnSubmit.onclick = async () => {
         if (currentRole !== '부장') {
             alert('최종 결정 및 제출은 [부장]만 가능합니다. 부서원들과 상의하여 부장님이 결정을 내려주세요!');
@@ -1543,6 +1748,17 @@ function showReasoningModal(stageData, targetStageNum) {
         }
         
         if (isCorrect) {
+            // 요약 텍스트가 있으면 DB에 저장
+            const summaryEl = document.getElementById('reasoning-summary');
+            if (summaryEl && summaryEl.value.trim() !== '') {
+                try {
+                    await setDoc(doc(db, `departments/${currentDeptId}/reasoning`, `stage${targetStageNum-1}`), {
+                        roleGroup: currentRole,
+                        summary: summaryEl.value.trim()
+                    }, { merge: true });
+                } catch(e) { console.error("요약 저장 실패:", e); }
+            }
+
             alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
             modal.classList.add('hidden');
             
@@ -1553,7 +1769,8 @@ function showReasoningModal(stageData, targetStageNum) {
                     showStage3Reasoning: false
                 });
             } catch(e) {
-                console.error(e);
+                console.error("DB 업데이트 실패:", e);
+                alert('서버와 연결에 문제가 있습니다. 잠시 후 다시 시도해주세요.');
             }
         } else {
             alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
@@ -1565,6 +1782,10 @@ function showReasoningModal(stageData, targetStageNum) {
 async function initApp() {
     renderDeptGrid();
     
+    // QR 스캔으로 진입했는지 확인 (?qr=true)
+    const urlParams = new URLSearchParams(window.location.search);
+    const isQrScan = urlParams.get('qr') === 'true';
+
     // 세션이 남아있다면 해당 단계로 바로 복구
     if (currentDeptId && currentRole) {
         try {
@@ -1576,6 +1797,19 @@ async function initApp() {
                     deptSelection.classList.add('hidden');
                     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     
+                    // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
+                    if (isQrScan) {
+                        if (currentRole !== '부장') {
+                            alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
+                            // 스플래시나 대기 화면으로 돌려보냄 (우선 0단계 화면 띄움)
+                            document.getElementById('screen-0').classList.remove('hidden');
+                            return;
+                        }
+                        document.getElementById('screen-qr').classList.remove('hidden');
+                        document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
+                        return;
+                    }
+
                     if (stage === 0) {
                         screen1.classList.remove('hidden');
                         startScreen1();
@@ -1681,5 +1915,125 @@ if (devGodModeBtn) {
         }
     });
 }
+
+// --- QR 조각 찾기 화면 로직 ---
+const btnSubmitQr = document.getElementById('btn-submit-qr');
+const qrPasswordInput = document.getElementById('qr-password-input');
+const qrErrorMsg = document.getElementById('qr-error-msg');
+const qrSuccessPanel = document.getElementById('qr-success-panel');
+const btnGoToPersonal = document.getElementById('btn-go-to-personal');
+const btnViewDashboard = document.getElementById('btn-view-dashboard');
+
+if (btnSubmitQr) {
+    btnSubmitQr.addEventListener('click', async () => {
+        const inputPw = qrPasswordInput.value.trim();
+        const correctPw = PUZZLE_DATA.qrMessages[currentDeptId];
+        
+        // 입력값과 정답에서 띄어쓰기를 모두 제거하여 비교 (관대하게)
+        if (inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
+            qrErrorMsg.classList.add('hidden');
+            btnSubmitQr.classList.add('hidden');
+            qrPasswordInput.disabled = true;
+            qrSuccessPanel.classList.remove('hidden');
+            
+            // pieces 컬렉션 업데이트
+            try {
+                await setDoc(doc(db, 'pieces', currentDeptId), { 
+                    unlocked: true, 
+                    unlockedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.error('Error updating piece:', e);
+            }
+        } else {
+            qrErrorMsg.classList.remove('hidden');
+            qrPasswordInput.value = '';
+            qrPasswordInput.focus();
+        }
+    });
+}
+
+if (btnGoToPersonal) {
+    btnGoToPersonal.addEventListener('click', () => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('screen-6').classList.remove('hidden');
+        document.getElementById('display-current-role-stage6').textContent = currentRole;
+    });
+}
+
+// --- 대시보드 로직 ---
+const btnOpenDashboard = document.getElementById('btn-open-dashboard');
+const btnCloseDashboard = document.getElementById('btn-close-dashboard');
+const screenDashboard = document.getElementById('screen-dashboard');
+const fabricPuzzleContainer = document.getElementById('fabric-puzzle-container');
+let dashboardUnsubscribe = null;
+
+function renderDashboardSlots() {
+    const depts = JSON.parse(localStorage.getItem('rebrand_departments') || '[]');
+    fabricPuzzleContainer.innerHTML = '';
+    depts.forEach((d, idx) => {
+        const slot = document.createElement('div');
+        slot.className = 'fabric-slot';
+        slot.setAttribute('data-slot', idx);
+        slot.id = `dashboard-slot-${d.id}`;
+        fabricPuzzleContainer.appendChild(slot);
+    });
+}
+
+function openDashboard() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    screenDashboard.classList.remove('hidden');
+    renderDashboardSlots();
+    
+    // Firestore pieces 컬렉션 실시간 구독
+    dashboardUnsubscribe = onSnapshot(collection(db, 'pieces'), (snapshot) => {
+        let unlockedCount = 0;
+        const totalDepts = JSON.parse(localStorage.getItem('rebrand_departments') || '[]').length;
+        
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.unlocked) {
+                const slot = document.getElementById(`dashboard-slot-${docSnap.id}`);
+                if (slot && !slot.classList.contains('unlocked')) {
+                    slot.classList.add('unlocked');
+                }
+                unlockedCount++;
+            }
+        });
+        
+        // 모두 해제되었을 때 연출
+        if (unlockedCount >= totalDepts && totalDepts > 0) {
+            setTimeout(() => {
+                fabricPuzzleContainer.classList.add('scale-up-anim');
+                const finalMsg = document.getElementById('dashboard-final-message');
+                finalMsg.classList.remove('hidden');
+                
+                // 임시로 하드코딩된 메시지 (게이지 연동 전)
+                document.getElementById('dashboard-final-text').innerHTML = "고마워요, 여러분. 여러분이 지켜낸 만큼은 분명히 달라졌어요. 다음에는 조금 더, 지속가능한 선택 쪽으로 저울이 기울면 좋겠어요.";
+            }, 1000);
+        }
+    });
+}
+
+if (btnOpenDashboard) btnOpenDashboard.addEventListener('click', () => {
+    document.getElementById('admin-modal').classList.add('hidden');
+    openDashboard();
+});
+if (btnViewDashboard) btnViewDashboard.addEventListener('click', openDashboard);
+if (btnCloseDashboard) btnCloseDashboard.addEventListener('click', () => {
+    if (dashboardUnsubscribe) dashboardUnsubscribe();
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    if (currentDeptId) {
+        // 원래 있던 화면으로 돌아가기 (대시보드는 관리자나 QR 완료 화면에서만 들어옴)
+        // 여기선 스플래시나 QR 화면으로 보내버림
+        if (qrSuccessPanel && !qrSuccessPanel.classList.contains('hidden')) {
+            document.getElementById('screen-qr').classList.remove('hidden');
+        } else {
+            document.getElementById('screen-0').classList.remove('hidden');
+        }
+    } else {
+        document.getElementById('screen-splash').classList.remove('hidden');
+    }
+});
 
 initApp();
