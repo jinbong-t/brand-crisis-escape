@@ -2102,3 +2102,14 @@ if (btnCloseDashboard) btnCloseDashboard.addEventListener('click', () => {
 });
 
 initApp();
+
+const btnFloatingReset = document.getElementById('btn-floating-reset');
+if (btnFloatingReset) {
+    btnFloatingReset.addEventListener('click', () => {
+        if (confirm('모든 기기의 세션을 초기화하고 처음 화면으로 돌아가시겠습니까?')) {
+            sessionStorage.clear();
+            location.href = location.pathname;
+        }
+    });
+}
+
