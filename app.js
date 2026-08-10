@@ -1,6 +1,8 @@
 import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
+sessionStorage.clear();
+
 // DOM 요소
 const deptGrid = document.getElementById('dept-grid');
 const deptSelection = document.getElementById('department-selection');
@@ -2136,5 +2138,6 @@ if (btnSecretSkip) {
         } catch(e) { console.error(e); }
     });
 }
+
 
 
