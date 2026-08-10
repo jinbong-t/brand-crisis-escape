@@ -2125,3 +2125,22 @@ if (btnFloatingReset) {
     });
 }
 
+
+const btnSecretSkip = document.getElementById('btn-secret-skip');
+if (btnSecretSkip) {
+    btnSecretSkip.addEventListener('click', async () => {
+        if (!currentDeptId) return;
+        try {
+            const snap = await getDoc(doc(db, 'departments', currentDeptId));
+            if (snap.exists()) {
+                const stage = snap.data().currentStage || 0;
+                let nextStage = stage + 1;
+                if (nextStage > 5) nextStage = 5;
+                await updateDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: nextStage
+                });
+            }
+        } catch(e) { console.error(e); }
+    });
+}
+
