@@ -3,7 +3,7 @@ import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
 
-// DOM 요소
+// DOM ?�소
 const deptGrid = document.getElementById('dept-grid');
 const deptSelection = document.getElementById('department-selection');
 const roleSelection = document.getElementById('role-selection');
@@ -42,7 +42,7 @@ const diaryText = document.getElementById('diary-text');
 const btnSubmitOpening = document.getElementById('btn-submit-opening');
 const openingErrorMsg = document.getElementById('opening-error-msg');
 
-// 상태 관리
+// ?�태 관�?
 let currentDeptId = sessionStorage.getItem('currentDeptId') || null;
 let currentDeptName = sessionStorage.getItem('currentDeptName') || null;
 let currentRole = sessionStorage.getItem('currentRole') || null;
@@ -61,22 +61,22 @@ function clearSessionState() {
     sessionStorage.removeItem('currentRole');
 }
 
-// 기본 부서 목록
+// 기본 부??목록
 const DEFAULT_DEPTS = [
-    { id: 'dept-1', name: '디자인기획부' },
-    { id: 'dept-2', name: '소재개발부' },
-    { id: 'dept-3', name: '스타일링부' },
-    { id: 'dept-4', name: '생산전략부' },
-    { id: 'dept-5', name: '마케팅부' },
-    { id: 'dept-6', name: '품질관리부' }
+    { id: 'dept-1', name: '?�자?�기?��?' },
+    { id: 'dept-2', name: '?�재개발부' },
+    { id: 'dept-3', name: '?��??�링부' },
+    { id: 'dept-4', name: '?�산?�략부' },
+    { id: 'dept-5', name: '마�??��?' },
+    { id: 'dept-6', name: '?�질관리�?' }
 ];
 
 // Splash Screen Logic
 btnEnterGame.addEventListener('click', () => {
-    // 1. 강렬한 팝업 "당신의 부서는 무엇입니까?" 띄우기
+    // 1. 강렬???�업 "?�신??부?�는 무엇?�니�?" ?�우�?
     geniusModal.classList.remove('hidden');
     
-    // 2. 2.5초 후 팝업과 스플래시 화면 모두 사라지고 Screen 0 등장
+    // 2. 2.5�????�업�??�플?�시 ?�면 모두 ?�라지�?Screen 0 ?�장
     setTimeout(() => {
         geniusModal.classList.add('hidden');
         screenSplash.classList.add('hidden');
@@ -84,7 +84,7 @@ btnEnterGame.addEventListener('click', () => {
     }, 2500);
 });
 
-// 부서 관리
+// 부??관�?
 function getDepartments() {
     const saved = localStorage.getItem('rebrand_departments');
     if (saved) return JSON.parse(saved);
@@ -96,7 +96,7 @@ function saveDepartments(depts) {
     localStorage.setItem('rebrand_departments', JSON.stringify(depts));
 }
 
-// 화면 렌더링
+// ?�면 ?�더�?
 function renderDeptGrid() {
     const depts = getDepartments();
     deptGrid.innerHTML = '';
@@ -117,7 +117,7 @@ function renderAdminDeptList() {
         div.className = 'admin-dept-item';
         div.innerHTML = `
             <span>${dept.name}</span>
-            <button class="btn-delete" data-id="${dept.id}">삭제</button>
+            <button class="btn-delete" data-id="${dept.id}">??��</button>
         `;
         adminDeptList.appendChild(div);
     });
@@ -133,7 +133,7 @@ function renderAdminDeptList() {
     });
 }
 
-// 부서 선택
+// 부???�택
 async function selectDepartment(dept) {
     currentDeptId = dept.id;
     currentDeptName = dept.name;
@@ -142,7 +142,7 @@ async function selectDepartment(dept) {
     deptSelection.classList.add('hidden');
     roleSelection.classList.remove('hidden');
 
-    // Firestore에서 부서 문서가 없으면 생성
+    // Firestore?�서 부??문서가 ?�으�??�성
     const deptRef = doc(db, 'departments', currentDeptId);
     const snap = await getDoc(deptRef);
     if (!snap.exists()) {
@@ -157,7 +157,7 @@ async function selectDepartment(dept) {
     checkRoleAvailability();
 }
 
-// 직급 활성화 상태 확인
+// 직급 ?�성???�태 ?�인
 async function checkRoleAvailability() {
     roleCards.forEach(async (card) => {
         const role = card.getAttribute('data-role');
@@ -166,7 +166,7 @@ async function checkRoleAvailability() {
         
         if (snap.exists() && snap.data().taken) {
             card.disabled = true;
-            card.innerHTML = `<h3>${role}</h3><p>(선택 완료)</p>`;
+            card.innerHTML = `<h3>${role}</h3><p>(?�택 ?�료)</p>`;
         } else {
             card.disabled = false;
             card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}</p>`;
@@ -176,14 +176,14 @@ async function checkRoleAvailability() {
 
 function getRoleDesc(role) {
     switch(role) {
-        case '인턴': return '직접적인 단서 탐색';
-        case '사원': return '자료 해석 및 분석';
-        case '차장': return '핵심 개념 도출';
-        case '부장': return '종합 판단 및 제출';
+        case '?�턴': return '직접?�인 ?�서 ?�색';
+        case '?�원': return '?�료 ?�석 �?분석';
+        case '차장': return '?�심 개념 ?�출';
+        case '부??: return '종합 ?�단 �??�출';
     }
 }
 
-// 직급 선택 (트랜잭션)
+// 직급 ?�택 (?�랜??��)
 roleCards.forEach(card => {
     card.addEventListener('click', async () => {
         if (card.disabled) return;
@@ -194,17 +194,17 @@ roleCards.forEach(card => {
             await runTransaction(db, async (transaction) => {
                 const docSnap = await transaction.get(roleRef);
                 if (docSnap.exists() && docSnap.data().taken) {
-                    throw "이미 선택된 직급입니다.";
+                    throw "?��? ?�택??직급?�니??";
                 }
                 transaction.set(roleRef, { taken: true, timestamp: Date.now() });
             });
             
-            // 성공
+            // ?�공
             currentRole = role;
             saveSessionState();
-            alert(`${role} 직급으로 시작합니다!`);
+            alert(`${role} 직급?�로 ?�작?�니??`);
             
-            // 다이어리 넘기는(페이지 턴) 애니메이션으로 화면 전환
+            // ?�이?�리 ?�기???�이지 ?? ?�니메이?�으�??�면 ?�환
             screen0.classList.add('page-turn-out');
             setTimeout(() => {
                 screen0.classList.add('hidden');
@@ -214,17 +214,17 @@ roleCards.forEach(card => {
                 screen1.classList.add('page-turn-in');
                 setTimeout(() => screen1.classList.remove('page-turn-in'), 800);
                 
-                startScreen1(); // 화면 1(오프닝) 셋팅
+                startScreen1(); // ?�면 1(?�프?? ?�팅
             }, 800);
             
         } catch (e) {
             alert(e);
-            checkRoleAvailability(); // 상태 갱신
+            checkRoleAvailability(); // ?�태 갱신
         }
     });
 });
 
-// 뒤로가기
+// ?�로가�?
 btnBackToDept.addEventListener('click', () => {
     currentDeptId = null;
     currentDeptName = null;
@@ -234,11 +234,11 @@ btnBackToDept.addEventListener('click', () => {
     deptSelection.classList.remove('hidden');
 });
 
-// 역할 변경 (로그아웃 - 데이터 유지)
+// ??�� 변�?(로그?�웃 - ?�이???��?)
 const btnLogoutRoles = document.querySelectorAll('#btn-logout-role, .btn-logout-role');
 btnLogoutRoles.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (confirm("현재 역할에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다!)")) {
+        if (confirm("?�재 ??��?�서 로그?�웃?�시겠습?�까? (?�?�들??기안 기록?� DB??그�?�?보존?�니??)")) {
             currentRole = null;
             sessionStorage.removeItem('currentRole');
             location.reload();
@@ -246,7 +246,7 @@ btnLogoutRoles.forEach(btn => {
     });
 });
 
-// 관리자 모드 로직 (5번 클릭 시 활성화)
+// 관리자 모드 로직 (5�??�릭 ???�성??
 adminToggleBtn.addEventListener('click', () => {
     adminClickCount++;
     if (adminClickCount >= 5) {
@@ -289,12 +289,12 @@ btnAddDept.addEventListener('click', () => {
 });
 
 btnResetDepts.addEventListener('click', async () => {
-    if (confirm("정말 모든 부서 데이터와 직급 선택 기록을 초기화하시겠습니까? (되돌릴 수 없습니다!)")) {
+    if (confirm("?�말 모든 부???�이?��? 직급 ?�택 기록??초기?�하?�겠?�니�? (?�돌�????�습?�다!)")) {
         const depts = getDepartments();
-        const roles = ['인턴', '사원', '차장', '부장'];
+        const roles = ['?�턴', '?�원', '차장', '부??];
         for (const dept of depts) {
             try {
-                // 부서 기본 정보 및 스테이지 초기화
+                // 부??기본 ?�보 �??�테?��? 초기??
                 await setDoc(doc(db, 'departments', dept.id), {
                     name: dept.name,
                     currentStage: 0,
@@ -305,12 +305,12 @@ btnResetDepts.addEventListener('click', async () => {
                     qrScanned: false
                 });
                 
-                // QR 피스 상태 초기화
+                // QR ?�스 ?�태 초기??
                 await setDoc(doc(db, 'pieces', dept.id), {
                     unlocked: false
                 });
 
-                // 직급 상태 초기화
+                // 직급 ?�태 초기??
                 for (const role of roles) {
                     await setDoc(doc(db, `departments/${dept.id}/roles`, role), { 
                         taken: false,
@@ -327,20 +327,20 @@ btnResetDepts.addEventListener('click', async () => {
         currentDeptId = null;
         currentRole = null;
         
-        alert("초기화되었습니다.");
+        alert("초기?�되?�습?�다.");
         location.reload();
     }
 });
 
-// 테스트용 빠른 전체 초기화 버튼
+// ?�스?�용 빠른 ?�체 초기??버튼
 const btnEasyReset = document.getElementById('btn-easy-reset');
 if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
-        if (confirm("모든 부서 기록과 데이터 베이스 진행 상황을 완전히 초기화하고 처음부터(0단계) 다시 시작하시겠습니까?")) {
+        if (confirm("모든 부??기록�??�이??베이??진행 ?�황???�전??초기?�하�?처음부??0?�계) ?�시 ?�작?�시겠습?�까?")) {
             const depts = getDepartments();
-            const roles = ['인턴', '사원', '차장', '부장'];
+            const roles = ['?�턴', '?�원', '차장', '부??];
             
-            // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기 (완전 초기화)
+            // 모든 부?�의 권한 반환 �??�테?��? 0?�로 ?�돌리기 (?�전 초기??
             for (const dept of depts) {
                 try {
                     await setDoc(doc(db, 'departments', dept.id), {
@@ -372,69 +372,69 @@ if (btnEasyReset) {
             currentDeptId = null;
             currentRole = null;
             
-            alert("완벽하게 초기화되었습니다! 깨끗한 상태에서 시작합니다.");
+            alert("?�벽?�게 초기?�되?�습?�다! 깨끗???�태?�서 ?�작?�니??");
             location.reload();
         }
     });
 }
 
-// 테스트용 실천적 추론 바로가기 버튼
+// ?�스?�용 ?�천??추론 바로가�?버튼
 const debugRoleBtns = document.querySelectorAll('.btn-debug-role');
 debugRoleBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
-        currentDeptId = 'test-dept'; // 임의의 부서
+        currentDeptId = 'test-dept'; // ?�의??부??
         currentRole = btn.getAttribute('data-role');
-        currentDeptName = '테스트부서';
+        currentDeptName = '?�스?��???;
         sessionStorage.setItem('currentRole', currentRole);
         
-        // 부서 문서 강제 생성 (updateDoc 오류 방지)
+        // 부??문서 강제 ?�성 (updateDoc ?�류 방�?)
         try {
             await setDoc(doc(db, 'departments', currentDeptId), {
-                name: '테스트부서',
+                name: '?�스?��???,
                 currentStage: 1
             }, { merge: true });
         } catch(e) { console.error(e); }
 
         document.getElementById('screen-splash').classList.remove('active');
         
-        // 정식 앱 초기화 (이 과정에서 onSnapshot이 제대로 묶이고 화면 1이 정상 셋팅됨)
+        // ?�식 ??초기??(??과정?�서 onSnapshot???��?�?묶이�??�면 1???�상 ?�팅??
         initApp();
         
         setTimeout(() => showReasoningModal(PUZZLE_DATA.stage1, 2), 800);
     });
 });
 
-// 페이지 스킵 로직
+// ?�이지 ?�킵 로직
 const skipButtons = document.querySelectorAll('.btn-skip');
 skipButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
         const targetStage = parseInt(btn.getAttribute('data-target'));
         
         if (!currentDeptId || !currentRole) {
-            const forceTest = confirm("현재 선택된 부서나 직급이 없습니다! 테스트용 '테스트부서-부장' 권한으로 강제 입장하시겠습니까?");
+            const forceTest = confirm("?�재 ?�택??부?�나 직급???�습?�다! ?�스?�용 '?�스?��???부?? 권한?�로 강제 ?�장?�시겠습?�까?");
             if (forceTest) {
-                currentDeptId = 'test-dept-' + Date.now(); // 임시 부서 생성
-                currentDeptName = '테스트부서';
-                currentRole = '부장';
+                currentDeptId = 'test-dept-' + Date.now(); // ?�시 부???�성
+                currentDeptName = '?�스?��???;
+                currentRole = '부??;
                 saveSessionState();
             } else {
                 return;
             }
         }
         
-        if (confirm(`${targetStage}단계로 강제 이동하시겠습니까?`)) {
+        if (confirm(`${targetStage}?�계�?강제 ?�동?�시겠습?�까?`)) {
             try {
-                // 부서 문서가 없으면 임시 생성
+                // 부??문서가 ?�으�??�시 ?�성
                 await setDoc(doc(db, 'departments', currentDeptId), {
                     name: currentDeptName,
                     currentStage: targetStage,
                     startTime: Date.now()
                 }, { merge: true });
                 
-                // 모달 닫기
+                // 모달 ?�기
                 adminModal.classList.add('hidden');
                 
-                // 모든 화면 숨기기
+                // 모든 ?�면 ?�기�?
                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                 
@@ -454,7 +454,7 @@ skipButtons.forEach(btn => {
                     document.getElementById('screen-5').classList.remove('hidden');
                     startScreen5();
                 } else {
-                    alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱 🛠️`);
+                    alert(`${targetStage}?�계 ?�면?� ?�직 공사 중입?�다! ?�딱?�딱 ?���?);
                 }
                 
             } catch(e) {
@@ -465,7 +465,7 @@ skipButtons.forEach(btn => {
 });
 
 // ==========================================
-// Screen 1: 오프닝 로직
+// Screen 1: ?�프??로직
 // ==========================================
 let introParagraphs = [];
 let currentIntroIndex = 0;
@@ -474,7 +474,7 @@ function startScreen1() {
     mainHeader.classList.remove('hidden');
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
 
-    // 오프닝 스토리 모달 준비
+    // ?�프???�토�?모달 준�?
     let rawIntroText = PUZZLE_DATA.opening.introText;
     rawIntroText = rawIntroText.replace('[ROLE]', currentRole);
     introParagraphs = rawIntroText.split('<br><br>');
@@ -497,7 +497,7 @@ function startScreen1() {
             p.innerHTML = introParagraphs[currentIntroIndex];
             container.appendChild(p);
             
-            // 컨테이너 스크롤 맨 아래로
+            // 컨테?�너 ?�크�?�??�래�?
             container.parentElement.scrollTop = container.parentElement.scrollHeight;
             
             if (currentIntroIndex === introParagraphs.length - 1) {
@@ -509,9 +509,9 @@ function startScreen1() {
 
     introModal.classList.remove('hidden');
     
-    // 영상 자동 재생 시도
+    // ?�상 ?�동 ?�생 ?�도
     if (introVideo) {
-        introVideo.play().catch(e => console.log("자동 재생 방지됨", e));
+        introVideo.play().catch(e => console.log("?�동 ?�생 방�???, e));
     }
 
     renderOpeningCards();
@@ -526,7 +526,7 @@ document.getElementById('close-intro-modal').addEventListener('click', () => {
 
 function renderOpeningCards() {
     openingCardsContainer.innerHTML = '';
-    // 초기에는 무작위로 섞어서 배치
+    // 초기?�는 무작?�로 ?�어??배치
     const shuffledCards = [...PUZZLE_DATA.opening.cards].sort(() => Math.random() - 0.5);
     
     shuffledCards.forEach(cardData => {
@@ -536,31 +536,31 @@ function renderOpeningCards() {
         card.dataset.id = cardData.id;
         card.dataset.back = cardData.back;
 
-        // 어질러진 느낌을 위해 약간의 랜덤 회전과 오프셋 부여
-        const randomRot = (Math.random() - 0.5) * 10; // -15도 ~ +15도
+        // ?�질?�진 ?�낌???�해 ?�간???�덤 ?�전�??�프??부??
+        const randomRot = (Math.random() - 0.5) * 10; // -15??~ +15??
         const randomY = (Math.random() - 0.5) * 10;   // -10px ~ +10px
         card.style.transform = `rotate(${randomRot}deg) translateY(${randomY}px)`;
         
         card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; border: 2px solid var(--accent-gold);">
-                    <!-- 앞면은 숨겨진 상태 -->
+                    <!-- ?�면?� ?�겨�??�태 -->
                     <span style="background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px; font-weight: bold; color: white;">조사 카드</span>
                 </div>
                 <div class="flip-card-back" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1rem;">
                     <span style="font-size: 0.85rem; font-family: 'Noto Sans KR'; font-weight: 500; word-break: keep-all; line-height: 1.5; color: var(--text-main);">${cardData.text}</span>
-                    <!-- 숫자는 화면에 보여주지 않고 오직 정렬 순서 체크용으로만 사용합니다 -->
+                    <!-- ?�자???�면??보여주�? ?�고 ?�직 ?�렬 ?�서 체크?�으로만 ?�용?�니??-->
                 </div>
             </div>
         `;
 
-        // 뒤집기 이벤트
+        // ?�집�??�벤??
         card.addEventListener('click', () => {
             card.classList.toggle('flipped');
             checkUnlockCondition();
         });
 
-        // 드래그 앤 드롭 이벤트
+        // ?�래�????�롭 ?�벤??
         card.addEventListener('dragstart', (e) => {
             card.classList.add('dragging');
         });
@@ -572,7 +572,7 @@ function renderOpeningCards() {
         openingCardsContainer.appendChild(card);
     });
 
-    // 컨테이너 드래그 정렬 로직
+    // 컨테?�너 ?�래�??�렬 로직
     openingCardsContainer.addEventListener('dragover', e => {
         e.preventDefault();
         const afterElement = getDragAfterElement(openingCardsContainer, e.clientX);
@@ -584,12 +584,12 @@ function renderOpeningCards() {
         }
     });
 
-    // 모바일 터치(드래그) 지원
+    // 모바???�치(?�래�? 지??
     let touchDragging = null;
     openingCardsContainer.addEventListener('touchstart', e => {
         if (e.target.closest('.flip-card')) {
             touchDragging = e.target.closest('.flip-card');
-            // 터치 시작 시 바로 뒤집히지 않도록 약간의 딜레이
+            // ?�치 ?�작 ??바로 ?�집?��? ?�도�??�간???�레??
             setTimeout(() => { if (touchDragging) touchDragging.classList.add('dragging'); }, 100);
         }
     });
@@ -613,7 +613,7 @@ function renderOpeningCards() {
     });
 }
 
-// 드래그 위치 계산 함수
+// ?�래�??�치 계산 ?�수
 function getDragAfterElement(container, x) {
     const draggableElements = [...container.querySelectorAll('.flip-card:not(.dragging)')];
     
@@ -628,7 +628,7 @@ function getDragAfterElement(container, x) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// 잠금 해제 조건 검사 (피드백용 시각적 효과만)
+// ?�금 ?�제 조건 검??(?�드백용 ?�각???�과�?
 function checkUnlockCondition() {
     const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
     const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
@@ -641,19 +641,19 @@ function checkUnlockCondition() {
     }
 }
 
-// 잠금 해제 버튼 클릭
+// ?�금 ?�제 버튼 ?�릭
 btnUnlock.addEventListener('click', () => {
     const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
     const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
     const currentOrder = cards.map(c => c.dataset.back).join('');
 
     if (!isAllFlipped) {
-        alert("모든 조사 카드를 뒤집어 내용을 확인해주세요!");
+        alert("모든 조사 카드�??�집???�용???�인?�주?�요!");
         return;
     }
     
     if (currentOrder !== '1234') {
-        alert("순서가 틀렸습니다. 의류 생산부터 폐기까지 환경 오염이 발생하는 올바른 순서대로 나열해보세요!");
+        alert("?�서가 ?�?�습?�다. ?�류 ?�산부???�기까�? ?�경 ?�염??발생?�는 ?�바�??�서?��??�열?�보?�요!");
         return;
     }
 
@@ -661,28 +661,28 @@ btnUnlock.addEventListener('click', () => {
     diaryModal.classList.remove('hidden');
 });
 
-// 다이어리 답 제출
+// ?�이?�리 ???�출
 btnSubmitOpening.addEventListener('click', async () => {
     const selected = document.querySelector('input[name="flow-type"]:checked');
     if (!selected) {
-        alert('답을 선택해주세요.');
+        alert('?�을 ?�택?�주?�요.');
         return;
     }
 
     if (selected.value === PUZZLE_DATA.opening.answer) {
-        // 정답 시
+        // ?�답 ??
         openingErrorMsg.classList.add('hidden');
         diaryModal.classList.add('hidden');
-        alert('정답입니다! 1단계로 이동합니다.');
+        alert('?�답?�니?? 1?�계�??�동?�니??');
         
-        // 상태 업데이트
+        // ?�태 ?�데?�트
         try {
             await updateDoc(doc(db, 'departments', currentDeptId), {
                 currentStage: 1
             });
         } catch(e) { console.error(e); }
 
-        // 1단계 화면으로 전환
+        // 1?�계 ?�면?�로 ?�환
         document.getElementById('screen-1').classList.add('hidden');
         document.getElementById('screen-2').classList.remove('hidden');
         startScreen2();
@@ -692,7 +692,7 @@ btnSubmitOpening.addEventListener('click', async () => {
 });
 
 // ==========================================
-// Screen 2: 1단계 (디자인요소실) 로직
+// Screen 2: 1?�계 (?�자?�요?�실) 로직
 // ==========================================
 function startScreen2(deptData) {
     mainHeader.classList.remove('hidden');
@@ -700,7 +700,7 @@ function startScreen2(deptData) {
     
     document.getElementById('display-current-role').textContent = currentRole;
     
-    // 1단계 스토리 모달 띄우기
+    // 1?�계 ?�토�?모달 ?�우�?
     if (!(deptData && deptData.showStage1Reasoning)) {
         document.getElementById('stage1-story-modal').classList.remove('hidden');
     }
@@ -709,7 +709,7 @@ function startScreen2(deptData) {
         document.getElementById('stage1-story-modal').classList.add('hidden');
     };
     
-    // 미션 1-1 (몽타주) 세팅
+    // 미션 1-1 (몽�?�? ?�팅
     const montageData = PUZZLE_DATA.stage1.montage[currentRole];
     document.getElementById('montage-clue-text').innerHTML = montageData.text;
     
@@ -724,7 +724,7 @@ function startScreen2(deptData) {
             btn.classList.add('selected');
             
             if (btn.textContent === montageData.answer) {
-                alert('정답입니다! 다음 미션이 열렸습니다.');
+                alert('?�답?�니?? ?�음 미션???�렸?�니??');
                 optionsContainer.querySelectorAll('button').forEach(b => b.disabled = true);
                 const m2 = document.getElementById('mission-1-2');
                 if (m2) {
@@ -732,32 +732,32 @@ function startScreen2(deptData) {
                     m2.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             } else {
-                alert('틀렸습니다. 단서를 다시 확인해보세요.');
+                alert('?�?�습?�다. ?�서�??�시 ?�인?�보?�요.');
                 btn.classList.remove('selected');
             }
         });
         optionsContainer.appendChild(btn);
     });
 
-    // 미션 1-2 (원단 교집합) 세팅
+    // 미션 1-2 (?�단 교집?? ?�팅
     const fabricData = PUZZLE_DATA.stage1.fabricStandards[currentRole];
     document.getElementById('fabric-clue-title').textContent = fabricData.title;
     document.getElementById('fabric-clue-text').textContent = fabricData.text;
     
     const btnSubmitM2 = document.getElementById('btn-submit-mission-1-2');
     if (btnSubmitM2) {
-        btnSubmitM2.textContent = currentRole === '부장' ? '최종 승인하기' : '부장님께 결재 올리기';
+        btnSubmitM2.textContent = currentRole === '부?? ? '최종 ?�인?�기' : '부?�님�?결재 ?�리�?;
     }
     
     document.querySelectorAll('.fabric-btn').forEach(btn => {
-        // 복수 선택 가능하도록 토글
+        // 복수 ?�택 가?�하?�록 ?��?
         btn.onclick = () => btn.classList.toggle('selected');
     });
 
     document.getElementById('btn-submit-mission-1-2').onclick = () => {
         const selectedButtons = Array.from(document.querySelectorAll('.fabric-btn.selected'));
         if (selectedButtons.length === 0) {
-            alert('원단을 하나 이상 선택해주세요.');
+            alert('?�단???�나 ?�상 ?�택?�주?�요.');
             return;
         }
         
@@ -771,9 +771,9 @@ function startScreen2(deptData) {
         }
         
         if (isCorrect) {
-            alert(currentRole === '부장' ? '정답입니다! 완벽한 원단을 골라 최종 승인하셨습니다!' : '정답입니다! 부장님께 기안을 무사히 상신했습니다!');
+            alert(currentRole === '부?? ? '?�답?�니?? ?�벽???�단??골라 최종 ?�인?�셨?�니??' : '?�답?�니?? 부?�님�?기안??무사???�신?�습?�다!');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 승인 완료' : '결재 요청 완료 (기안 상신)';
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부?? ? '최종 ?�인 ?�료' : '결재 ?�청 ?�료 (기안 ?�신)';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
@@ -782,27 +782,27 @@ function startScreen2(deptData) {
                 m3.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } else {
-            alert('틀렸습니다. 성분표와 조건을 다시 한번 꼼꼼히 확인하세요.');
+            alert('?�?�습?�다. ?�분?��? 조건???�시 ?�번 꼼꼼???�인?�세??');
         }
     };
 
-    // 미션 1-3 (실천적 추론) 세팅
+    // 미션 1-3 (?�천??추론) ?�팅
     const reasoningData = PUZZLE_DATA.stage1.reasoning;
     document.getElementById('reasoning-context').innerHTML = reasoningData.context.replace(/\n/g, '<br>');
     document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
 
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
-        document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부장은 전체 제출 창 이용
-        document.getElementById('reasoning-textarea').style.display = 'none'; // 부장은 모달에서 입력
-        document.getElementById('reasoning-role-label').textContent = "부장님은 팀원들이 모두 단서와 의견을 제출할 때까지 기다려 주세요. 하단의 '최종 정답 제출'을 완료하면 토론 창이 열립니다.";
+        document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부?��? ?�체 ?�출 �??�용
+        document.getElementById('reasoning-textarea').style.display = 'none'; // 부?��? 모달?�서 ?�력
+        document.getElementById('reasoning-role-label').textContent = "부?�님?� ?�?�들??모두 ?�서?� ?�견???�출???�까지 기다??주세?? ?�단??'최종 ?�답 ?�출'???�료?�면 ?�론 창이 ?�립?�다.";
         document.getElementById('reasoning-role-label').style.color = '#ff9f43';
         
-        // 부장 전용 실시간 팀원 현황 모니터링
+        // 부???�용 ?�시�??�???�황 모니?�링
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             let allConfirmed = true;
-            const requiredRoles = ['인턴', '사원', '차장'];
+            const requiredRoles = ['?�턴', '?�원', '차장'];
             
             requiredRoles.forEach(role => {
                 const statusEl = document.getElementById(`status-${role}`);
@@ -815,24 +815,24 @@ function startScreen2(deptData) {
                 const reasoningDisplay = statusEl.querySelector('.reasoning-display');
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '✅';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     if (reasoningDisplay && reasoningText) {
                         reasoningDisplay.textContent = `"${reasoningText}"`;
                         reasoningDisplay.style.display = 'block';
                     }
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '❌';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     if (reasoningDisplay) reasoningDisplay.style.display = 'none';
                     allConfirmed = false;
                 }
             });
             
-            // 테스트 편의를 위해 팀원이 모두 제출하지 않아도 부장 버튼 항상 활성화
+            // ?�스???�의�??�해 ?�?�이 모두 ?�출?��? ?�아??부??버튼 ??�� ?�성??
             document.getElementById('btn-submit-stage1').disabled = false;
         });
         
-        // 부장 전용 최종 제출 버튼
+        // 부???�용 최종 ?�출 버튼
         const btnSubmitStage1 = document.getElementById('btn-submit-stage1');
         btnSubmitStage1.onclick = async () => {
             const finalAnswer1 = document.getElementById('manager-final-answer-1').value;
@@ -840,20 +840,20 @@ function startScreen2(deptData) {
             const errorMsg = document.getElementById('manager-error-msg');
             
             if (!finalAnswer1 || !finalAnswer2) {
-                alert('미션 1(몽타주)과 미션 2(친환경)의 최종 정답을 모두 선택해주세요.');
+                alert('미션 1(몽�?�?�?미션 2(친환�???최종 ?�답??모두 ?�택?�주?�요.');
                 return;
             }
             
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
                 btnSubmitStage1.disabled = true;
-                btnSubmitStage1.textContent = '최종 승인 완료 (실천적 추론 진행중)';
+                btnSubmitStage1.textContent = '최종 ?�인 ?�료 (?�천??추론 진행�?';
                 
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
                         showStage1Reasoning: true
                     });
-                    alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n이제 팝업되는 \'실천적 추론\' 문제를 부서원들과 토론하여 해결하세요!');
+                    alert('?�� 모든 ?�?�의 ?�견??종합?�여 진짜 ?�안�??�단??찾았?�니??\n\n?�제 ?�업?�는 \'?�천??추론\' 문제�?부?�원?�과 ?�론?�여 ?�결?�세??');
                     showReasoningModal(PUZZLE_DATA.stage1, 2);
                 } catch(e) {
                     console.error(e);
@@ -861,7 +861,7 @@ function startScreen2(deptData) {
                 
             } else {
                 errorMsg.classList.remove('hidden');
-                errorMsg.textContent = '오답입니다! 팀원들이 모아온 단서(교집합)를 다시 한번 분석해보세요.';
+                errorMsg.textContent = '?�답?�니?? ?�?�들??모아???�서(교집??�??�시 ?�번 분석?�보?�요.';
             }
         };
     } else {
@@ -873,7 +873,7 @@ function startScreen2(deptData) {
             btnConfirmAll.onclick = async () => {
                 const textarea = document.getElementById('reasoning-textarea');
                 if (textarea.value.trim().length < 5) {
-                    alert('의견을 조금 더 상세히 적어서 기안해주세요.');
+                    alert('?�견??조금 ???�세???�어??기안?�주?�요.');
                     return;
                 }
                 
@@ -881,13 +881,13 @@ function startScreen2(deptData) {
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
                     await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
                     
-                    alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.');
+                    alert('부?�님�?최종 기안(결재 ?�청)??무사???�겼?�니?? 부?�님??모두???�견??취합??최종 ?�인???�까지 ?�기해주세??');
                     btnConfirmAll.disabled = true;
-                    btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
+                    btnConfirmAll.textContent = '기안 ?�신 ?�료 (부???�인 ?��?�?..)';
                     textarea.disabled = true;
                 } catch(e) {
                     console.error(e);
-                    alert('기안 상신 중 오류가 발생했습니다.');
+                    alert('기안 ?�신 �??�류가 발생?�습?�다.');
                 }
             };
         }
@@ -897,7 +897,7 @@ function startScreen2(deptData) {
 }
 
 // ==========================================
-// Screen 3: 2단계 (패턴/봉제실) 로직
+// Screen 3: 2?�계 (?�턴/봉제?? 로직
 // ==========================================
 function startScreen3() {
     mainHeader.classList.remove('hidden');
@@ -905,7 +905,7 @@ function startScreen3() {
     
     document.getElementById('display-current-role-stage2').textContent = currentRole;
     
-    // 2단계 스토리 모달 띄우기
+    // 2?�계 ?�토�?모달 ?�우�?
     const storyModal = document.getElementById('stage2-story-modal');
     storyModal.classList.remove('hidden');
     
@@ -917,13 +917,13 @@ function startScreen3() {
     
     const puzzleData = PUZZLE_DATA.stage2.puzzles[currentRole];
     
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('stage2-employee-panel').classList.add('hidden');
         document.getElementById('stage2-manager-panel').classList.remove('hidden');
         
-        // 부장 현황판 리스너
+        // 부???�황??리스??
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['인턴', '사원', '차장'];
+            const roles = ['?�턴', '?�원', '차장'];
             let allConfirmed = true;
             
             roles.forEach(role => {
@@ -935,33 +935,33 @@ function startScreen3() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '✅';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '❌';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                     allConfirmed = false;
                 }
             });
             
-            // 테스트 편의를 위해 부장 버튼 항상 활성화
+            // ?�스???�의�??�해 부??버튼 ??�� ?�성??
             document.getElementById('btn-submit-stage2').disabled = false;
         });
         
-        // 부장 금고 가동 버튼
+        // 부??금고 가??버튼
         document.getElementById('btn-submit-stage2').onclick = async () => {
             const pw = document.getElementById('manager-vault-pw').value;
-            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
+            if (pw === PUZZLE_DATA.stage2.puzzles['부??].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
-                // Firestore를 먼저 업데이트하여 다른 팀원들의 화면이 넘어가게 함
+                // Firestore�?먼�? ?�데?�트?�여 ?�른 ?�?�들???�면???�어가�???
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
                         currentStage: 3
                     });
                     
-                    alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이동합니다.)");
+                    alert("?�� 공장 가???�료! 2?�계 ?�출 ?�공!\n\n(3?�계 ?��??�링?�로 ?�동?�니??)");
                 } catch(e) {
                     console.error(e);
                 }
@@ -971,25 +971,25 @@ function startScreen3() {
         };
         
     } else {
-        // 사원/인턴/차장
+        // ?�원/?�턴/차장
         document.getElementById('stage2-employee-panel').classList.remove('hidden');
         document.getElementById('stage2-manager-panel').classList.add('hidden');
         
         document.getElementById('stage2-puzzle-title').textContent = puzzleData.title;
         document.getElementById('stage2-puzzle-text').textContent = puzzleData.text;
-        document.getElementById('stage2-puzzle-hint').textContent = `힌트: ${puzzleData.hint}`;
+        document.getElementById('stage2-puzzle-hint').textContent = `?�트: ${puzzleData.hint}`;
         
         const btnSubmit = document.getElementById('btn-stage2-submit');
         const input = document.getElementById('stage2-answer-input');
         
         btnSubmit.onclick = async () => {
             if (input.value === puzzleData.answer) {
-                alert(`정답입니다! 당신이 찾은 숫자는 [ ${puzzleData.answer} ] 입니다.\n부장님에게 이 숫자를 순서대로 알려주세요!`);
+                alert(`?�답?�니?? ?�신??찾�? ?�자??[ ${puzzleData.answer} ] ?�니??\n부?�님?�게 ???�자�??�서?��??�려주세??`);
                 btnSubmit.disabled = true;
-                btnSubmit.textContent = "해독 완료 (대기 중)";
+                btnSubmit.textContent = "?�독 ?�료 (?��?�?";
                 input.disabled = true;
                 
-                // Firebase 업데이트
+                // Firebase ?�데?�트
                 try {
                     await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
                         stage2Confirmed: true,
@@ -1000,14 +1000,14 @@ function startScreen3() {
                 }
                 
             } else {
-                alert("비밀번호가 틀렸습니다. 힌트를 다시 읽어보세요!");
+                alert("비�?번호가 ?�?�습?�다. ?�트�??�시 ?�어보세??");
             }
         };
     }
 }
 
 // ==========================================
-// Screen 4: 3단계 (스타일링실) 로직
+// Screen 4: 3?�계 (?��??�링?? 로직
 // ==========================================
 function startScreen4() {
     mainHeader.classList.remove('hidden');
@@ -1025,12 +1025,12 @@ function startScreen4() {
     const personalColorData = PUZZLE_DATA.stage3.personalColor[currentRole];
     const bodyTypeData = PUZZLE_DATA.stage3.bodyType[currentRole];
     
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['인턴', '사원', '차장'];
+            const roles = ['?�턴', '?�원', '차장'];
             roles.forEach(role => {
                 const statusEl = document.getElementById(`status-stage3-${role}`);
                 if (!statusEl) return;
@@ -1040,27 +1040,27 @@ function startScreen4() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '✅';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '❌';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                 }
             });
         });
         
-        document.getElementById('stage3-manager-title').textContent = "단서 1: 퍼스널 컬러 종합";
+        document.getElementById('stage3-manager-title').textContent = "?�서 1: ?�스??컬러 종합";
         document.getElementById('stage3-manager-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         
         document.getElementById('btn-stage3-manager-submit').onclick = () => {
             const val = document.getElementById('stage3-manager-answer-input').value.replace(/\s+/g, '');
             if (val === personalColorData.answer) {
-                alert("정답입니다! 이제 팀원들이 모은 단서로 최종 스타일링을 완성하세요.");
+                alert("?�답?�니?? ?�제 ?�?�들??모�? ?�서�?최종 ?��??�링???�성?�세??");
                 document.getElementById('stage3-manager-step1').classList.add('hidden');
                 document.getElementById('stage3-manager-step2').classList.remove('hidden');
             } else {
-                alert("오답입니다. 다시 생각해보세요.");
+                alert("?�답?�니?? ?�시 ?�각?�보?�요.");
             }
         };
 
@@ -1134,12 +1134,12 @@ function startScreen4() {
         
         btnSubmit.onclick = async () => {
             if (selectedItems['line'] === '가로선' && 
-                selectedItems['color'] === '한색' && 
-                selectedItems['material'] === '뻣뻣한' &&
-                selectedItems['pattern'] === '작은무늬') {
+                selectedItems['color'] === '?�색' && 
+                selectedItems['material'] === '뻣뻣?? &&
+                selectedItems['pattern'] === '?��?무늬') {
                 
                 errorMsg.classList.add('hidden');
-                alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
+                alert("?�� ?�벽?�니?? ?�경�??�자?�을 모두 고려??친환�??�류 컬렉?�이 ?�성?�었?�니??\n?�제 ?�업?�는 '?�천??추론' 문제�?부?�원?�과 ?�론?�여 ?�결?�세??");
                 btnSubmit.disabled = true;
                 
                 try {
@@ -1160,7 +1160,7 @@ function startScreen4() {
         document.getElementById('stage3-employee-panel').classList.remove('hidden');
         document.getElementById('stage3-manager-panel').classList.add('hidden');
         
-        document.getElementById('stage3-puzzle-title').textContent = "단서 1: 퍼스널 컬러";
+        document.getElementById('stage3-puzzle-title').textContent = "?�서 1: ?�스??컬러";
         document.getElementById('stage3-puzzle-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         document.getElementById('stage3-puzzle-hint').textContent = '';
         
@@ -1172,19 +1172,19 @@ function startScreen4() {
         btnSubmit.onclick = async () => {
             if (currentStep === 1) {
                 if (input.value.replace(/\s+/g, '') === personalColorData.answer) {
-                    alert(`정확한 단서를 찾았습니다!\n다음 단서를 확인하세요.`);
+                    alert(`?�확???�서�?찾았?�니??\n?�음 ?�서�??�인?�세??`);
                     currentStep = 2;
                     input.value = '';
-                    document.getElementById('stage3-puzzle-title').textContent = "단서 2: 착시효과 선택";
+                    document.getElementById('stage3-puzzle-title').textContent = "?�서 2: 착시?�과 ?�택";
                     document.getElementById('stage3-puzzle-text').innerHTML = PUZZLE_DATA.stage3.bodyType.memo.replace(/\n/g, '<br>') + '<br><br>' + bodyTypeData.text;
                 } else {
-                    alert("오답입니다. 쿨톤과 웜톤 중 하나를 입력하세요!");
+                    alert("?�답?�니?? 쿨톤�??�톤 �??�나�??�력?�세??");
                 }
             } else if (currentStep === 2) {
                 if (input.value.replace(/\s+/g, '') === bodyTypeData.answer) {
-                    alert(`모든 단서를 찾았습니다! 부장님에게 알려주세요!`);
+                    alert(`모든 ?�서�?찾았?�니?? 부?�님?�게 ?�려주세??`);
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "전송 완료 (대기 중)";
+                    btnSubmit.textContent = "?�송 ?�료 (?��?�?";
                     input.disabled = true;
                     
                     try {
@@ -1195,7 +1195,7 @@ function startScreen4() {
                         console.error(e);
                     }
                 } else {
-                    alert("오답입니다. 다시 생각해보세요!");
+                    alert("?�답?�니?? ?�시 ?�각?�보?�요!");
                 }
             }
         };
@@ -1204,11 +1204,11 @@ function startScreen4() {
     }
 }
 
-// 4단계: 런칭쇼 대기실 (T.P.O 및 환경점수)
+// 4?�계: ?�칭???�기실 (T.P.O �??�경?�수)
 function startScreen5() {
     document.getElementById('display-current-role-stage4').textContent = currentRole;
     
-    // 모달 띄우기
+    // 모달 ?�우�?
     const storyModal = document.getElementById('stage4-story-modal');
     storyModal.classList.remove('hidden');
     document.getElementById('stage4-intro-text').innerHTML = PUZZLE_DATA.stage4.intro.replace(/\n/g, '<br>');
@@ -1219,27 +1219,27 @@ function startScreen5() {
     
     const puzzleData = PUZZLE_DATA.stage4.puzzles[currentRole];
     
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
         document.getElementById('reasoning-textarea').classList.add('hidden');
         
-        // 부장 Step 1: TPO 점검
+        // 부??Step 1: TPO ?��?
         document.getElementById('stage4-manager-step1-title').textContent = puzzleData.step1.title;
         document.getElementById('stage4-manager-step1-text').textContent = puzzleData.step1.text;
         
         document.getElementById('btn-stage4-manager-step1').onclick = () => {
             const val = document.getElementById('stage4-manager-step1-input').value.replace(/\s+/g, '');
             if (val === puzzleData.step1.answer) {
-                alert('정답입니다! 이제 팀원들이 올린 단서를 모아 5R 순서를 맞추고 최종 환경 점수를 입력하세요.');
+                alert('?�답?�니?? ?�제 ?�?�들???�린 ?�서�?모아 5R ?�서�?맞추�?최종 ?�경 ?�수�??�력?�세??');
                 document.getElementById('stage4-manager-step1').classList.add('hidden');
                 document.getElementById('stage4-5r-puzzle').classList.remove('hidden');
             } else {
-                alert('오답입니다. 다시 생각해보세요.');
+                alert('?�답?�니?? ?�시 ?�각?�보?�요.');
             }
         };
 
-        // 5R 드래그 앤 드롭 로직
+        // 5R ?�래�????�롭 로직
         const draggables = document.querySelectorAll('.item-5r');
         const slots = document.querySelectorAll('.slot-5r');
         let selected5R = Array(5).fill(null);
@@ -1255,7 +1255,7 @@ function startScreen5() {
         });
         
         // ------------------------------------
-        // --- 캔버스 스케치북 로직 ---
+        // --- 캔버???��?치북 로직 ---
         const canvas = document.getElementById('design-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -1277,7 +1277,7 @@ function startScreen5() {
 
             function draw(e) {
                 if (!isDrawing) return;
-                e.preventDefault(); // 스크롤 방지
+                e.preventDefault(); // ?�크�?방�?
                 const rect = canvas.getBoundingClientRect();
                 const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
                 const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
@@ -1305,7 +1305,7 @@ function startScreen5() {
 
             let currentTool = 'pen'; // 'pen', 'pencil', 'brush', 'eraser'
             
-            // 색상 버튼 이벤트
+            // ?�상 버튼 ?�벤??
             document.querySelectorAll('.color-btn').forEach(btn => {
                 btn.onclick = () => {
                     document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
@@ -1314,19 +1314,19 @@ function startScreen5() {
                 };
             });
             
-            // 도구 버튼 공통 처리 함수
+            // ?�구 버튼 공통 처리 ?�수
             const setToolActive = (activeId) => {
                 document.querySelectorAll('.btn-tool').forEach(b => b.style.borderColor = 'transparent');
                 document.getElementById(activeId).style.borderColor = 'white';
             };
 
-            // 도구 버튼 이벤트
+            // ?�구 버튼 ?�벤??
             document.getElementById('btn-tool-pen').onclick = () => {
                 currentTool = 'pen';
                 setToolActive('btn-tool-pen');
                 ctx.lineWidth = 5;
                 ctx.globalAlpha = 1.0;
-                // 현재 선택된 색상 유지
+                // ?�재 ?�택???�상 ?��?
                 const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
                 if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
                 else ctx.strokeStyle = '#000000';
@@ -1365,19 +1365,19 @@ function startScreen5() {
             };
         }
         
-        // 캔버스 AI 분석 버튼
+        // 캔버??AI 분석 버튼
         const btnAnalyzeCanvas = document.getElementById('btn-analyze-canvas');
         if (btnAnalyzeCanvas) {
             btnAnalyzeCanvas.onclick = () => {
                 aiFeedback.classList.remove('hidden');
-                aiFeedbackText.textContent = "캔버스 이미지를 분석 중입니다...";
+                aiFeedbackText.textContent = "캔버???��?지�?분석 중입?�다...";
                 setTimeout(() => {
-                    aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
+                    aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>?�류??질감?????�현?�었?�며, ?�의 ?�름??모델??체형??보완?????�도�??��?치되?�습?�다. 5R �?'?�사?? ?�소�??�용?�기 좋�? ?�자???�태?�니??";
                 }, 2500);
             };
         }
         
-        // 파일 업로드 시 AI 분석 호출 임시 로직
+        // ?�일 ?�로????AI 분석 ?�출 ?�시 로직
         const fileUpload = document.getElementById('design-upload');
         const aiFeedback = document.getElementById('ai-feedback-panel');
         const aiFeedbackText = document.getElementById('ai-feedback-text');
@@ -1386,10 +1386,10 @@ function startScreen5() {
             fileUpload.addEventListener('change', () => {
                 if(fileUpload.files && fileUpload.files[0]) {
                     aiFeedback.classList.remove('hidden');
-                    aiFeedbackText.textContent = "이미지를 분석 중입니다...";
-                    // 임시 분석 지연 시간
+                    aiFeedbackText.textContent = "?��?지�?분석 중입?�다...";
+                    // ?�시 분석 지???�간
                     setTimeout(() => {
-                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
+                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>?�류??질감?????�현?�었?�며, ?�의 ?�름??모델??체형??보완?????�도�??��?치되?�습?�다. 5R �?'?�사?? ?�소�??�용?�기 좋�? ?�자???�태?�니??";
                     }, 2500);
                 }
             });
@@ -1407,21 +1407,21 @@ function startScreen5() {
             const isScoreCorrect = scoreInput.value.trim() === puzzleData.step3.answer;
             const isTeamDone = teamCorrectCount === 3;
             
-            // 혼자 테스트하기 쉽도록 isTeamDone 조건 임시 해제
+            // ?�자 ?�스?�하�??�도�?isTeamDone 조건 ?�시 ?�제
             if (is5RCorrect && isScoreCorrect) {
                 btnLaunch.disabled = false;
                 btnLaunch.style.background = 'linear-gradient(45deg, #FFD700, #FFA500)';
                 btnLaunch.style.color = '#000';
                 btnLaunch.style.cursor = 'pointer';
                 btnLaunch.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.8)';
-                btnLaunch.textContent = "🌟 런칭쇼 가동 🌟";
+                btnLaunch.textContent = "?�� ?�칭??가???��";
             } else {
                 btnLaunch.disabled = true;
                 btnLaunch.style.background = '#555';
                 btnLaunch.style.color = '#888';
                 btnLaunch.style.cursor = 'not-allowed';
                 btnLaunch.style.boxShadow = 'none';
-                btnLaunch.textContent = "조건 달성 시 런칭쇼 가동!";
+                btnLaunch.textContent = "조건 ?�성 ???�칭??가??";
             }
         }
 
@@ -1442,7 +1442,7 @@ function startScreen5() {
         
         scoreInput.addEventListener('input', checkManagerStage4Complete);
         
-        // 팀원들의 정답 현황 실시간 감시
+        // ?�?�들???�답 ?�황 ?�시�?감시
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             let correctCount = 0;
             
@@ -1450,37 +1450,37 @@ function startScreen5() {
                 const r = docSnap.id;
                 const d = docSnap.data();
                 
-                if (['인턴', '사원', '차장'].includes(r)) {
+                if (['?�턴', '?�원', '차장'].includes(r)) {
                     const statusEl = document.getElementById(`status-stage4-${r}`);
                     if (statusEl) {
                         if (d.stage4Confirmed) {
-                            statusEl.querySelector('.status-icon').textContent = '✅';
+                            statusEl.querySelector('.status-icon').textContent = '??;
                             correctCount++;
                         } else {
-                            statusEl.querySelector('.status-icon').textContent = '❌';
+                            statusEl.querySelector('.status-icon').textContent = '??;
                         }
                     }
                 }
             });
             
             teamCorrectCount = correctCount;
-            // 게이지 바 업데이트 (팀원 달성도 기반)
+            // 게이지 �??�데?�트 (?�???�성??기반)
             const simulatedScore = Math.floor((correctCount / 3) * 100);
             scoreFill.style.width = `${simulatedScore}%`;
-            scoreText.textContent = `${simulatedScore} / 100 점`;
+            scoreText.textContent = `${simulatedScore} / 100 ??;
             
             checkManagerStage4Complete();
         });
         
-        // 런칭 버튼 클릭 (3단계 완료) - 이제 DB를 업데이트하여 모두에게 런칭을 알림
+        // ?�칭 버튼 ?�릭 (3?�계 ?�료) - ?�제 DB�??�데?�트?�여 모두?�게 ?�칭???�림
         btnLaunch.onclick = async () => {
             try {
                 await updateDoc(doc(db, 'departments', currentDeptId), {
                     currentStage: 5
                 });
             } catch(e) {
-                console.error("런칭쇼 가동 실패:", e);
-                alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+                console.error("?�칭??가???�패:", e);
+                alert("?�버 ?�류가 발생?�습?�다. ?�시 ?�도?�주?�요.");
             }
         };
         
@@ -1490,10 +1490,10 @@ function startScreen5() {
                 const reason = document.getElementById('personal-reason').value;
                 const r5 = document.getElementById('personal-5r').value;
                 if (!reason || !r5) {
-                    alert('필수 선택 요소(5R)와 이유를 적어주세요.');
+                    alert('?�수 ?�택 ?�소(5R)?� ?�유�??�어주세??');
                     return;
                 }
-                alert('개인 디자인 제출이 완료되었습니다! 활동 소감 페이지로 넘어갑니다.');
+                alert('개인 ?�자???�출???�료?�었?�니?? ?�동 ?�감 ?�이지�??�어갑니??');
                 document.getElementById('screen-6').classList.add('hidden');
                 document.getElementById('screen-7').classList.remove('hidden');
             };
@@ -1505,17 +1505,17 @@ function startScreen5() {
                 const q1 = document.getElementById('reflection-q1').value;
                 const q2 = document.getElementById('reflection-q2').value;
                 if (!q1 || !q2) {
-                    alert('모든 질문에 답해주세요.');
+                    alert('모든 질문???�해주세??');
                     return;
                 }
-                alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
+                alert('?�중???�감 감사?�니?? 모든 ?�동??종료?�었?�니??');
                 document.getElementById('screen-7').classList.add('hidden');
                 
-                // 에필로그 모달 표시
+                // ?�필로그 모달 ?�시
                 const epilogueModal = document.getElementById('epilogue-modal');
                 if (epilogueModal) epilogueModal.classList.remove('hidden');
                 
-                // 에필로그 닫고 임명장 화면으로
+                // ?�필로그 ?�고 ?�명???�면?�로
                 const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
                 if (btnCloseEpilogue) {
                     btnCloseEpilogue.onclick = () => {
@@ -1523,8 +1523,8 @@ function startScreen5() {
                         const endingScreen = document.getElementById('screen-ending');
                         if (endingScreen) endingScreen.classList.remove('hidden');
                         
-                        // 부서명 설정
-                        let deptName = '우리 부서';
+                        // 부?�명 ?�정
+                        let deptName = '?�리 부??;
                         if (PUZZLE_DATA.departments) {
                             const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
                             if (found) deptName = found.name;
@@ -1540,7 +1540,7 @@ function startScreen5() {
         // ------------------------------------
         
     } else {
-        // 인턴, 사원, 차장
+        // ?�턴, ?�원, 차장
         document.getElementById('stage4-employee-panel').classList.remove('hidden');
         document.getElementById('stage4-manager-panel').classList.add('hidden');
         
@@ -1548,7 +1548,7 @@ function startScreen5() {
         optionsContainer.innerHTML = `
             <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
             <p id="stage4-puzzle-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
-            <input type="text" id="stage4-employee-input" placeholder="정답 입력" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
+            <input type="text" id="stage4-employee-input" placeholder="?�답 ?�력" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
         `;
         
         const input = document.getElementById('stage4-employee-input');
@@ -1572,15 +1572,15 @@ function startScreen5() {
                 
                 stepIdx++;
                 if (stepIdx < stepsSequence.length) {
-                    alert('정답입니다! 다음 미션으로 넘어갑니다.');
+                    alert('?�답?�니?? ?�음 미션?�로 ?�어갑니??');
                     currentStep = stepsSequence[stepIdx];
                     titleEl.textContent = puzzleData[currentStep].title;
                     textEl.textContent = puzzleData[currentStep].text;
                     input.value = '';
                 } else {
-                    alert(`모든 기획안 검토가 완료되었습니다! 부장님 현황판에 반영되었습니다.`);
+                    alert(`모든 기획??검?��? ?�료?�었?�니?? 부?�님 ?�황?�에 반영?�었?�니??`);
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "기획안 확정 완료";
+                    btnSubmit.textContent = "기획???�정 ?�료";
                     input.disabled = true;
                     
                     try {
@@ -1592,13 +1592,13 @@ function startScreen5() {
                     }
                 }
             } else {
-                feedback.textContent = "잘못된 정답입니다! 다시 생각해보세요.";
+                feedback.textContent = "?�못???�답?�니?? ?�시 ?�각?�보?�요.";
                 feedback.classList.remove('hidden');
             }
         };
     }
     
-    // 부장 및 팀원 모두에게 적용되는 전역 리스너 (Stage 5 / QR 스캔 단계 진입)
+    // 부??�??�??모두?�게 ?�용?�는 ?�역 리스??(Stage 5 / QR ?�캔 ?�계 진입)
     onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
         const d = docSnap.data();
         if (d && d.currentStage === 5) {
@@ -1609,17 +1609,17 @@ function startScreen5() {
             const waitingMsg = document.getElementById('stage3-waiting-msg');
 
             if (successModal && successModal.classList.contains('hidden')) {
-                // pwDisplay 관련 로직은 제거됨
+                // pwDisplay 관??로직?� ?�거??
                 if (guideText) {
-                    guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
+                    guideText.innerHTML = "?�제 ?�?�들�??�께 교실 ?�딘가???�겨???�는 <strong>조각 ?�단</strong>??찾아보세??<br>?�단??찾�? ?? <strong>??��???��??�이 ?�???�구???�?�로</strong> ?�단??붙어 ?�는 QR 코드�??��???카메?�로 ?�캔?�세??";
                 }
                 
-                closeBtn.classList.remove('hidden'); // 누구나 스캔 창을 열 수 있음
+                closeBtn.classList.remove('hidden'); // ?�구???�캔 창을 ?????�음
                 if(waitingMsg) waitingMsg.classList.add('hidden');
                 
                 successModal.classList.remove('hidden');
 
-                // 누군가 QR을 찍어 조각을 획득하면 모두가 6단계로 넘어감
+                // ?�군가 QR??찍어 조각???�득?�면 모두가 6?�계�??�어�?
                 const unsub = onSnapshot(doc(db, 'pieces', currentDeptId), (pieceSnap) => {
                     if (pieceSnap.exists() && pieceSnap.data().unlocked) {
                         unsub();
@@ -1628,7 +1628,7 @@ function startScreen5() {
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                         document.getElementById('screen-6').classList.remove('hidden');
                         document.getElementById('display-current-role-stage6').textContent = currentRole;
-                        alert('🎉 팀원이 조각을 성공적으로 찾았습니다! 다음 미션으로 넘어갑니다.');
+                        alert('?�� ?�?�이 조각???�공?�으�?찾았?�니?? ?�음 미션?�로 ?�어갑니??');
                     }
                 });
             }
@@ -1642,12 +1642,12 @@ function startScreen5() {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
         };
     }
 }
 
-// 폭죽 (Confetti) 애니메이션 함수
+// ??�� (Confetti) ?�니메이???�수
 function triggerConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
@@ -1699,7 +1699,7 @@ function triggerConfetti() {
     draw();
 }
 
-// 실천적 추론 모달 로직
+// ?�천??추론 모달 로직
 function showReasoningModal(stageData, targetStageNum) {
     const rData = stageData.reasoning;
     if (!rData) return;
@@ -1735,7 +1735,7 @@ function showReasoningModal(stageData, targetStageNum) {
         if (rData.teamKeywords) {
             Object.values(rData.teamKeywords).forEach(list => allKeywords.push(...list));
         } else if (rData.answers) {
-            allKeywords = rData.answers.concat(['잘못된', '단어', '추가']);
+            allKeywords = rData.answers.concat(['?�못??, '?�어', '추�?']);
         }
         allKeywords = [...new Set(allKeywords)].sort(() => Math.random() - 0.5);
         
@@ -1785,23 +1785,23 @@ function showReasoningModal(stageData, targetStageNum) {
             }
         });
     } else {
-        // 키워드 자물쇠가 없는 경우 (단순 토론)
+        // ?�워???�물?��? ?�는 경우 (?�순 ?�론)
         keywordsContainer.parentElement.style.display = 'none';
         sentenceContainer.innerHTML = `
-            <p style="color: var(--accent-gold); text-align: center; margin-bottom: 1rem;">팀원들과 충분히 토론을 진행한 후, 부장님이 <b>[합의 완료]</b> 버튼을 눌러주세요.</p>
-            <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="팀의 최종 합의 내용을 이곳에 자유롭게 정리하세요..."></textarea>
+            <p style="color: var(--accent-gold); text-align: center; margin-bottom: 1rem;">?�?�들�?충분???�론??진행???? 부?�님??<b>[?�의 ?�료]</b> 버튼???�러주세??</p>
+            <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="?�??최종 ?�의 ?�용???�곳???�유�?�� ?�리?�세??.."></textarea>
         `;
     }
     
     const btnSubmit = document.getElementById('btn-submit-reasoning');
     btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
-    btnSubmit.textContent = rData.keywordLock ? '자물쇠 풀기' : '합의 완료';
+    btnSubmit.textContent = rData.keywordLock ? '?�물???��? : '?�의 ?�료';
     btnSubmit.onclick = async () => {
-        if (currentRole !== '부장') {
-            alert('최종 결정 및 제출은 [부장]만 가능합니다. 부서원들과 상의하여 부장님이 결정을 내려주세요!');
-            return;
-        }
+        // (������ ���� �Ϸ� ����)
+
+
+
         
         let isCorrect = true;
         if (rData.keywordLock && rData.answers) {
@@ -1816,7 +1816,7 @@ function showReasoningModal(stageData, targetStageNum) {
         }
         
         if (isCorrect) {
-            // 요약 텍스트가 있으면 DB에 저장
+            // ?�약 ?�스?��? ?�으�?DB???�??
             const summaryEl = document.getElementById('reasoning-summary');
             if (summaryEl && summaryEl.value.trim() !== '') {
                 try {
@@ -1824,10 +1824,10 @@ function showReasoningModal(stageData, targetStageNum) {
                         roleGroup: currentRole,
                         summary: summaryEl.value.trim()
                     }, { merge: true });
-                } catch(e) { console.error("요약 저장 실패:", e); }
+                } catch(e) { console.error("?�약 ?�???�패:", e); }
             }
 
-            alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
+            alert('?�� ?�의 �??�천??추론???�료?�었?�니?? ?�음 ?�계�??�동?�니??');
             modal.classList.add('hidden');
             
             try {
@@ -1837,45 +1837,45 @@ function showReasoningModal(stageData, targetStageNum) {
                     showStage3Reasoning: false
                 });
             } catch(e) {
-                console.error("DB 업데이트 실패:", e);
-                alert('서버와 연결에 문제가 있습니다. 잠시 후 다시 시도해주세요.');
+                console.error("DB ?�데?�트 ?�패:", e);
+                alert('?�버?� ?�결??문제가 ?�습?�다. ?�시 ???�시 ?�도?�주?�요.');
             }
         } else {
-            alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
+            alert('?�?�습?�다! 문맥???�시 ?�악?�여 ?�바�??�워?��? 채워보세??');
         }
     };
 }
 
-// 초기화 함수
+// 초기???�수
 async function initApp() {
     renderDeptGrid();
     
-    // QR 스캔으로 진입했는지 확인 (?qr=true)
+    // QR ?�캔?�로 진입?�는지 ?�인 (?qr=true)
     const urlParams = new URLSearchParams(window.location.search);
     const isQrScan = urlParams.get('qr') === 'true';
 
-    // 세션이 남아있다면 해당 단계로 바로 복구
+    // ?�션???�아?�다�??�당 ?�계�?바로 복구
     if (currentDeptId && currentRole) {
         try {
-            // 부서의 currentStage 변경을 실시간으로 감지하여 화면 자동 전환
+            // 부?�의 currentStage 변경을 ?�시간으�?감�??�여 ?�면 ?�동 ?�환
             onSnapshot(doc(db, 'departments', currentDeptId), (snap) => {
                 if (snap.exists()) {
-                    const stage = snap.data().currentStage || 0;
-                    
+                    const d = snap.data();
+                    const stage = d.currentStage || 0;
                     deptSelection.classList.add('hidden');
                     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => { if (m.id !== 'reasoning-modal') m.classList.add('hidden'); });
                     
-                    // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
+                    // QR ?�캔 진입??경우 바로 QR ?�면?�로 ?�동 (부?�만 ?�용)
                     if (isQrScan) {
-                        if (currentRole !== '부장') {
-                            alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
-                            // 스플래시나 대기 화면으로 돌려보냄 (우선 0단계 화면 띄움)
+                        if (currentRole !== '부??) {
+                            alert('QR ?�캔�??�호 ?�력?� 부?�님�??????�습?�다!\n부?�님???��??�으�??�캔?�주?�요.');
+                            // ?�플?�시???��??�면?�로 ?�려보냄 (?�선 0?�계 ?�면 ?��?)
                             document.getElementById('screen-0').classList.remove('hidden');
                             return;
                         }
                         document.getElementById('screen-qr').classList.remove('hidden');
-                        document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
+                        document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
                         return;
                     }
 
@@ -1914,7 +1914,7 @@ async function initApp() {
                         }
                     }
                 } else {
-                    // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
+                    // ?�이?�베?�스??부??문서가 ?�으�?초기?�된 경우) ?�션 ?�림
                     clearSessionState();
                     currentDeptId = null;
                     currentRole = null;
@@ -1931,20 +1931,20 @@ async function initApp() {
 
 // Removed dev test buttons logic to ensure clean production feel
 
-// 전체 화면 모아보기 (God Mode)
+// ?�체 ?�면 모아보기 (God Mode)
 const devGodModeBtn = document.getElementById('dev-god-mode');
 if (devGodModeBtn) {
     let godMode = false;
     devGodModeBtn.addEventListener('click', () => {
         godMode = !godMode;
         if (godMode) {
-            devGodModeBtn.textContent = '❌ 원래대로 복구하기 (새로고침)';
+            devGodModeBtn.textContent = '???�래?��?복구?�기 (?�로고침)';
             devGodModeBtn.style.background = '#ff0055';
             
-            // 헤더 표시
+            // ?�더 ?�시
             document.getElementById('main-header').classList.remove('hidden');
             
-            // 모든 스크린 표시 (스플래시, 부서 선택 제외)
+            // 모든 ?�크�??�시 (?�플?�시, 부???�택 ?�외)
             document.getElementById('screen-splash').classList.add('hidden');
             document.getElementById('dept-selection').classList.add('hidden');
             
@@ -1957,7 +1957,7 @@ if (devGodModeBtn) {
                 }
             });
             
-            // 모든 부장/팀원 패널, 모달 등 숨김 해제
+            // 모든 부???�???�널, 모달 ???��? ?�제
             const hideables = [
                 'manager-montage-panel', 'manager-submit-panel',
                 'stage2-employee-panel', 'stage2-manager-panel',
@@ -1970,7 +1970,7 @@ if (devGodModeBtn) {
                 if (el) el.classList.remove('hidden');
             });
             
-            // 스토리 모달창들을 인라인으로 표시
+            // ?�토�?모달창들???�라?�으�??�시
             document.querySelectorAll('.modal').forEach(m => {
                 m.classList.remove('hidden');
                 m.style.position = 'relative';
@@ -1988,7 +1988,7 @@ if (devGodModeBtn) {
     });
 }
 
-// --- QR 조각 찾기 화면 로직 ---
+// --- QR 조각 찾기 ?�면 로직 ---
 const btnSubmitQr = document.getElementById('btn-submit-qr');
 const qrPasswordInput = document.getElementById('qr-password-input');
 const qrErrorMsg = document.getElementById('qr-error-msg');
@@ -2001,14 +2001,14 @@ if (btnSubmitQr) {
         const inputPw = qrPasswordInput.value.trim();
         const correctPw = PUZZLE_DATA.qrMessages[currentDeptId];
         
-        // 입력값과 정답에서 띄어쓰기를 모두 제거하여 비교 (관대하게)
+        // ?�력값과 ?�답?�서 ?�어?�기�?모두 ?�거?�여 비교 (관?�?�게)
         if (inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
             qrErrorMsg.classList.add('hidden');
             btnSubmitQr.classList.add('hidden');
             qrPasswordInput.disabled = true;
             qrSuccessPanel.classList.remove('hidden');
             
-            // pieces 컬렉션 업데이트
+            // pieces 컬렉???�데?�트
             try {
                 await setDoc(doc(db, 'pieces', currentDeptId), { 
                     unlocked: true, 
@@ -2034,7 +2034,7 @@ if (btnGoToPersonal) {
     });
 }
 
-// --- 대시보드 로직 ---
+// --- ?�?�보??로직 ---
 const btnOpenDashboard = document.getElementById('btn-open-dashboard');
 const btnCloseDashboard = document.getElementById('btn-close-dashboard');
 const screenDashboard = document.getElementById('screen-dashboard');
@@ -2059,7 +2059,7 @@ function openDashboard() {
     screenDashboard.classList.remove('hidden');
     renderDashboardSlots();
     
-    // Firestore pieces 컬렉션 실시간 구독
+    // Firestore pieces 컬렉???�시�?구독
     dashboardUnsubscribe = onSnapshot(collection(db, 'pieces'), (snapshot) => {
         let unlockedCount = 0;
         const totalDepts = JSON.parse(localStorage.getItem('rebrand_departments') || '[]').length;
@@ -2075,15 +2075,15 @@ function openDashboard() {
             }
         });
         
-        // 모두 해제되었을 때 연출
+        // 모두 ?�제?�었?????�출
         if (unlockedCount >= totalDepts && totalDepts > 0) {
             setTimeout(() => {
                 fabricPuzzleContainer.classList.add('scale-up-anim');
                 const finalMsg = document.getElementById('dashboard-final-message');
                 finalMsg.classList.remove('hidden');
                 
-                // 임시로 하드코딩된 메시지 (게이지 연동 전)
-                document.getElementById('dashboard-final-text').innerHTML = "고마워요, 여러분. 여러분이 지켜낸 만큼은 분명히 달라졌어요. 다음에는 조금 더, 지속가능한 선택 쪽으로 저울이 기울면 좋겠어요.";
+                // ?�시�??�드코딩??메시지 (게이지 ?�동 ??
+                document.getElementById('dashboard-final-text').innerHTML = "고마?�요, ?�러�? ?�러분이 지켜낸 만큼?� 분명???�라졌어?? ?�음?�는 조금 ?? 지?��??�한 ?�택 쪽으�??�?�이 기울�?좋겠?�요.";
             }, 1000);
         }
     });
@@ -2099,8 +2099,8 @@ if (btnCloseDashboard) btnCloseDashboard.addEventListener('click', () => {
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
     if (currentDeptId) {
-        // 원래 있던 화면으로 돌아가기 (대시보드는 관리자나 QR 완료 화면에서만 들어옴)
-        // 여기선 스플래시나 QR 화면으로 보내버림
+        // ?�래 ?�던 ?�면?�로 ?�아가�?(?�?�보?�는 관리자??QR ?�료 ?�면?�서�??�어??
+        // ?�기???�플?�시??QR ?�면?�로 보내버림
         if (qrSuccessPanel && !qrSuccessPanel.classList.contains('hidden')) {
             document.getElementById('screen-qr').classList.remove('hidden');
         } else {
@@ -2116,7 +2116,7 @@ initApp();
 const btnFloatingReset = document.getElementById('btn-secret-reset');
 if (btnFloatingReset) {
     btnFloatingReset.addEventListener('click', () => {
-        if (confirm('모든 기기의 세션을 초기화하고 처음 화면으로 돌아가시겠습니까?')) {
+        if (confirm('모든 기기???�션??초기?�하�?처음 ?�면?�로 ?�아가?�겠?�니�?')) {
             sessionStorage.clear();
             location.href = location.pathname;
         }
