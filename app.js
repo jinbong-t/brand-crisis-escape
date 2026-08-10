@@ -694,14 +694,16 @@ btnSubmitOpening.addEventListener('click', async () => {
 // ==========================================
 // Screen 2: 1단계 (디자인요소실) 로직
 // ==========================================
-function startScreen2() {
+function startScreen2(deptData) {
     mainHeader.classList.remove('hidden');
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
     
     document.getElementById('display-current-role').textContent = currentRole;
     
     // 1단계 스토리 모달 띄우기
-    document.getElementById('stage1-story-modal').classList.remove('hidden');
+    if (!(deptData && deptData.showStage1Reasoning)) {
+        document.getElementById('stage1-story-modal').classList.remove('hidden');
+    }
     
     document.getElementById('btn-start-stage1-missions').onclick = () => {
         document.getElementById('stage1-story-modal').classList.add('hidden');
@@ -1792,6 +1794,7 @@ function showReasoningModal(stageData, targetStageNum) {
     }
     
     const btnSubmit = document.getElementById('btn-submit-reasoning');
+    btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
     btnSubmit.textContent = rData.keywordLock ? '자물쇠 풀기' : '합의 완료';
     btnSubmit.onclick = async () => {
