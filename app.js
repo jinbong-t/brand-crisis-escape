@@ -1,4 +1,4 @@
-﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 // DOM 요소
@@ -1901,15 +1901,12 @@ async function initApp() {
                                 showReasoningModal(PUZZLE_DATA.stage3, 4);
                             }
                         }
-                    } else if (stage === 4) {
+                    } else if (stage >= 4) {
                         const s5 = document.getElementById('screen-5');
                         if (s5) {
                             s5.classList.remove('hidden');
                             startScreen5();
                         }
-                    } else {
-                        // 5단계 이상
-                        alert(`축하합니다! ${stage}단계에 진입하셨습니다. (화면 준비 중)`);
                     }
                 } else {
                     // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
