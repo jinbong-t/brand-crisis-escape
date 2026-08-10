@@ -1,4 +1,4 @@
-import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 // DOM 요소
@@ -472,8 +472,10 @@ function startScreen1() {
     mainHeader.classList.remove('hidden');
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
 
-    // 인트로 스토리 문단별 렌더링
-    introParagraphs = PUZZLE_DATA.opening.introText.split('<br><br>');
+    // 오프닝 스토리 모달 준비
+    let rawIntroText = PUZZLE_DATA.opening.introText;
+    rawIntroText = rawIntroText.replace('[ROLE]', currentRole);
+    introParagraphs = rawIntroText.split('<br><br>');
     currentIntroIndex = 0;
     const container = document.getElementById('intro-text-container');
     container.innerHTML = `<p style="margin-bottom: 1rem; animation: fadeIn 0.5s;">${introParagraphs[0]}</p>`;
@@ -533,8 +535,8 @@ function renderOpeningCards() {
         card.dataset.back = cardData.back;
 
         // 어질러진 느낌을 위해 약간의 랜덤 회전과 오프셋 부여
-        const randomRot = (Math.random() - 0.5) * 30; // -15도 ~ +15도
-        const randomY = (Math.random() - 0.5) * 20;   // -10px ~ +10px
+        const randomRot = (Math.random() - 0.5) * 10; // -15도 ~ +15도
+        const randomY = (Math.random() - 0.5) * 10;   // -10px ~ +10px
         card.style.transform = `rotate(${randomRot}deg) translateY(${randomY}px)`;
         
         card.innerHTML = `
@@ -624,25 +626,35 @@ function getDragAfterElement(container, x) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// 잠금 해제 조건 검사 (모두 뒤집힘 + 순서 1,2,3,4)
+// 잠금 해제 조건 검사 (피드백용 시각적 효과만)
 function checkUnlockCondition() {
     const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
     const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
-    
-    // 현재 순서 가져오기
     const currentOrder = cards.map(c => c.dataset.back).join('');
     
     if (isAllFlipped && currentOrder === '1234') {
-        btnUnlock.disabled = false;
-        btnUnlock.classList.add('pulse'); // 나중에 CSS 추가 가능
+        btnUnlock.classList.add('pulse');
     } else {
-        btnUnlock.disabled = true;
         btnUnlock.classList.remove('pulse');
     }
 }
 
 // 잠금 해제 버튼 클릭
 btnUnlock.addEventListener('click', () => {
+    const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
+    const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
+    const currentOrder = cards.map(c => c.dataset.back).join('');
+
+    if (!isAllFlipped) {
+        alert("모든 조사 카드를 뒤집어 내용을 확인해주세요!");
+        return;
+    }
+    
+    if (currentOrder !== '1234') {
+        alert("순서가 틀렸습니다. 의류 생산부터 폐기까지 환경 오염이 발생하는 올바른 순서대로 나열해보세요!");
+        return;
+    }
+
     diaryText.textContent = PUZZLE_DATA.opening.diaryText;
     diaryModal.classList.remove('hidden');
 });

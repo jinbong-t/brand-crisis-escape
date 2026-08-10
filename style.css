@@ -977,3 +977,21 @@ input:focus {
     transform: scale(1.05);
     box-shadow: 0 0 30px var(--accent-gold);
 }
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .flip-card {
+        width: 100px;
+        height: 140px;
+    }
+    .flip-card-front p {
+        font-size: 0.75rem;
+    }
+    .flip-card-back {
+        font-size: 2rem;
+    }
+    .card-container {
+        gap: 0.5rem;
+    }
+}
+
