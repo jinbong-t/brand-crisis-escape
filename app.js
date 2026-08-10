@@ -1,4 +1,4 @@
-﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 // DOM 요소
@@ -1841,6 +1841,9 @@ function showReasoningModal(stageData, targetStageNum) {
 
 // 초기화 함수
 async function initApp() {
+    // 선생님 테스트용: 새로고침 시 무조건 초기화
+    sessionStorage.clear();
+    
     renderDeptGrid();
     
     // QR 스캔으로 진입했는지 확인 (?qr=true)
