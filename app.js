@@ -1,4 +1,4 @@
-﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 // DOM 요소
@@ -1853,9 +1853,6 @@ function showReasoningModal(stageData, targetStageNum) {
 
 // 초기화 함수
 async function initApp() {
-    // 선생님 테스트용: 새로고침 시 무조건 초기화
-    sessionStorage.clear();
-    
     renderDeptGrid();
     
     // QR 스캔으로 진입했는지 확인 (?qr=true)
@@ -2118,7 +2115,7 @@ if (btnCloseDashboard) btnCloseDashboard.addEventListener('click', () => {
 
 initApp();
 
-const btnFloatingReset = document.getElementById('btn-floating-reset');
+const btnFloatingReset = document.getElementById('btn-secret-reset');
 if (btnFloatingReset) {
     btnFloatingReset.addEventListener('click', () => {
         if (confirm('모든 기기의 세션을 초기화하고 처음 화면으로 돌아가시겠습니까?')) {
