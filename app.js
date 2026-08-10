@@ -1,4 +1,4 @@
-import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 // DOM 요소
@@ -434,6 +434,7 @@ skipButtons.forEach(btn => {
                 
                 // 모든 화면 숨기기
                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                 
                 if (targetStage === 0) {
                     screen1.classList.remove('hidden');
@@ -778,6 +779,9 @@ function startScreen2() {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
         document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부장은 전체 제출 창 이용
+        document.getElementById('reasoning-textarea').style.display = 'none'; // 부장은 모달에서 입력
+        document.getElementById('reasoning-role-label').textContent = "부장님은 팀원들이 모두 단서와 의견을 제출할 때까지 기다려 주세요. 하단의 '최종 정답 제출'을 완료하면 토론 창이 열립니다.";
+        document.getElementById('reasoning-role-label').style.color = '#ff9f43';
         
         // 부장 전용 실시간 팀원 현황 모니터링
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
@@ -1212,6 +1216,7 @@ function startScreen5() {
     if (currentRole === '부장') {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
+        document.getElementById('reasoning-textarea').classList.add('hidden');
         
         // 부장 Step 1: TPO 점검
         document.getElementById('stage4-manager-step1-title').textContent = puzzleData.step1.title;
@@ -1292,12 +1297,66 @@ function startScreen5() {
             canvas.addEventListener('touchmove', draw, {passive: false});
             canvas.addEventListener('touchend', stopDrawing);
 
-            document.getElementById('btn-color-black').onclick = () => { ctx.strokeStyle = 'black'; ctx.lineWidth = 5; };
-            document.getElementById('btn-color-red').onclick = () => { ctx.strokeStyle = 'red'; ctx.lineWidth = 5; };
-            document.getElementById('btn-color-blue').onclick = () => { ctx.strokeStyle = 'blue'; ctx.lineWidth = 5; };
-            document.getElementById('btn-color-green').onclick = () => { ctx.strokeStyle = 'green'; ctx.lineWidth = 5; };
-            document.getElementById('btn-tool-eraser').onclick = () => { ctx.strokeStyle = 'white'; ctx.lineWidth = 20; }; // 지우개는 굵게
-            document.getElementById('btn-tool-clear').onclick = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); };
+            let currentTool = 'pen'; // 'pen', 'pencil', 'brush', 'eraser'
+            
+            // 색상 버튼 이벤트
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
+                    btn.style.borderColor = 'white';
+                    ctx.strokeStyle = btn.getAttribute('data-color');
+                };
+            });
+            
+            // 도구 버튼 공통 처리 함수
+            const setToolActive = (activeId) => {
+                document.querySelectorAll('.btn-tool').forEach(b => b.style.borderColor = 'transparent');
+                document.getElementById(activeId).style.borderColor = 'white';
+            };
+
+            // 도구 버튼 이벤트
+            document.getElementById('btn-tool-pen').onclick = () => {
+                currentTool = 'pen';
+                setToolActive('btn-tool-pen');
+                ctx.lineWidth = 5;
+                ctx.globalAlpha = 1.0;
+                // 현재 선택된 색상 유지
+                const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
+                if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
+                else ctx.strokeStyle = '#000000';
+            };
+            
+            document.getElementById('btn-tool-pencil').onclick = () => {
+                currentTool = 'pencil';
+                setToolActive('btn-tool-pencil');
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.5;
+                const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
+                if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
+                else ctx.strokeStyle = '#000000';
+            };
+            
+            document.getElementById('btn-tool-brush').onclick = () => {
+                currentTool = 'brush';
+                setToolActive('btn-tool-brush');
+                ctx.lineWidth = 15;
+                ctx.globalAlpha = 0.8;
+                const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
+                if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
+                else ctx.strokeStyle = '#000000';
+            };
+
+            document.getElementById('btn-tool-eraser').onclick = () => {
+                currentTool = 'eraser';
+                setToolActive('btn-tool-eraser');
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 20;
+                ctx.globalAlpha = 1.0;
+            };
+
+            document.getElementById('btn-tool-clear').onclick = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            };
         }
         
         // 캔버스 AI 분석 버튼
@@ -1560,6 +1619,7 @@ function startScreen5() {
                         unsub();
                         document.getElementById('stage3-success-modal').classList.add('hidden');
                         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                         document.getElementById('screen-6').classList.remove('hidden');
                         document.getElementById('display-current-role-stage6').textContent = currentRole;
                         alert('🎉 팀원이 조각을 성공적으로 찾았습니다! 다음 미션으로 넘어갑니다.');
@@ -1574,6 +1634,7 @@ function startScreen5() {
         btnCloseStage3Success.onclick = () => {
             document.getElementById('stage3-success-modal').classList.add('hidden');
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById('screen-qr').classList.remove('hidden');
             document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
         };
@@ -1796,6 +1857,7 @@ async function initApp() {
                     
                     deptSelection.classList.add('hidden');
                     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                     
                     // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
                     if (isQrScan) {
@@ -1956,6 +2018,7 @@ if (btnSubmitQr) {
 if (btnGoToPersonal) {
     btnGoToPersonal.addEventListener('click', () => {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
         document.getElementById('screen-6').classList.remove('hidden');
         document.getElementById('display-current-role-stage6').textContent = currentRole;
     });
@@ -1982,6 +2045,7 @@ function renderDashboardSlots() {
 
 function openDashboard() {
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
     screenDashboard.classList.remove('hidden');
     renderDashboardSlots();
     
@@ -2023,6 +2087,7 @@ if (btnViewDashboard) btnViewDashboard.addEventListener('click', openDashboard);
 if (btnCloseDashboard) btnCloseDashboard.addEventListener('click', () => {
     if (dashboardUnsubscribe) dashboardUnsubscribe();
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
     if (currentDeptId) {
         // 원래 있던 화면으로 돌아가기 (대시보드는 관리자나 QR 완료 화면에서만 들어옴)
         // 여기선 스플래시나 QR 화면으로 보내버림

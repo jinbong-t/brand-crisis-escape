@@ -40,7 +40,7 @@
                     </div>
                     <!-- 실천적 추론 바로 테스트 영역 -->
                     <div style="margin-top: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.5);">
-                        <p style="color: var(--accent-gold); margin-bottom: 0.5rem; font-size: 0.9rem;">🧪 [테스트] 실천적 추론(대표의 쪽지) 바로가기</p>
+                        <p style="color: var(--accent-gold); margin-bottom: 0.5rem; font-size: 0.9rem;">🧪 실천적 추론(대표의 쪽지) 바로가기</p>
                         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                             <button class="btn-secondary btn-debug-role" data-role="인턴" style="padding: 0.5rem 1rem;">인턴</button>
                             <button class="btn-secondary btn-debug-role" data-role="사원" style="padding: 0.5rem 1rem;">사원</button>
@@ -754,13 +754,26 @@
                             
                             <!-- 캔버스 드로잉 영역 -->
                             <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                                <div style="display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap;">
-                                    <button class="btn-secondary" id="btn-color-black" style="background: black; width: 30px; height: 30px; border-radius: 50%; border: 2px solid white;"></button>
-                                    <button class="btn-secondary" id="btn-color-red" style="background: red; width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent;"></button>
-                                    <button class="btn-secondary" id="btn-color-blue" style="background: blue; width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent;"></button>
-                                    <button class="btn-secondary" id="btn-color-green" style="background: green; width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent;"></button>
-                                    <button class="btn-secondary" id="btn-tool-eraser" style="padding: 0 10px;">지우개</button>
-                                    <button class="btn-secondary" id="btn-tool-clear" style="padding: 0 10px;">전체 지우기</button>
+                                <div style="display: flex; gap: 5px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="btn-tool" id="btn-tool-pen" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">🖊️ 볼펜</button>
+                                    <button class="btn-tool" id="btn-tool-pencil" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">✏️ 연필</button>
+                                    <button class="btn-tool" id="btn-tool-brush" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">🖌️ 붓</button>
+                                    <button class="btn-tool" id="btn-tool-eraser" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">지우개</button>
+                                    <button class="btn-tool" id="btn-tool-clear" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">전체 지우기</button>
+                                </div>
+                                <div id="canvas-colors" style="display: flex; gap: 5px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="color-btn" data-color="#000000" style="background: #000000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#808080" style="background: #808080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#8B4513" style="background: #8B4513; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FF0000" style="background: #FF0000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFA500" style="background: #FFA500; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFFF00" style="background: #FFFF00; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#008000" style="background: #008000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#87CEEB" style="background: #87CEEB; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#0000FF" style="background: #0000FF; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#000080" style="background: #000080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#800080" style="background: #800080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFC0CB" style="background: #FFC0CB; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
                                 </div>
                                 <div style="display: flex; justify-content: center;">
                                     <canvas id="design-canvas" width="400" height="400" style="background: white; border-radius: 8px; cursor: crosshair; touch-action: none; max-width: 100%;"></canvas>
