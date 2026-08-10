@@ -1,4 +1,4 @@
-import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 // DOM 요소
@@ -888,12 +888,7 @@ function startScreen2() {
             };
         }
         
-        onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
-             const d = docSnap.data();
-             if (d && d.showStage1Reasoning) {
-                 showReasoningModal(PUZZLE_DATA.stage1, 2);
-             }
-        });
+        
     }
 }
 
@@ -1201,12 +1196,7 @@ function startScreen4() {
             }
         };
         
-        onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
-             const d = docSnap.data();
-             if (d && d.showStage3Reasoning) {
-                 showReasoningModal(PUZZLE_DATA.stage3, 4);
-             }
-        });
+        
     }
 }
 
@@ -1892,6 +1882,9 @@ async function initApp() {
                         if (s2) {
                             s2.classList.remove('hidden');
                             startScreen2();
+                            if (d && d.showStage1Reasoning) {
+                                showReasoningModal(PUZZLE_DATA.stage1, 2);
+                            }
                         }
                     } else if (stage === 2) {
                         const s3 = document.getElementById('screen-3');
@@ -1904,6 +1897,9 @@ async function initApp() {
                         if (s4) {
                             s4.classList.remove('hidden');
                             startScreen4();
+                            if (d && d.showStage3Reasoning) {
+                                showReasoningModal(PUZZLE_DATA.stage3, 4);
+                            }
                         }
                     } else if (stage === 4) {
                         const s5 = document.getElementById('screen-5');
@@ -2143,4 +2139,5 @@ if (btnSecretSkip) {
         } catch(e) { console.error(e); }
     });
 }
+
 
