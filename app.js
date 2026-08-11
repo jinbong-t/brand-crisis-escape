@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿﻿﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -291,7 +291,7 @@ btnAddDept.addEventListener('click', () => {
 btnResetDepts.addEventListener('click', async () => {
     if (confirm("?�말 모든 부???�이?��? 직급 ?�택 기록??초기?�하?�겠?�니�? (?�돌�????�습?�다!)")) {
         const depts = getDepartments();
-        const roles = ['?�턴', '?�원', '차장', '부장??];
+        const roles = ['?�턴', '?�원', '차장', '부장'];
         for (const dept of depts) {
             try {
                 // 부??기본 ?�보 �??�테?��? 초기??
@@ -338,7 +338,7 @@ if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
         if (confirm("모든 부??기록�??�이??베이??진행 ?�황???�전??초기?�하�?처음부??0?�계) ?�시 ?�작?�시겠습?�까?")) {
             const depts = getDepartments();
-            const roles = ['?�턴', '?�원', '차장', '부장??];
+            const roles = ['?�턴', '?�원', '차장', '부장'];
             
             // 모든 부?�의 권한 반환 �??�테?��? 0?�로 ?�돌리기 (?�전 초기??
             for (const dept of depts) {
@@ -415,7 +415,7 @@ skipButtons.forEach(btn => {
             if (forceTest) {
                 currentDeptId = 'test-dept-' + Date.now(); // ?�시 부???�성
                 currentDeptName = '?�스?��???;
-                currentRole = '부장??;
+                currentRole = '부장';
                 saveSessionState();
             } else {
                 return;
@@ -746,7 +746,7 @@ function startScreen2(deptData) {
     
     const btnSubmitM2 = document.getElementById('btn-submit-mission-1-2');
     if (btnSubmitM2) {
-        btnSubmitM2.textContent = currentRole === '부장?? ? '최종 ?�인?�기' : '부장?�님�?결재 ?�리�?;
+        btnSubmitM2.textContent = currentRole === '부장' ? '최종 ?�인?�기' : '부장'님�?결재 ?�리�?;
     }
     
     document.querySelectorAll('.fabric-btn').forEach(btn => {
@@ -771,9 +771,9 @@ function startScreen2(deptData) {
         }
         
         if (isCorrect) {
-            alert(currentRole === '부장?? ? '?�답?�니?? ?�벽???�단??골라 최종 ?�인?�셨?�니??' : '?�답?�니?? 부?�님�?기안??무사???�신?�습?�다!');
+            alert(currentRole === '부장' ? '?�답?�니?? ?�벽???�단??골라 최종 ?�인?�셨?�니??' : '?�답?�니?? 부?�님�?기안??무사???�신?�습?�다!');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장?? ? '최종 ?�인 ?�료' : '결재 ?�청 ?�료 (기안 ?�신)';
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 ?�인 ?�료' : '결재 ?�청 ?�료 (기안 ?�신)';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
@@ -791,7 +791,7 @@ function startScreen2(deptData) {
     document.getElementById('reasoning-context').innerHTML = reasoningData.context.replace(/\n/g, '<br>');
     document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
 
-    if (currentRole === '부장??) {
+    if (currentRole === '부장') {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
         document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부?��? ?�체 ?�출 �??�용
@@ -881,7 +881,7 @@ function startScreen2(deptData) {
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
                     await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
                     
-                    alert('부장?�님�?최종 기안(결재 ?�청)??무사???�겼?�니?? 부?�님??모두???�견??취합??최종 ?�인???�까지 ?�기해주세??');
+                    alert('부장'님�?최종 기안(결재 ?�청)??무사???�겼?�니?? 부?�님??모두???�견??취합??최종 ?�인???�까지 ?�기해주세??');
                     btnConfirmAll.disabled = true;
                     btnConfirmAll.textContent = '기안 ?�신 ?�료 (부???�인 ?��?�?..)';
                     textarea.disabled = true;
@@ -917,7 +917,7 @@ function startScreen3() {
     
     const puzzleData = PUZZLE_DATA.stage2.puzzles[currentRole];
     
-    if (currentRole === '부장??) {
+    if (currentRole === '부장') {
         document.getElementById('stage2-employee-panel').classList.add('hidden');
         document.getElementById('stage2-manager-panel').classList.remove('hidden');
         
@@ -952,7 +952,7 @@ function startScreen3() {
         // 부??금고 가??버튼
         document.getElementById('btn-submit-stage2').onclick = async () => {
             const pw = document.getElementById('manager-vault-pw').value;
-            if (pw === PUZZLE_DATA.stage2.puzzles['부장??].answer) {
+            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
                 // Firestore�?먼�? ?�데?�트?�여 ?�른 ?�?�들???�면???�어가�???
@@ -1025,7 +1025,7 @@ function startScreen4() {
     const personalColorData = PUZZLE_DATA.stage3.personalColor[currentRole];
     const bodyTypeData = PUZZLE_DATA.stage3.bodyType[currentRole];
     
-    if (currentRole === '부장??) {
+    if (currentRole === '부장') {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
@@ -1219,7 +1219,7 @@ function startScreen5() {
     
     const puzzleData = PUZZLE_DATA.stage4.puzzles[currentRole];
     
-    if (currentRole === '부장??) {
+    if (currentRole === '부장') {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
         document.getElementById('reasoning-textarea').classList.add('hidden');
@@ -1868,7 +1868,7 @@ async function initApp() {
                     
                     // QR ?�캔 진입??경우 바로 QR ?�면?�로 ?�동 (부?�만 ?�용)
                     if (isQrScan) {
-                        if (currentRole !== '부장??) {
+                        if (currentRole !== '부장') {
                             alert('QR ?�캔�??�호 ?�력?� 부?�님�??????�습?�다!\n부?�님???��??�으�??�캔?�주?�요.');
                             // ?�플?�시???��??�면?�로 ?�려보냄 (?�선 0?�계 ?�면 ?��?)
                             document.getElementById('screen-0').classList.remove('hidden');
