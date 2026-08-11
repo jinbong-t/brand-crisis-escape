@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿﻿﻿﻿﻿﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -454,7 +454,7 @@ skipButtons.forEach(btn => {
                     document.getElementById('screen-5').classList.remove('hidden');
                     startScreen5();
                 } else {
-                    alert(${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱...);
+                    alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱...`);
                 }
                 
             } catch(e) {
@@ -1467,7 +1467,7 @@ function startScreen5() {
             // 게이지 �??�데?�트 (?�???�성??기반)
             const simulatedScore = Math.floor((correctCount / 3) * 100);
             scoreFill.style.width = `${simulatedScore}%`;
-        scoreText.textContent = ` / 100 점`;
+            scoreText.textContent = `${simulatedScore} / 100 점`;
             
             checkManagerStage4Complete();
         });
