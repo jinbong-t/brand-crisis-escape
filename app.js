@@ -1,4 +1,4 @@
-﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -179,7 +179,7 @@ function getRoleDesc(role) {
         case '?�턴': return '직접?�인 ?�서 ?�색';
         case '?�원': return '?�료 ?�석 �?분석';
         case '차장': return '?�심 개념 ?�출';
-        case '부장: return '종합 ?�단 �??�출';
+        case '부장': return '종합 ?�단 �??�출';
     }
 }
 
