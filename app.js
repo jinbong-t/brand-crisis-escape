@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿﻿﻿﻿﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -384,13 +384,13 @@ debugRoleBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
         currentDeptId = 'test-dept'; // ?�의??부??
         currentRole = btn.getAttribute('data-role');
-        currentDeptName = '?�스?��???;
+        currentDeptName = '테스트부서';
         sessionStorage.setItem('currentRole', currentRole);
         
         // 부??문서 강제 ?�성 (updateDoc ?�류 방�?)
         try {
             await setDoc(doc(db, 'departments', currentDeptId), {
-                name: '?�스?��???,
+                name: '테스트부서',
                 currentStage: 1
             }, { merge: true });
         } catch(e) { console.error(e); }
@@ -414,7 +414,7 @@ skipButtons.forEach(btn => {
             const forceTest = confirm("?�재 ?�택??부?�나 직급???�습?�다! ?�스?�용 '?�스?��???부?? 권한?�로 강제 ?�장?�시겠습?�까?");
             if (forceTest) {
                 currentDeptId = 'test-dept-' + Date.now(); // ?�시 부???�성
-                currentDeptName = '?�스?��???;
+        currentDeptName = '테스트부서';
                 currentRole = '부장';
                 saveSessionState();
             } else {
@@ -815,14 +815,14 @@ function startScreen2(deptData) {
                 const reasoningDisplay = statusEl.querySelector('.reasoning-display');
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     if (reasoningDisplay && reasoningText) {
                         reasoningDisplay.textContent = `"${reasoningText}"`;
                         reasoningDisplay.style.display = 'block';
                     }
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     if (reasoningDisplay) reasoningDisplay.style.display = 'none';
                     allConfirmed = false;
                 }
@@ -881,7 +881,7 @@ function startScreen2(deptData) {
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
                     await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
                     
-                    alert('부장'님�?최종 기안(결재 ?�청)??무사???�겼?�니?? 부?�님??모두???�견??취합??최종 ?�인???�까지 ?�기해주세??');
+                alert('오류가 발생했습니다.');
                     btnConfirmAll.disabled = true;
                     btnConfirmAll.textContent = '기안 ?�신 ?�료 (부???�인 ?��?�?..)';
                     textarea.disabled = true;
@@ -935,11 +935,11 @@ function startScreen3() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                     allConfirmed = false;
                 }
@@ -1040,11 +1040,11 @@ function startScreen4() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                 }
             });
@@ -1135,7 +1135,7 @@ function startScreen4() {
         btnSubmit.onclick = async () => {
             if (selectedItems['line'] === '가로선' && 
                 selectedItems['color'] === '?�색' && 
-                selectedItems['material'] === '뻣뻣?? &&
+            selectedItems['material'] !== '' &&
                 selectedItems['pattern'] === '?��?무늬') {
                 
                 errorMsg.classList.add('hidden');
@@ -1454,10 +1454,10 @@ function startScreen5() {
                     const statusEl = document.getElementById(`status-stage4-${r}`);
                     if (statusEl) {
                         if (d.stage4Confirmed) {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = 'X';
                             correctCount++;
                         } else {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = 'X';
                         }
                     }
                 }
@@ -1524,7 +1524,7 @@ function startScreen5() {
                         if (endingScreen) endingScreen.classList.remove('hidden');
                         
                         // 부?�명 ?�정
-                        let deptName = '?�리 부??;
+    let deptName = '알 수 없음';
                         if (PUZZLE_DATA.departments) {
                             const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
                             if (found) deptName = found.name;
@@ -1642,7 +1642,7 @@ function startScreen5() {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '알 수 없음';
         };
     }
 }
@@ -1735,7 +1735,7 @@ function showReasoningModal(stageData, targetStageNum) {
         if (rData.teamKeywords) {
             Object.values(rData.teamKeywords).forEach(list => allKeywords.push(...list));
         } else if (rData.answers) {
-            allKeywords = rData.answers.concat(['?�못??, '?�어', '추�?']);
+            allKeywords = rData.answers.concat(['a', 'b', 'c']);
         }
         allKeywords = [...new Set(allKeywords)].sort(() => Math.random() - 0.5);
         
@@ -1796,7 +1796,7 @@ function showReasoningModal(stageData, targetStageNum) {
     const btnSubmit = document.getElementById('btn-submit-reasoning');
     btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
-    btnSubmit.textContent = rData.keywordLock ? '?�물???��? : '?�의 ?�료';
+            btnSubmit.textContent = rData.keywordLock ? '제출 완료' : '최종 제출';
     btnSubmit.onclick = async () => {
         // (������ ���� �Ϸ� ����)
 
@@ -1875,7 +1875,7 @@ async function initApp() {
                             return;
                         }
                         document.getElementById('screen-qr').classList.remove('hidden');
-                        document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '알 수 없음';
                         return;
                     }
 
