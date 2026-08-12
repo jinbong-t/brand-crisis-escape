@@ -447,7 +447,7 @@ skipButtons.forEach(btn => {
                     document.getElementById('screen-5').classList.remove('hidden');
                     startScreen5();
                 } else {
-                    alert(`${targetStage}?�계 ?�면?� ?�직 공사 중입?�다! ?�딱?�딱 ?���?);
+                    alert(`${targetStage} error!`);
                 }
                 
             } catch(e) {
@@ -504,7 +504,7 @@ function startScreen1() {
     
     // ?�상 ?�동 ?�생 ?�도
     if (introVideo) {
-        introVideo.play().catch(e => console.log("?�동 ?�생 방�???, e));
+        introVideo.play().catch(e => console.log("video play error", e));
     }
 
     renderOpeningCards();
@@ -1460,7 +1460,7 @@ function startScreen5() {
             // 게이지 �??�데?�트 (?�???�성??기반)
             const simulatedScore = Math.floor((correctCount / 3) * 100);
             scoreFill.style.width = `${simulatedScore}%`;
-            scoreText.textContent = `${simulatedScore} / 100 ??;
+            scoreText.textContent = `${simulatedScore} / 100`;
             
             checkManagerStage4Complete();
         });
