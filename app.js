@@ -1912,7 +1912,7 @@ async function initApp() {
                             s5.classList.remove('hidden');
                             startScreen5();
                         }
-                    
+                    }
                 } else {
                     // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
                     clearSessionState();
