@@ -377,13 +377,13 @@ debugRoleBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
         currentDeptId = 'test-dept'; // ?�의??부??
         currentRole = btn.getAttribute('data-role');
-        currentDeptName = '?�스?��???;
+        currentDeptName = 'test-dept';
         sessionStorage.setItem('currentRole', currentRole);
         
         // 부??문서 강제 ?�성 (updateDoc ?�류 방�?)
         try {
             await setDoc(doc(db, 'departments', currentDeptId), {
-                name: '?�스?��???,
+                name: 'test-dept',
                 currentStage: 1
             }, { merge: true });
         } catch(e) { console.error(e); }
@@ -407,8 +407,8 @@ skipButtons.forEach(btn => {
             const forceTest = confirm("?�재 ?�택??부?�나 직급???�습?�다! ?�스?�용 '?�스?��???부?? 권한?�로 강제 ?�장?�시겠습?�까?");
             if (forceTest) {
                 currentDeptId = 'test-dept-' + Date.now(); // ?�시 부???�성
-                currentDeptName = '?�스?��???;
-                currentRole = '부??;
+                currentDeptName = 'test-dept';
+                currentRole = '부장';
                 saveSessionState();
             } else {
                 return;
@@ -808,14 +808,14 @@ function startScreen2(deptData) {
                 const reasoningDisplay = statusEl.querySelector('.reasoning-display');
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '?';
                     if (reasoningDisplay && reasoningText) {
                         reasoningDisplay.textContent = `"${reasoningText}"`;
                         reasoningDisplay.style.display = 'block';
                     }
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '?';
                     if (reasoningDisplay) reasoningDisplay.style.display = 'none';
                     allConfirmed = false;
                 }
@@ -928,11 +928,11 @@ function startScreen3() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '?';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '?';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                     allConfirmed = false;
                 }
@@ -945,7 +945,7 @@ function startScreen3() {
         // 부??금고 가??버튼
         document.getElementById('btn-submit-stage2').onclick = async () => {
             const pw = document.getElementById('manager-vault-pw').value;
-            if (pw === PUZZLE_DATA.stage2.puzzles['부??].answer) {
+            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
                 // Firestore�?먼�? ?�데?�트?�여 ?�른 ?�?�들???�면???�어가�???
@@ -1033,11 +1033,11 @@ function startScreen4() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '?';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '?';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                 }
             });
@@ -1128,7 +1128,7 @@ function startScreen4() {
         btnSubmit.onclick = async () => {
             if (selectedItems['line'] === '가로선' && 
                 selectedItems['color'] === '?�색' && 
-                selectedItems['material'] === '뻣뻣?? &&
+                selectedItems['material'] === 'silk' &&
                 selectedItems['pattern'] === '?��?무늬') {
                 
                 errorMsg.classList.add('hidden');
@@ -1447,10 +1447,10 @@ function startScreen5() {
                     const statusEl = document.getElementById(`status-stage4-${r}`);
                     if (statusEl) {
                         if (d.stage4Confirmed) {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = '?';
                             correctCount++;
                         } else {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = '?';
                         }
                     }
                 }
@@ -1517,7 +1517,7 @@ function startScreen5() {
                         if (endingScreen) endingScreen.classList.remove('hidden');
                         
                         // 부?�명 ?�정
-                        let deptName = '?�리 부??;
+                        let deptName = '알수없음';
                         if (PUZZLE_DATA.departments) {
                             const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
                             if (found) deptName = found.name;
@@ -1635,7 +1635,7 @@ function startScreen5() {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '알수없음';
         };
     }
 }
@@ -1728,7 +1728,7 @@ function showReasoningModal(stageData, targetStageNum) {
         if (rData.teamKeywords) {
             Object.values(rData.teamKeywords).forEach(list => allKeywords.push(...list));
         } else if (rData.answers) {
-            allKeywords = rData.answers.concat(['?�못??, '?�어', '추�?']);
+            allKeywords = rData.answers.concat(['a', 'b', 'c']);
         }
         allKeywords = [...new Set(allKeywords)].sort(() => Math.random() - 0.5);
         
@@ -1789,7 +1789,7 @@ function showReasoningModal(stageData, targetStageNum) {
     const btnSubmit = document.getElementById('btn-submit-reasoning');
     btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
-    btnSubmit.textContent = rData.keywordLock ? '?�물???��? : '?�의 ?�료';
+    btnSubmit.textContent = rData.keywordLock ? '제출 완료' : '제출';
     btnSubmit.onclick = async () => {
         // (������ ���� �Ϸ� ����)
 
@@ -1861,14 +1861,14 @@ async function initApp() {
                     
                     // QR ?�캔 진입??경우 바로 QR ?�면?�로 ?�동 (부?�만 ?�용)
                     if (isQrScan) {
-                        if (currentRole !== '부??) {
+                        if (currentRole !== '부장') {
                             alert('QR ?�캔�??�호 ?�력?� 부?�님�??????�습?�다!\n부?�님???��??�으�??�캔?�주?�요.');
                             // ?�플?�시???��??�면?�로 ?�려보냄 (?�선 0?�계 ?�면 ?��?)
                             document.getElementById('screen-0').classList.remove('hidden');
                             return;
                         }
                         document.getElementById('screen-qr').classList.remove('hidden');
-                        document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
+                        document.getElementById('qr-dept-name').textContent = currentDeptName || '알수없음';
                         return;
                     }
 
