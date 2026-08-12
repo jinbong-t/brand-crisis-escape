@@ -172,7 +172,7 @@ function getRoleDesc(role) {
         case '?�턴': return '직접?�인 ?�서 ?�색';
         case '?�원': return '?�료 ?�석 �?분석';
         case '차장': return '?�심 개념 ?�출';
-        case '遺??: return '???理쒖쥌 寃곗젙??;
+        case 'bujang': return 'boss';
     }
 }
 
