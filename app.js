@@ -1,4 +1,4 @@
-import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -63,12 +63,12 @@ function clearSessionState() {
 
 // 기본 부서 목록
 const DEFAULT_DEPTS = [
-    { id: 'dept-1', name: '디자인기획부' },
-    { id: 'dept-2', name: '소재개발부' },
-    { id: 'dept-3', name: '스타일링부' },
-    { id: 'dept-4', name: '생산전략부' },
-    { id: 'dept-5', name: '마케팅부' },
-    { id: 'dept-6', name: '품질관리부' }
+    { id: 'dept-1', name: '?붿옄?멸린?띾?' },
+    { id: 'dept-2', name: '?뚯옱媛쒕컻遺' },
+    { id: 'dept-3', name: '?ㅽ??쇰쭅遺' },
+    { id: 'dept-4', name: '?앹궛?꾨왂遺' },
+    { id: 'dept-5', name: '留덉??낅?' },
+    { id: 'dept-6', name: '?덉쭏愿由щ?' }
 ];
 
 // Splash Screen Logic
@@ -291,7 +291,7 @@ btnAddDept.addEventListener('click', () => {
 btnResetDepts.addEventListener('click', async () => {
     if (confirm("정말 모든 부서 데이터와 직급 선택 기록을 초기화하시겠습니까? (되돌릴 수 없습니다!)")) {
         const depts = getDepartments();
-        const roles = ['인턴', '사원', '차장', '부장'];
+        const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
         for (const dept of depts) {
             try {
                 // 부서 기본 정보 및 스테이지 초기화
@@ -338,7 +338,7 @@ if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
         if (confirm("모든 부서 기록과 데이터 베이스 진행 상황을 완전히 초기화하고 처음부터(0단계) 다시 시작하시겠습니까?")) {
             const depts = getDepartments();
-            const roles = ['인턴', '사원', '차장', '부장'];
+            const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
             
             // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기 (완전 초기화)
             for (const dept of depts) {
@@ -711,6 +711,12 @@ function startScreen2(deptData) {
     
     // 미션 1-1 (몽타주) 세팅
     const montageData = PUZZLE_DATA.stage1.montage[currentRole];
+
+    if (!montageData) {
+        console.error('Invalid currentRole for montageData:', currentRole);
+        alert('??븷 ?곗씠?곌? ?좏슚?섏? ?딆뒿?덈떎.');
+        return;
+    }
     document.getElementById('montage-clue-text').innerHTML = montageData.text;
     
     const optionsContainer = document.getElementById('montage-options');
