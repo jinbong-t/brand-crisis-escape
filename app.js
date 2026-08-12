@@ -1,4 +1,4 @@
-﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -172,7 +172,7 @@ function getRoleDesc(role) {
         case '?�턴': return '직접?�인 ?�서 ?�색';
         case '?�원': return '?�료 ?�석 �?분석';
         case '차장': return '?�심 개념 ?�출';
-        case 'bujang': return 'boss';
+        case '부장': return '팀의 최종 결정자';
     }
 }
 
@@ -284,7 +284,7 @@ btnAddDept.addEventListener('click', () => {
 btnResetDepts.addEventListener('click', async () => {
     if (confirm("?�말 모든 부???�이?��? 직급 ?�택 기록??초기?�하?�겠?�니�? (?�돌�????�습?�다!)")) {
         const depts = getDepartments();
-        const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
+        const roles = ['인턴', '사원', '차장', '부장'];
         for (const dept of depts) {
             try {
                 // 부??기본 ?�보 �??�테?��? 초기??
@@ -331,7 +331,7 @@ if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
         if (confirm("모든 부??기록�??�이??베이??진행 ?�황???�전??초기?�하�?처음부??0?�계) ?�시 ?�작?�시겠습?�까?")) {
             const depts = getDepartments();
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
+            const roles = ['인턴', '사원', '차장', '부장'];
             
             // 모든 부?�의 권한 반환 �??�테?��? 0?�로 ?�돌리기 (?�전 초기??
             for (const dept of depts) {
@@ -739,7 +739,7 @@ function startScreen2(deptData) {
     
     const btnSubmitM2 = document.getElementById('btn-submit-mission-1-2');
     if (btnSubmitM2) {
-        btnSubmitM2.textContent = currentRole === '遺?? ? '理쒖쥌 ?뺤씤 ?꾨즺' : '寃곗옱 ?щ━湲?;
+        btnSubmitM2.textContent = currentRole === '부장' ? '최종 확인 완료' : '결재 올리기';
     }
     
     document.querySelectorAll('.fabric-btn').forEach(btn => {
@@ -764,9 +764,9 @@ function startScreen2(deptData) {
         }
         
         if (isCorrect) {
-            alert(currentRole === '遺?? ? '?뺤씤?섏뿀?듬땲??' : '?쒖텧?섏뿀?듬땲??');
+            alert(currentRole === '부장' ? '확인되었습니다.' : '제출되었습니다.');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '遺?? ? '理쒖쥌 ?뺤씤 ?꾨즺' : '寃곗옱 ?щ━湲?;
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 확인 완료' : '결재 올리기';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
@@ -784,7 +784,7 @@ function startScreen2(deptData) {
     document.getElementById('reasoning-context').innerHTML = reasoningData.context.replace(/\n/g, '<br>');
     document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
 
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
         document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부?��? ?�체 ?�출 �??�용
@@ -910,13 +910,13 @@ function startScreen3() {
     
     const puzzleData = PUZZLE_DATA.stage2.puzzles[currentRole];
     
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('stage2-employee-panel').classList.add('hidden');
         document.getElementById('stage2-manager-panel').classList.remove('hidden');
         
         // 부???�황??리스??
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣'];
+            const roles = ['인턴', '사원', '차장'];
             let allConfirmed = true;
             
             roles.forEach(role => {
@@ -1018,12 +1018,12 @@ function startScreen4() {
     const personalColorData = PUZZLE_DATA.stage3.personalColor[currentRole];
     const bodyTypeData = PUZZLE_DATA.stage3.bodyType[currentRole];
     
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣'];
+            const roles = ['인턴', '사원', '차장'];
             roles.forEach(role => {
                 const statusEl = document.getElementById(`status-stage3-${role}`);
                 if (!statusEl) return;
@@ -1212,7 +1212,7 @@ function startScreen5() {
     
     const puzzleData = PUZZLE_DATA.stage4.puzzles[currentRole];
     
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
         document.getElementById('reasoning-textarea').classList.add('hidden');
