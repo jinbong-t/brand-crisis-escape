@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+﻿﻿﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -62,14 +62,7 @@ function clearSessionState() {
 }
 
 // 기본 부??목록
-const DEFAULT_DEPTS = [
-    { id: 'dept-1', name: '?�자?�기?��?' },
-    { id: 'dept-2', name: '?�재개발부' },
-    { id: 'dept-3', name: '?��??�링부' },
-    { id: 'dept-4', name: '?�산?�략부' },
-    { id: 'dept-5', name: '마�??��?' },
-    { id: 'dept-6', name: '?�질관리�?' }
-];
+const DEFAULT_DEPTS = [{id:'dept-1',name:'디자인기획팀'},{id:'dept-2',name:'소재개발부'},{id:'dept-3',name:'스타일링부'},{id:'dept-4',name:'생산전략부'},{id:'dept-5',name:'마케팅부'},{id:'dept-6',name:'품질관리부'}];
 
 // Splash Screen Logic
 btnEnterGame.addEventListener('click', () => {
@@ -179,7 +172,7 @@ function getRoleDesc(role) {
         case '?�턴': return '직접?�인 ?�서 ?�색';
         case '?�원': return '?�료 ?�석 �?분석';
         case '차장': return '?�심 개념 ?�출';
-        case '부장': return '종합 ?�단 �??�출';
+        case '부장: return '종합 ?�단 �??�출';
     }
 }
 
@@ -291,7 +284,7 @@ btnAddDept.addEventListener('click', () => {
 btnResetDepts.addEventListener('click', async () => {
     if (confirm("?�말 모든 부???�이?��? 직급 ?�택 기록??초기?�하?�겠?�니�? (?�돌�????�습?�다!)")) {
         const depts = getDepartments();
-        const roles = ['?�턴', '?�원', '차장', '부장'];
+        const roles = ['?�턴', '?�원', '차장', '부??];
         for (const dept of depts) {
             try {
                 // 부??기본 ?�보 �??�테?��? 초기??
@@ -338,7 +331,7 @@ if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
         if (confirm("모든 부??기록�??�이??베이??진행 ?�황???�전??초기?�하�?처음부??0?�계) ?�시 ?�작?�시겠습?�까?")) {
             const depts = getDepartments();
-            const roles = ['?�턴', '?�원', '차장', '부장'];
+            const roles = ['?�턴', '?�원', '차장', '부??];
             
             // 모든 부?�의 권한 반환 �??�테?��? 0?�로 ?�돌리기 (?�전 초기??
             for (const dept of depts) {
@@ -384,13 +377,13 @@ debugRoleBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
         currentDeptId = 'test-dept'; // ?�의??부??
         currentRole = btn.getAttribute('data-role');
-        currentDeptName = '테스트부서';
+        currentDeptName = '?�스?��???;
         sessionStorage.setItem('currentRole', currentRole);
         
         // 부??문서 강제 ?�성 (updateDoc ?�류 방�?)
         try {
             await setDoc(doc(db, 'departments', currentDeptId), {
-                name: '테스트부서',
+                name: '?�스?��???,
                 currentStage: 1
             }, { merge: true });
         } catch(e) { console.error(e); }
@@ -414,8 +407,8 @@ skipButtons.forEach(btn => {
             const forceTest = confirm("?�재 ?�택??부?�나 직급???�습?�다! ?�스?�용 '?�스?��???부?? 권한?�로 강제 ?�장?�시겠습?�까?");
             if (forceTest) {
                 currentDeptId = 'test-dept-' + Date.now(); // ?�시 부???�성
-        currentDeptName = '테스트부서';
-                currentRole = '부장';
+                currentDeptName = '?�스?��???;
+                currentRole = '부??;
                 saveSessionState();
             } else {
                 return;
@@ -454,7 +447,7 @@ skipButtons.forEach(btn => {
                     document.getElementById('screen-5').classList.remove('hidden');
                     startScreen5();
                 } else {
-                    alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱...`);
+                    alert(`${targetStage}?�계 ?�면?� ?�직 공사 중입?�다! ?�딱?�딱 ?���?);
                 }
                 
             } catch(e) {
@@ -511,7 +504,7 @@ function startScreen1() {
     
     // ?�상 ?�동 ?�생 ?�도
     if (introVideo) {
-                introVideo.play().catch(e => console.log("자동 재생 방지", e));
+        introVideo.play().catch(e => console.log("?�동 ?�생 방�???, e));
     }
 
     renderOpeningCards();
@@ -746,7 +739,7 @@ function startScreen2(deptData) {
     
     const btnSubmitM2 = document.getElementById('btn-submit-mission-1-2');
     if (btnSubmitM2) {
-        btnSubmitM2.textContent = currentRole === '부장' ? '최종 승인하기' : '부장님께 결재 올리기';
+        btnSubmitM2.textContent = currentRole === '부?? ? '최종 ?�인?�기' : '부?�님�?결재 ?�리�?;
     }
     
     document.querySelectorAll('.fabric-btn').forEach(btn => {
@@ -771,9 +764,9 @@ function startScreen2(deptData) {
         }
         
         if (isCorrect) {
-            alert(currentRole === '부장' ? '?�답?�니?? ?�벽???�단??골라 최종 ?�인?�셨?�니??' : '?�답?�니?? 부?�님�?기안??무사???�신?�습?�다!');
+            alert(currentRole === '부?? ? '?�답?�니?? ?�벽???�단??골라 최종 ?�인?�셨?�니??' : '?�답?�니?? 부?�님�?기안??무사???�신?�습?�다!');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 ?�인 ?�료' : '결재 ?�청 ?�료 (기안 ?�신)';
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부?? ? '최종 ?�인 ?�료' : '결재 ?�청 ?�료 (기안 ?�신)';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
@@ -791,7 +784,7 @@ function startScreen2(deptData) {
     document.getElementById('reasoning-context').innerHTML = reasoningData.context.replace(/\n/g, '<br>');
     document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
 
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
         document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부?��? ?�체 ?�출 �??�용
@@ -815,14 +808,14 @@ function startScreen2(deptData) {
                 const reasoningDisplay = statusEl.querySelector('.reasoning-display');
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = 'X';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     if (reasoningDisplay && reasoningText) {
                         reasoningDisplay.textContent = `"${reasoningText}"`;
                         reasoningDisplay.style.display = 'block';
                     }
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = 'X';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     if (reasoningDisplay) reasoningDisplay.style.display = 'none';
                     allConfirmed = false;
                 }
@@ -881,7 +874,7 @@ function startScreen2(deptData) {
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
                     await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
                     
-                alert('오류가 발생했습니다.');
+                    alert('부?�님�?최종 기안(결재 ?�청)??무사???�겼?�니?? 부?�님??모두???�견??취합??최종 ?�인???�까지 ?�기해주세??');
                     btnConfirmAll.disabled = true;
                     btnConfirmAll.textContent = '기안 ?�신 ?�료 (부???�인 ?��?�?..)';
                     textarea.disabled = true;
@@ -917,7 +910,7 @@ function startScreen3() {
     
     const puzzleData = PUZZLE_DATA.stage2.puzzles[currentRole];
     
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('stage2-employee-panel').classList.add('hidden');
         document.getElementById('stage2-manager-panel').classList.remove('hidden');
         
@@ -935,11 +928,11 @@ function startScreen3() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = 'X';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = 'X';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                     allConfirmed = false;
                 }
@@ -952,7 +945,7 @@ function startScreen3() {
         // 부??금고 가??버튼
         document.getElementById('btn-submit-stage2').onclick = async () => {
             const pw = document.getElementById('manager-vault-pw').value;
-            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
+            if (pw === PUZZLE_DATA.stage2.puzzles['부??].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
                 // Firestore�?먼�? ?�데?�트?�여 ?�른 ?�?�들???�면???�어가�???
@@ -1025,7 +1018,7 @@ function startScreen4() {
     const personalColorData = PUZZLE_DATA.stage3.personalColor[currentRole];
     const bodyTypeData = PUZZLE_DATA.stage3.bodyType[currentRole];
     
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
@@ -1040,11 +1033,11 @@ function startScreen4() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = 'X';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = 'X';
+                    statusEl.querySelector('.status-icon').textContent = '??;
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                 }
             });
@@ -1135,7 +1128,7 @@ function startScreen4() {
         btnSubmit.onclick = async () => {
             if (selectedItems['line'] === '가로선' && 
                 selectedItems['color'] === '?�색' && 
-            selectedItems['material'] !== '' &&
+                selectedItems['material'] === '뻣뻣?? &&
                 selectedItems['pattern'] === '?��?무늬') {
                 
                 errorMsg.classList.add('hidden');
@@ -1219,7 +1212,7 @@ function startScreen5() {
     
     const puzzleData = PUZZLE_DATA.stage4.puzzles[currentRole];
     
-    if (currentRole === '부장') {
+    if (currentRole === '부??) {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
         document.getElementById('reasoning-textarea').classList.add('hidden');
@@ -1454,10 +1447,10 @@ function startScreen5() {
                     const statusEl = document.getElementById(`status-stage4-${r}`);
                     if (statusEl) {
                         if (d.stage4Confirmed) {
-                            statusEl.querySelector('.status-icon').textContent = 'X';
+                            statusEl.querySelector('.status-icon').textContent = '??;
                             correctCount++;
                         } else {
-                            statusEl.querySelector('.status-icon').textContent = 'X';
+                            statusEl.querySelector('.status-icon').textContent = '??;
                         }
                     }
                 }
@@ -1467,7 +1460,7 @@ function startScreen5() {
             // 게이지 �??�데?�트 (?�???�성??기반)
             const simulatedScore = Math.floor((correctCount / 3) * 100);
             scoreFill.style.width = `${simulatedScore}%`;
-            scoreText.textContent = `${simulatedScore} / 100 점`;
+            scoreText.textContent = `${simulatedScore} / 100 ??;
             
             checkManagerStage4Complete();
         });
@@ -1524,7 +1517,7 @@ function startScreen5() {
                         if (endingScreen) endingScreen.classList.remove('hidden');
                         
                         // 부?�명 ?�정
-    let deptName = '알 수 없음';
+                        let deptName = '?�리 부??;
                         if (PUZZLE_DATA.departments) {
                             const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
                             if (found) deptName = found.name;
@@ -1642,7 +1635,7 @@ function startScreen5() {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '알 수 없음';
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
         };
     }
 }
@@ -1735,7 +1728,7 @@ function showReasoningModal(stageData, targetStageNum) {
         if (rData.teamKeywords) {
             Object.values(rData.teamKeywords).forEach(list => allKeywords.push(...list));
         } else if (rData.answers) {
-            allKeywords = rData.answers.concat(['a', 'b', 'c']);
+            allKeywords = rData.answers.concat(['?�못??, '?�어', '추�?']);
         }
         allKeywords = [...new Set(allKeywords)].sort(() => Math.random() - 0.5);
         
@@ -1796,7 +1789,7 @@ function showReasoningModal(stageData, targetStageNum) {
     const btnSubmit = document.getElementById('btn-submit-reasoning');
     btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
-            btnSubmit.textContent = rData.keywordLock ? '제출 완료' : '최종 제출';
+    btnSubmit.textContent = rData.keywordLock ? '?�물???��? : '?�의 ?�료';
     btnSubmit.onclick = async () => {
         // (������ ���� �Ϸ� ����)
 
@@ -1868,14 +1861,14 @@ async function initApp() {
                     
                     // QR ?�캔 진입??경우 바로 QR ?�면?�로 ?�동 (부?�만 ?�용)
                     if (isQrScan) {
-                        if (currentRole !== '부장') {
+                        if (currentRole !== '부??) {
                             alert('QR ?�캔�??�호 ?�력?� 부?�님�??????�습?�다!\n부?�님???��??�으�??�캔?�주?�요.');
                             // ?�플?�시???��??�면?�로 ?�려보냄 (?�선 0?�계 ?�면 ?��?)
                             document.getElementById('screen-0').classList.remove('hidden');
                             return;
                         }
                         document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '알 수 없음';
+                        document.getElementById('qr-dept-name').textContent = currentDeptName || '?�리 부??;
                         return;
                     }
 
