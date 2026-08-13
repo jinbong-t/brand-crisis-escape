@@ -1866,7 +1866,8 @@ async function initApp() {
             // 부서의 currentStage 변경을 실시간으로 감지하여 화면 자동 전환
             onSnapshot(doc(db, 'departments', currentDeptId), (snap) => {
                 if (snap.exists()) {
-                    const stage = snap.data().currentStage || 0;
+                    const d = snap.data();
+                    const stage = d.currentStage || 0;
                     
                     deptSelection.classList.add('hidden');
                     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
