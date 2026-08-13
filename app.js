@@ -338,7 +338,7 @@ if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
         if (confirm("모든 부서 기록과 데이터 베이스 진행 상황을 완전히 초기화하고 처음부터(0단계) 다시 시작하시겠습니까?")) {
             const depts = getDepartments();
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
+        const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
             
             // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기 (완전 초기화)
             for (const dept of depts) {
