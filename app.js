@@ -1,4 +1,4 @@
-﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
@@ -63,12 +63,12 @@ function clearSessionState() {
 
 // 기본 부서 목록
 const DEFAULT_DEPTS = [
-    { id: 'dept-1', name: '?붿옄?멸린?띾?' },
-    { id: 'dept-2', name: '?뚯옱媛쒕컻遺' },
-    { id: 'dept-3', name: '?ㅽ??쇰쭅遺' },
-    { id: 'dept-4', name: '?앹궛?꾨왂遺' },
-    { id: 'dept-5', name: '留덉??낅?' },
-    { id: 'dept-6', name: '?덉쭏愿由щ?' }
+    { id: 'dept-1', name: '디자인기획부' },
+    { id: 'dept-2', name: '소재개발부' },
+    { id: 'dept-3', name: '스타일링부' },
+    { id: 'dept-4', name: '생산전략부' },
+    { id: 'dept-5', name: '마케팅부' },
+    { id: 'dept-6', name: '품질관리부' }
 ];
 
 // Splash Screen Logic
