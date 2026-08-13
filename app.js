@@ -1,9 +1,9 @@
-﻿import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
 
-// DOM ?遺용꺖
+// DOM ?�소
 const deptGrid = document.getElementById('dept-grid');
 const deptSelection = document.getElementById('department-selection');
 const roleSelection = document.getElementById('role-selection');
@@ -13,7 +13,7 @@ const btnBackToDept = document.getElementById('btn-back-to-dept');
 const mainHeader = document.getElementById('main-header');
 const currentTeamDisplay = document.getElementById('current-team-display');
 
-// ?온?귐딆쁽 筌뤴뫀諭?DOM
+// 관리자 모드 DOM
 const adminToggleBtn = document.getElementById('admin-toggle-btn');
 const adminModal = document.getElementById('admin-modal');
 const closeAdminModal = document.getElementById('close-admin-modal');
@@ -42,7 +42,7 @@ const diaryText = document.getElementById('diary-text');
 const btnSubmitOpening = document.getElementById('btn-submit-opening');
 const openingErrorMsg = document.getElementById('opening-error-msg');
 
-// ?怨밴묶 ?온??
+// ?�태 관�?
 let currentDeptId = sessionStorage.getItem('currentDeptId') || null;
 let currentDeptName = sessionStorage.getItem('currentDeptName') || null;
 let currentRole = sessionStorage.getItem('currentRole') || null;
@@ -61,22 +61,22 @@ function clearSessionState() {
     sessionStorage.removeItem('currentRole');
 }
 
-// 疫꿸퀡???봔??筌뤴뫖以?
+// 기본 부??목록
 const DEFAULT_DEPTS = [
-    { id: 'dept-1', name: '?遺우쁽?硫몃┛???' },
-    { id: 'dept-2', name: '???삺揶쏆뮆而삯겫?' },
-    { id: 'dept-3', name: '?????곗춦?봔' },
-    { id: 'dept-4', name: '??밴텦?袁⑥셽?봔' },
-    { id: 'dept-5', name: '筌띾뜆????' },
-    { id: 'dept-6', name: '??됱춳?온?귐?' }
+    { id: 'dept-1', name: '디자인기획부' },
+    { id: 'dept-2', name: '소재개발부' },
+    { id: 'dept-3', name: '스타일링부' },
+    { id: 'dept-4', name: '생산전략부' },
+    { id: 'dept-5', name: '마케팅부' },
+    { id: 'dept-6', name: '품질관리부' }
 ];
 
 // Splash Screen Logic
 btnEnterGame.addEventListener('click', () => {
-    // 1. 揶쏅베?????밸씜 "?諭????봔??뺣뮉 ?얜똻毓??낅빍繹?" ?袁⑹뒭疫?
+    // 1. 강렬???�업 "?�신??부?�는 무엇?�니�?" ?�우�?
     geniusModal.classList.remove('hidden');
     
-    // 2. 2.5??????밸씜????쎈탣??뤿뻻 ?遺얇늺 筌뤴뫀紐????わ쭪???Screen 0 ?源놁삢
+    // 2. 2.5�????�업�??�플?�시 ?�면 모두 ?�라지�?Screen 0 ?�장
     setTimeout(() => {
         geniusModal.classList.add('hidden');
         screenSplash.classList.add('hidden');
@@ -84,7 +84,7 @@ btnEnterGame.addEventListener('click', () => {
     }, 2500);
 });
 
-// ?봔???온??
+// 부??관�?
 function getDepartments() {
     const saved = localStorage.getItem('rebrand_departments');
     if (saved) return JSON.parse(saved);
@@ -96,7 +96,7 @@ function saveDepartments(depts) {
     localStorage.setItem('rebrand_departments', JSON.stringify(depts));
 }
 
-// ?遺얇늺 ???쐭筌?
+// ?�면 ?�더�?
 function renderDeptGrid() {
     const depts = getDepartments();
     deptGrid.innerHTML = '';
@@ -117,7 +117,7 @@ function renderAdminDeptList() {
         div.className = 'admin-dept-item';
         div.innerHTML = `
             <span>${dept.name}</span>
-            <button class="btn-delete" data-id="${dept.id}">????/button>
+            <button class="btn-delete" data-id="${dept.id}">??��</button>
         `;
         adminDeptList.appendChild(div);
     });
@@ -133,7 +133,7 @@ function renderAdminDeptList() {
     });
 }
 
-// ?봔???醫뤾문
+// 부???�택
 async function selectDepartment(dept) {
     currentDeptId = dept.id;
     currentDeptName = dept.name;
@@ -142,7 +142,7 @@ async function selectDepartment(dept) {
     deptSelection.classList.add('hidden');
     roleSelection.classList.remove('hidden');
 
-    // Firestore?癒?퐣 ?봔???얜챷苑뚦첎? ??곸몵筌???밴쉐
+    // Firestore?�서 부??문서가 ?�으�??�성
     const deptRef = doc(db, 'departments', currentDeptId);
     const snap = await getDoc(deptRef);
     if (!snap.exists()) {
@@ -157,7 +157,7 @@ async function selectDepartment(dept) {
     checkRoleAvailability();
 }
 
-// 筌욊낫????뽮쉐???怨밴묶 ?類ㅼ뵥
+// 직급 ?�성???�태 ?�인
 async function checkRoleAvailability() {
     roleCards.forEach(async (card) => {
         const role = card.getAttribute('data-role');
@@ -166,7 +166,7 @@ async function checkRoleAvailability() {
         
         if (snap.exists() && snap.data().taken) {
             card.disabled = true;
-            card.innerHTML = `<h3>${role}</h3><p>(?醫뤾문 ?袁⑥┷)</p>`;
+            card.innerHTML = `<h3>${role}</h3><p>(선택 완료)</p>`;
         } else {
             card.disabled = false;
             card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}</p>`;
@@ -176,14 +176,14 @@ async function checkRoleAvailability() {
 
 function getRoleDesc(role) {
     switch(role) {
-        case '?紐낃쉘': return '筌욊낯??怨몄뵥 ??κ퐣 ?癒?퉳';
-        case '????: return '?癒?┷ ??곴퐤 獄??브쑴苑?;
-        case '筌△뫁??: return '???뼎 揶쏆뮆???袁⑺뀱';
-        case '?봔??: return '?ル굟鍮 ?癒?뼊 獄???뽱뀱';
+        case '인턴': return '직접 확인 및 서류 색출';
+        case '사원': return '자료 분석 및 분석';
+        case '차장': return '핵심 개념 도출';
+        case '부장': return '종합 판단 및 도출';
     }
 }
 
-// 筌욊낫???醫뤾문 (?紐껋삏????
+// 직급 ?�택 (?�랜??��)
 roleCards.forEach(card => {
     card.addEventListener('click', async () => {
         if (card.disabled) return;
@@ -194,17 +194,17 @@ roleCards.forEach(card => {
             await runTransaction(db, async (transaction) => {
                 const docSnap = await transaction.get(roleRef);
                 if (docSnap.exists() && docSnap.data().taken) {
-                    throw "??? ?醫뤾문??筌욊낫???낅빍??";
+                    throw "이미 선택된 직급입니다.";
                 }
                 transaction.set(roleRef, { taken: true, timestamp: Date.now() });
             });
             
-            // ?源껊궗
+            // ?�공
             currentRole = role;
             saveSessionState();
-            alert(`${role} 筌욊낫???곗쨮 ??뽰삂??몃빍??`);
+            alert(`${role} 직급으로 시작합니다!`);
             
-            // ??쇱뵠??????띾┛????륁뵠筌왖 ?? ?醫딅빍筌롫뗄???륁몵嚥??遺얇늺 ?袁れ넎
+            // ?�이?�리 ?�기???�이지 ?? ?�니메이?�으�??�면 ?�환
             screen0.classList.add('page-turn-out');
             setTimeout(() => {
                 screen0.classList.add('hidden');
@@ -214,17 +214,17 @@ roleCards.forEach(card => {
                 screen1.classList.add('page-turn-in');
                 setTimeout(() => screen1.classList.remove('page-turn-in'), 800);
                 
-                startScreen1(); // ?遺얇늺 1(??쎈늄?? ???샒
+                startScreen1(); // ?�면 1(?�프?? ?�팅
             }, 800);
             
         } catch (e) {
             alert(e);
-            checkRoleAvailability(); // ?怨밴묶 揶쏄퉮??
+            checkRoleAvailability(); // ?�태 갱신
         }
     });
 });
 
-// ??살쨮揶쎛疫?
+// ?�로가�?
 btnBackToDept.addEventListener('click', () => {
     currentDeptId = null;
     currentDeptName = null;
@@ -234,11 +234,11 @@ btnBackToDept.addEventListener('click', () => {
     deptSelection.classList.remove('hidden');
 });
 
-// ??釉?癰궰野?(嚥≪뮄??袁⑹뜍 - ?怨쀬뵠???醫?)
+// ??�� 변�?(로그?�웃 - ?�이???��?)
 const btnLogoutRoles = document.querySelectorAll('#btn-logout-role, .btn-logout-role');
 btnLogoutRoles.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (confirm("?袁⑹삺 ??釉?癒?퐣 嚥≪뮄??袁⑹뜍??뤿뻻野껋쥙???뉙돱? (???癒?굶??疫꿸퀣釉?疫꿸퀡以?? DB??域밸챶?嚥?癰귣똻???몃빍??)")) {
+        if (confirm("현재 직급에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다)")) {
             currentRole = null;
             sessionStorage.removeItem('currentRole');
             location.reload();
@@ -246,7 +246,7 @@ btnLogoutRoles.forEach(btn => {
     });
 });
 
-// ?온?귐딆쁽 筌뤴뫀諭?嚥≪뮇彛?(5甕?????????뽮쉐??
+// 관리자 모드 로직 (5�??�릭 ???�성??
 adminToggleBtn.addEventListener('click', () => {
     adminClickCount++;
     if (adminClickCount >= 5) {
@@ -289,12 +289,12 @@ btnAddDept.addEventListener('click', () => {
 });
 
 btnResetDepts.addEventListener('click', async () => {
-    if (confirm("?類ｌ춾 筌뤴뫀諭??봔???怨쀬뵠?怨? 筌욊낫???醫뤾문 疫꿸퀡以???λ뜃由?酉釉??볦퓢??щ빍繹? (??롫즼??????곷뮸??덈뼄!)")) {
+    if (confirm("?�말 모든 부???�이?��? 직급 ?�택 기록??초기?�하?�겠?�니�? (?�돌�????�습?�다!)")) {
         const depts = getDepartments();
         const roles = ['인턴', '사원', '차장', '부장'];
         for (const dept of depts) {
             try {
-                // ?봔??疫꿸퀡???類ｋ궖 獄???쎈??? ?λ뜃由??
+                // 부??기본 ?�보 �??�테?��? 초기??
                 await setDoc(doc(db, 'departments', dept.id), {
                     name: dept.name,
                     currentStage: 0,
@@ -305,12 +305,12 @@ btnResetDepts.addEventListener('click', async () => {
                     qrScanned: false
                 });
                 
-                // QR ??깅뮞 ?怨밴묶 ?λ뜃由??
+                // QR ?�스 ?�태 초기??
                 await setDoc(doc(db, 'pieces', dept.id), {
                     unlocked: false
                 });
 
-                // 筌욊낫???怨밴묶 ?λ뜃由??
+                // 직급 ?�태 초기??
                 for (const role of roles) {
                     await setDoc(doc(db, `departments/${dept.id}/roles`, role), { 
                         taken: false,
@@ -327,20 +327,20 @@ btnResetDepts.addEventListener('click', async () => {
         currentDeptId = null;
         currentRole = null;
         
-        alert("?λ뜃由?遺얜┷??됰뮸??덈뼄.");
+        alert("초기?�되?�습?�다.");
         location.reload();
     }
 });
 
-// ???뮞?紐꾩뒠 ??쥓???袁⑷퍥 ?λ뜃由??甕곌쑵??
+// ?�스?�용 빠른 ?�체 초기??버튼
 const btnEasyReset = document.getElementById('btn-easy-reset');
 if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
-        if (confirm("筌뤴뫀諭??봔??疫꿸퀡以됪??怨쀬뵠??甕곗쥙???筌욊쑵六??怨뱀넺???袁⑹읈???λ뜃由?酉釉??筌ｌ꼷?ч겫???0??ｍ? ??쇰뻻 ??뽰삂??뤿뻻野껋쥙???뉙돱?")) {
+        if (confirm("모든 부??기록�??�이??베이??진행 ?�황???�전??초기?�하�?처음부??0?�계) ?�시 ?�작?�시겠습?�까?")) {
             const depts = getDepartments();
-        const roles = ['인턴', '사원', '차장', '부장'];
+            const roles = ['인턴', '사원', '차장', '부장'];
             
-            // 筌뤴뫀諭??봔??뽰벥 亦낅슦釉?獄쏆꼹??獄???쎈??? 0??곗쨮 ??롫즼?귐덈┛ (?袁⑹읈 ?λ뜃由??
+            // 모든 부?�의 권한 반환 �??�테?��? 0?�로 ?�돌리기 (?�전 초기??
             for (const dept of depts) {
                 try {
                     await setDoc(doc(db, 'departments', dept.id), {
@@ -372,69 +372,69 @@ if (btnEasyReset) {
             currentDeptId = null;
             currentRole = null;
             
-            alert("?袁④펾??띿쓺 ?λ뜃由?遺얜┷??됰뮸??덈뼄! 繹먥뫀嫄???怨밴묶?癒?퐣 ??뽰삂??몃빍??");
+            alert("?�벽?�게 초기?�되?�습?�다! 깨끗???�태?�서 ?�작?�니??");
             location.reload();
         }
     });
 }
 
-// ???뮞?紐꾩뒠 ??쇱퓝???곕뗀以?獄쏅뗀以덂첎?疫?甕곌쑵??
+// ?�스?�용 ?�천??추론 바로가�?버튼
 const debugRoleBtns = document.querySelectorAll('.btn-debug-role');
 debugRoleBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
-        currentDeptId = 'test-dept'; // ?袁⑹벥???봔??
+        currentDeptId = 'test-dept'; // ?�의??부??
         currentRole = btn.getAttribute('data-role');
-        currentDeptName = '???뮞?紐???;
+        currentDeptName = '테스트부서';
         sessionStorage.setItem('currentRole', currentRole);
         
-        // ?봔???얜챷苑?揶쏅벡????밴쉐 (updateDoc ??살첒 獄쎻뫗?)
+        // 부??문서 강제 ?�성 (updateDoc ?�류 방�?)
         try {
             await setDoc(doc(db, 'departments', currentDeptId), {
-                name: '???뮞?紐???,
+                name: '테스트부서',
                 currentStage: 1
             }, { merge: true });
         } catch(e) { console.error(e); }
 
         document.getElementById('screen-splash').classList.remove('active');
         
-        // ?類ㅻ뻼 ???λ뜃由??(???⑥눘??癒?퐣 onSnapshot?????嚥??얜씈?졿??遺얇늺 1???類ㅺ맒 ???샒??
+        // ?�식 ??초기??(??과정?�서 onSnapshot???��?�?묶이�??�면 1???�상 ?�팅??
         initApp();
         
         setTimeout(() => showReasoningModal(PUZZLE_DATA.stage1, 2), 800);
     });
 });
 
-// ??륁뵠筌왖 ??쎄땁 嚥≪뮇彛?
+// ?�이지 ?�킵 로직
 const skipButtons = document.querySelectorAll('.btn-skip');
 skipButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
         const targetStage = parseInt(btn.getAttribute('data-target'));
         
         if (!currentDeptId || !currentRole) {
-            const forceTest = confirm("?袁⑹삺 ?醫뤾문???봔??뺢돌 筌욊낫?????곷뮸??덈뼄! ???뮞?紐꾩뒠 '???뮞?紐????봔?? 亦낅슦釉??곗쨮 揶쏅벡????놁삢??뤿뻻野껋쥙???뉙돱?");
+            const forceTest = confirm("?�재 ?�택??부?�나 직급???�습?�다! ?�스?�용 '?�스?��???부?? 권한?�로 강제 ?�장?�시겠습?�까?");
             if (forceTest) {
-                currentDeptId = 'test-dept-' + Date.now(); // ?袁⑸뻻 ?봔????밴쉐
-                currentDeptName = '???뮞?紐???;
-                currentRole = '?봔??;
+                currentDeptId = 'test-dept-' + Date.now(); // ?�시 부???�성
+        currentDeptName = '테스트부서';
+                currentRole = '부장';
                 saveSessionState();
             } else {
                 return;
             }
         }
         
-        if (confirm(`${targetStage}??ｍ롦에?揶쏅벡????猷??뤿뻻野껋쥙???뉙돱?`)) {
+        if (confirm(`${targetStage}?�계�?강제 ?�동?�시겠습?�까?`)) {
             try {
-                // ?봔???얜챷苑뚦첎? ??곸몵筌??袁⑸뻻 ??밴쉐
+                // 부??문서가 ?�으�??�시 ?�성
                 await setDoc(doc(db, 'departments', currentDeptId), {
                     name: currentDeptName,
                     currentStage: targetStage,
                     startTime: Date.now()
                 }, { merge: true });
                 
-                // 筌뤴뫀????る┛
+                // 모달 ?�기
                 adminModal.classList.add('hidden');
                 
-                // 筌뤴뫀諭??遺얇늺 ??ｋ┛疫?
+                // 모든 ?�면 ?�기�?
                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                 
@@ -454,7 +454,7 @@ skipButtons.forEach(btn => {
                     document.getElementById('screen-5').classList.remove('hidden');
                     startScreen5();
                 } else {
-                    alert(`${targetStage}??ｍ??遺얇늺?? ?袁⑹춦 ?⑤벊沅?餓λ쵐???덈뼄! ??몃뎨??몃뎨 ??길닼?);
+                    alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱...`);
                 }
                 
             } catch(e) {
@@ -465,7 +465,7 @@ skipButtons.forEach(btn => {
 });
 
 // ==========================================
-// Screen 1: ??쎈늄??嚥≪뮇彛?
+// Screen 1: ?�프??로직
 // ==========================================
 let introParagraphs = [];
 let currentIntroIndex = 0;
@@ -474,7 +474,7 @@ function startScreen1() {
     mainHeader.classList.remove('hidden');
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
 
-    // ??쎈늄????쎈꽅??筌뤴뫀??餓Β??
+    // ?�프???�토�?모달 준�?
     let rawIntroText = PUZZLE_DATA.opening.introText;
     rawIntroText = rawIntroText.replace('[ROLE]', currentRole);
     introParagraphs = rawIntroText.split('<br><br>');
@@ -497,7 +497,7 @@ function startScreen1() {
             p.innerHTML = introParagraphs[currentIntroIndex];
             container.appendChild(p);
             
-            // ?뚢뫂???瑗???쎄쾿嚥?筌??袁⑥삋嚥?
+            // 컨테?�너 ?�크�?�??�래�?
             container.parentElement.scrollTop = container.parentElement.scrollHeight;
             
             if (currentIntroIndex === introParagraphs.length - 1) {
@@ -509,9 +509,9 @@ function startScreen1() {
 
     introModal.classList.remove('hidden');
     
-    // ?怨멸맒 ?癒?짗 ??源???뺣즲
+    // ?�상 ?�동 ?�생 ?�도
     if (introVideo) {
-        introVideo.play().catch(e => console.log("?癒?짗 ??源?獄쎻뫗???, e));
+                introVideo.play().catch(e => console.log("자동 재생 방지", e));
     }
 
     renderOpeningCards();
@@ -526,7 +526,7 @@ document.getElementById('close-intro-modal').addEventListener('click', () => {
 
 function renderOpeningCards() {
     openingCardsContainer.innerHTML = '';
-    // ?λ뜃由?癒?뮉 ?얜똻??袁⑥쨮 ??롫선??獄쏄퀣??
+    // 초기?�는 무작?�로 ?�어??배치
     const shuffledCards = [...PUZZLE_DATA.opening.cards].sort(() => Math.random() - 0.5);
     
     shuffledCards.forEach(cardData => {
@@ -536,7 +536,7 @@ function renderOpeningCards() {
         card.dataset.id = cardData.id;
         card.dataset.back = cardData.back;
 
-        // ??곸춳??彛??癒?덱???袁る퉸 ??꾩퍢????뺣쑁 ???읈????쎈늄???봔??
+        // ?�질?�진 ?�낌???�해 ?�간???�덤 ?�전�??�프??부??
         const randomRot = (Math.random() - 0.5) * 10; // -15??~ +15??
         const randomY = (Math.random() - 0.5) * 10;   // -10px ~ +10px
         card.style.transform = `rotate(${randomRot}deg) translateY(${randomY}px)`;
@@ -544,23 +544,23 @@ function renderOpeningCards() {
         card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; border: 2px solid var(--accent-gold);">
-                    <!-- ??뚣늺?? ??ｊ볼筌??怨밴묶 -->
-                    <span style="background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px; font-weight: bold; color: white;">鈺곌퀣沅?燁삳?諭?/span>
+                    <!-- ?�면?� ?�겨�??�태 -->
+                    <span style="background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px; font-weight: bold; color: white;">조사 카드</span>
                 </div>
                 <div class="flip-card-back" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1rem;">
                     <span style="font-size: 0.85rem; font-family: 'Noto Sans KR'; font-weight: 500; word-break: keep-all; line-height: 1.5; color: var(--text-main);">${cardData.text}</span>
-                    <!-- ??ъ쁽???遺얇늺??癰귣똻肉т틠?? ??꾪???쇱춦 ?類ｌ졊 ??뽮퐣 筌ｋ똾寃??뱀몵嚥≪뮆彛??????몃빍??-->
+                    <!-- ?�자???�면??보여주�? ?�고 ?�직 ?�렬 ?�서 체크?�으로만 ?�용?�니??-->
                 </div>
             </div>
         `;
 
-        // ??쇱춿疫???源??
+        // ?�집�??�벤??
         card.addEventListener('click', () => {
             card.classList.toggle('flipped');
             checkUnlockCondition();
         });
 
-        // ??뺤삋域?????뺚댘 ??源??
+        // ?�래�????�롭 ?�벤??
         card.addEventListener('dragstart', (e) => {
             card.classList.add('dragging');
         });
@@ -572,7 +572,7 @@ function renderOpeningCards() {
         openingCardsContainer.appendChild(card);
     });
 
-    // ?뚢뫂???瑗???뺤삋域??類ｌ졊 嚥≪뮇彛?
+    // 컨테?�너 ?�래�??�렬 로직
     openingCardsContainer.addEventListener('dragover', e => {
         e.preventDefault();
         const afterElement = getDragAfterElement(openingCardsContainer, e.clientX);
@@ -584,12 +584,12 @@ function renderOpeningCards() {
         }
     });
 
-    // 筌뤴뫀而???怨쀭뒄(??뺤삋域? 筌왖??
+    // 모바???�치(?�래�? 지??
     let touchDragging = null;
     openingCardsContainer.addEventListener('touchstart', e => {
         if (e.target.closest('.flip-card')) {
             touchDragging = e.target.closest('.flip-card');
-            // ?怨쀭뒄 ??뽰삂 ??獄쏅뗀以???쇱춿??? ??낅즲嚥???꾩퍢????뺤쟿??
+            // ?�치 ?�작 ??바로 ?�집?��? ?�도�??�간???�레??
             setTimeout(() => { if (touchDragging) touchDragging.classList.add('dragging'); }, 100);
         }
     });
@@ -613,7 +613,7 @@ function renderOpeningCards() {
     });
 }
 
-// ??뺤삋域??袁⑺뒄 ?④쑴沅???λ땾
+// ?�래�??�치 계산 ?�수
 function getDragAfterElement(container, x) {
     const draggableElements = [...container.querySelectorAll('.flip-card:not(.dragging)')];
     
@@ -628,7 +628,7 @@ function getDragAfterElement(container, x) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// ?醫됲닊 ??곸젫 鈺곌퀗援?野꺜??(??곕굡獄쏄퉮????볦퍟????ｋ궢筌?
+// ?�금 ?�제 조건 검??(?�드백용 ?�각???�과�?
 function checkUnlockCondition() {
     const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
     const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
@@ -641,19 +641,19 @@ function checkUnlockCondition() {
     }
 }
 
-// ?醫됲닊 ??곸젫 甕곌쑵??????
+// ?�금 ?�제 버튼 ?�릭
 btnUnlock.addEventListener('click', () => {
     const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
     const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
     const currentOrder = cards.map(c => c.dataset.back).join('');
 
     if (!isAllFlipped) {
-        alert("筌뤴뫀諭?鈺곌퀣沅?燁삳?諭띄몴???쇱춿????곸뒠???類ㅼ뵥??곻폒?紐꾩뒄!");
+        alert("모든 조사 카드를 뒤집어 내용을 확인해주세요!");
         return;
     }
     
     if (currentOrder !== '1234') {
-        alert("??뽮퐣揶쎛 ???紐꾨뮸??덈뼄. ??롮첒 ??밴텦?봔???癒?┛繹먮슣? ??띻펾 ??쇰옘??獄쏆뮇源??롫뮉 ??而?몴???뽮퐣??嚥???뤿였????紐꾩뒄!");
+        alert("?�서가 ?�?�습?�다. ?�류 ?�산부???�기까�? ?�경 ?�염??발생?�는 ?�바�??�서?��??�열?�보?�요!");
         return;
     }
 
@@ -661,28 +661,28 @@ btnUnlock.addEventListener('click', () => {
     diaryModal.classList.remove('hidden');
 });
 
-// ??쇱뵠????????뽱뀱
+// ?�이?�리 ???�출
 btnSubmitOpening.addEventListener('click', async () => {
     const selected = document.querySelector('input[name="flow-type"]:checked');
     if (!selected) {
-        alert('???뱽 ?醫뤾문??곻폒?紐꾩뒄.');
+        alert('?�을 ?�택?�주?�요.');
         return;
     }
 
     if (selected.value === PUZZLE_DATA.opening.answer) {
-        // ?類ｋ뼗 ??
+        // ?�답 ??
         openingErrorMsg.classList.add('hidden');
         diaryModal.classList.add('hidden');
-        alert('?類ｋ뼗??낅빍?? 1??ｍ롦에???猷??몃빍??');
+        alert('정답입니다! 1단계로 이동합니다');
         
-        // ?怨밴묶 ??낅쑓??꾨뱜
+        // ?�태 ?�데?�트
         try {
             await updateDoc(doc(db, 'departments', currentDeptId), {
                 currentStage: 1
             });
         } catch(e) { console.error(e); }
 
-        // 1??ｍ??遺얇늺??곗쨮 ?袁れ넎
+        // 1?�계 ?�면?�로 ?�환
         document.getElementById('screen-1').classList.add('hidden');
         document.getElementById('screen-2').classList.remove('hidden');
         startScreen2();
@@ -692,7 +692,7 @@ btnSubmitOpening.addEventListener('click', async () => {
 });
 
 // ==========================================
-// Screen 2: 1??ｍ?(?遺우쁽?紐꾩뒄???뼄) 嚥≪뮇彛?
+// Screen 2: 1?�계 (?�자?�요?�실) 로직
 // ==========================================
 function startScreen2(deptData) {
     mainHeader.classList.remove('hidden');
@@ -700,7 +700,7 @@ function startScreen2(deptData) {
     
     document.getElementById('display-current-role').textContent = currentRole;
     
-    // 1??ｍ???쎈꽅??筌뤴뫀???袁⑹뒭疫?
+    // 1?�계 ?�토�?모달 ?�우�?
     if (!(deptData && deptData.showStage1Reasoning)) {
         document.getElementById('stage1-story-modal').classList.remove('hidden');
     }
@@ -709,14 +709,8 @@ function startScreen2(deptData) {
         document.getElementById('stage1-story-modal').classList.add('hidden');
     };
     
-    // 沃섎챷??1-1 (筌륁??雅? ?紐낅샒
+    // 미션 1-1 (몽�?�? ?�팅
     const montageData = PUZZLE_DATA.stage1.montage[currentRole];
-
-    if (!montageData) {
-        console.error('Invalid currentRole for montageData:', currentRole);
-        alert('??????⑥щ턄??? ??ル쪇???? ???용????덈펲.');
-        return;
-    }
     document.getElementById('montage-clue-text').innerHTML = montageData.text;
     
     const optionsContainer = document.getElementById('montage-options');
@@ -730,7 +724,7 @@ function startScreen2(deptData) {
             btn.classList.add('selected');
             
             if (btn.textContent === montageData.answer) {
-                alert('?類ｋ뼗??낅빍?? ??쇱벉 沃섎챷?????議??щ빍??');
+                alert('?�답?�니?? ?�음 미션???�렸?�니??');
                 optionsContainer.querySelectorAll('button').forEach(b => b.disabled = true);
                 const m2 = document.getElementById('mission-1-2');
                 if (m2) {
@@ -738,32 +732,32 @@ function startScreen2(deptData) {
                     m2.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             } else {
-                alert('???紐꾨뮸??덈뼄. ??κ퐣????쇰뻻 ?類ㅼ뵥????紐꾩뒄.');
+                alert('?�?�습?�다. ?�서�??�시 ?�인?�보?�요.');
                 btn.classList.remove('selected');
             }
         });
         optionsContainer.appendChild(btn);
     });
 
-    // 沃섎챷??1-2 (?癒?뼊 ?대Ŋ彛?? ?紐낅샒
+    // 미션 1-2 (?�단 교집?? ?�팅
     const fabricData = PUZZLE_DATA.stage1.fabricStandards[currentRole];
     document.getElementById('fabric-clue-title').textContent = fabricData.title;
     document.getElementById('fabric-clue-text').textContent = fabricData.text;
     
     const btnSubmitM2 = document.getElementById('btn-submit-mission-1-2');
     if (btnSubmitM2) {
-        btnSubmitM2.textContent = currentRole === '?봔?? ? '筌ㅼ뮇伊??諭???띾┛' : '?봔?貫?귞뙼?野껉퀣?????곫묾?;
+        btnSubmitM2.textContent = currentRole === '부장' ? '최종 승인하기' : '부장님께 결재 올리기';
     }
     
     document.querySelectorAll('.fabric-btn').forEach(btn => {
-        // 癰귣벊???醫뤾문 揶쎛?館釉?袁⑥쨯 ?醫?
+        // 복수 ?�택 가?�하?�록 ?��?
         btn.onclick = () => btn.classList.toggle('selected');
     });
 
     document.getElementById('btn-submit-mission-1-2').onclick = () => {
         const selectedButtons = Array.from(document.querySelectorAll('.fabric-btn.selected'));
         if (selectedButtons.length === 0) {
-            alert('?癒?뼊????롪돌 ??곴맒 ?醫뤾문??곻폒?紐꾩뒄.');
+            alert('?�단???�나 ?�상 ?�택?�주?�요.');
             return;
         }
         
@@ -777,9 +771,9 @@ function startScreen2(deptData) {
         }
         
         if (isCorrect) {
-            alert(currentRole === '?봔?? ? '?類ｋ뼗??낅빍?? ?袁④펾???癒?뼊???ⓥ뫀??筌ㅼ뮇伊??諭???뤿??щ빍??' : '?類ｋ뼗??낅빍?? ?봔?貫?귞뙼?疫꿸퀣釉???얜똻沅???怨몃뻿??됰뮸??덈뼄!');
+            alert(currentRole === '부장' ? '?�답?�니?? ?�벽???�단??골라 최종 ?�인?�셨?�니??' : '?�답?�니?? 부?�님�?기안??무사???�신?�습?�다!');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '?봔?? ? '筌ㅼ뮇伊??諭???袁⑥┷' : '野껉퀣???遺욧퍕 ?袁⑥┷ (疫꿸퀣釉??怨몃뻿)';
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 ?�인 ?�료' : '결재 ?�청 ?�료 (기안 ?�신)';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
@@ -788,27 +782,27 @@ function startScreen2(deptData) {
                 m3.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } else {
-            alert('???紐꾨뮸??덈뼄. ?源낇뀋??? 鈺곌퀗援????쇰뻻 ??뺤쓰 ?쀬눊????類ㅼ뵥??뤾쉭??');
+            alert('?�?�습?�다. ?�분?��? 조건???�시 ?�번 꼼꼼???�인?�세??');
         }
     };
 
-    // 沃섎챷??1-3 (??쇱퓝???곕뗀以? ?紐낅샒
+    // 미션 1-3 (?�천??추론) ?�팅
     const reasoningData = PUZZLE_DATA.stage1.reasoning;
     document.getElementById('reasoning-context').innerHTML = reasoningData.context.replace(/\n/g, '<br>');
     document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
 
-    if (currentRole === '?봔??) {
+    if (currentRole === '부장') {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
-        document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // ?봔?關? ?袁⑷퍥 ??뽱뀱 筌???곸뒠
-        document.getElementById('reasoning-textarea').style.display = 'none'; // ?봔?關? 筌뤴뫀??癒?퐣 ??낆젾
-        document.getElementById('reasoning-role-label').textContent = "?봔?貫??? ???癒?굶??筌뤴뫀紐???κ퐣?? ??띻퍍????뽱뀱?????돱筌왖 疫꿸퀡???雅뚯눘苑?? ??롫뼊??'筌ㅼ뮇伊??類ｋ뼗 ??뽱뀱'???袁⑥┷??롢늺 ?醫딆쨴 筌≪럩???????덈뼄.";
+        document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부?��? ?�체 ?�출 �??�용
+        document.getElementById('reasoning-textarea').style.display = 'none'; // 부?��? 모달?�서 ?�력
+        document.getElementById('reasoning-role-label').textContent = "부?�님?� ?�?�들??모두 ?�서?� ?�견???�출???�까지 기다??주세?? ?�단??'최종 ?�답 ?�출'???�료?�면 ?�론 창이 ?�립?�다.";
         document.getElementById('reasoning-role-label').style.color = '#ff9f43';
         
-        // ?봔???袁⑹뒠 ??쇰뻻揶??????袁れ넺 筌뤴뫀??怨뺤춦
+        // 부???�용 ?�시�??�???�황 모니?�링
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             let allConfirmed = true;
-            const requiredRoles = ['?紐낃쉘', '????, '筌△뫁??];
+            const requiredRoles = ['인턴', '사원', '차장'];
             
             requiredRoles.forEach(role => {
                 const statusEl = document.getElementById(`status-${role}`);
@@ -821,24 +815,24 @@ function startScreen2(deptData) {
                 const reasoningDisplay = statusEl.querySelector('.reasoning-display');
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     if (reasoningDisplay && reasoningText) {
                         reasoningDisplay.textContent = `"${reasoningText}"`;
                         reasoningDisplay.style.display = 'block';
                     }
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     if (reasoningDisplay) reasoningDisplay.style.display = 'none';
                     allConfirmed = false;
                 }
             });
             
-            // ???뮞???紐꾩벥???袁る퉸 ???癒?뵠 筌뤴뫀紐???뽱뀱??? ??녿툡???봔??甕곌쑵????湲???뽮쉐??
+            // ?�스???�의�??�해 ?�?�이 모두 ?�출?��? ?�아??부??버튼 ??�� ?�성??
             document.getElementById('btn-submit-stage1').disabled = false;
         });
         
-        // ?봔???袁⑹뒠 筌ㅼ뮇伊???뽱뀱 甕곌쑵??
+        // 부???�용 최종 ?�출 버튼
         const btnSubmitStage1 = document.getElementById('btn-submit-stage1');
         btnSubmitStage1.onclick = async () => {
             const finalAnswer1 = document.getElementById('manager-final-answer-1').value;
@@ -846,20 +840,20 @@ function startScreen2(deptData) {
             const errorMsg = document.getElementById('manager-error-msg');
             
             if (!finalAnswer1 || !finalAnswer2) {
-                alert('沃섎챷??1(筌륁??雅???沃섎챷??2(燁살뮉?싧칰???筌ㅼ뮇伊??類ｋ뼗??筌뤴뫀紐??醫뤾문??곻폒?紐꾩뒄.');
+                alert('미션 1(몽�?�?�?미션 2(친환�???최종 ?�답??모두 ?�택?�주?�요.');
                 return;
             }
             
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
                 btnSubmitStage1.disabled = true;
-                btnSubmitStage1.textContent = '筌ㅼ뮇伊??諭???袁⑥┷ (??쇱퓝???곕뗀以?筌욊쑵六얌빳?';
+                btnSubmitStage1.textContent = '최종 ?�인 ?�료 (?�천??추론 진행�?';
                 
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
                         showStage1Reasoning: true
                     });
-                    alert('???筌뤴뫀諭????癒?벥 ??띻퍍???ル굟鍮??뤿연 筌욊쑴彛??袁⑸툧???癒?뼊??筌≪뼚釉??щ빍??\n\n??곸젫 ??밸씜??롫뮉 \'??쇱퓝???곕뗀以?' ?얜챷?ｇ몴??봔??뽰뜚??븍궢 ?醫딆쨴??뤿연 ??욧퍙??뤾쉭??');
+                    alert('?�� 모든 ?�?�의 ?�견??종합?�여 진짜 ?�안�??�단??찾았?�니??\n\n?�제 ?�업?�는 \'?�천??추론\' 문제�?부?�원?�과 ?�론?�여 ?�결?�세??');
                     showReasoningModal(PUZZLE_DATA.stage1, 2);
                 } catch(e) {
                     console.error(e);
@@ -867,7 +861,7 @@ function startScreen2(deptData) {
                 
             } else {
                 errorMsg.classList.remove('hidden');
-                errorMsg.textContent = '??삳뼗??낅빍?? ???癒?굶??筌뤴뫁釉????κ퐣(?대Ŋ彛??????쇰뻻 ??뺤쓰 ?브쑴苑????紐꾩뒄.';
+                errorMsg.textContent = '?�답?�니?? ?�?�들??모아???�서(교집??�??�시 ?�번 분석?�보?�요.';
             }
         };
     } else {
@@ -879,7 +873,7 @@ function startScreen2(deptData) {
             btnConfirmAll.onclick = async () => {
                 const textarea = document.getElementById('reasoning-textarea');
                 if (textarea.value.trim().length < 5) {
-                    alert('??띻퍍??鈺곌퀗?????怨멸쉭???怨몃선??疫꿸퀣釉??곻폒?紐꾩뒄.');
+                    alert('?�견??조금 ???�세???�어??기안?�주?�요.');
                     return;
                 }
                 
@@ -887,13 +881,13 @@ function startScreen2(deptData) {
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
                     await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
                     
-                    alert('?봔?貫?귞뙼?筌ㅼ뮇伊?疫꿸퀣釉?野껉퀣???遺욧퍕)???얜똻沅????띻펷??щ빍?? ?봔?貫???筌뤴뫀紐????띻퍍???띯뫂鍮??筌ㅼ뮇伊??諭??????돱筌왖 ??疫꿸퀬鍮먧틠?깃쉭??');
+                    alert('기안이 부장님께 발신되었습니다! 부장님의 확인을 기다려주세요.');
                     btnConfirmAll.disabled = true;
-                    btnConfirmAll.textContent = '疫꿸퀣釉??怨몃뻿 ?袁⑥┷ (?봔???諭????疫?餓?..)';
+                    btnConfirmAll.textContent = '기안 발신 완료 (부장님 확인 중..)';
                     textarea.disabled = true;
                 } catch(e) {
                     console.error(e);
-                    alert('疫꿸퀣釉??怨몃뻿 餓???살첒揶쎛 獄쏆뮇源??됰뮸??덈뼄.');
+                    alert('기안 발신 중 오류가 발생했습니다.');
                 }
             };
         }
@@ -903,7 +897,7 @@ function startScreen2(deptData) {
 }
 
 // ==========================================
-// Screen 3: 2??ｍ?(???쉘/?딅맩??? 嚥≪뮇彛?
+// Screen 3: 2?�계 (?�턴/봉제?? 로직
 // ==========================================
 function startScreen3() {
     mainHeader.classList.remove('hidden');
@@ -911,7 +905,7 @@ function startScreen3() {
     
     document.getElementById('display-current-role-stage2').textContent = currentRole;
     
-    // 2??ｍ???쎈꽅??筌뤴뫀???袁⑹뒭疫?
+    // 2?�계 ?�토�?모달 ?�우�?
     const storyModal = document.getElementById('stage2-story-modal');
     storyModal.classList.remove('hidden');
     
@@ -923,13 +917,13 @@ function startScreen3() {
     
     const puzzleData = PUZZLE_DATA.stage2.puzzles[currentRole];
     
-    if (currentRole === '?봔??) {
+    if (currentRole === '부장') {
         document.getElementById('stage2-employee-panel').classList.add('hidden');
         document.getElementById('stage2-manager-panel').classList.remove('hidden');
         
-        // ?봔???袁れ넺???귐딅뮞??
+        // 부???�황??리스??
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-        const roles = ['인턴', '사원', '차장', '부장'];
+            const roles = ['인턴', '사원', '차장'];
             let allConfirmed = true;
             
             roles.forEach(role => {
@@ -941,33 +935,33 @@ function startScreen3() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                     allConfirmed = false;
                 }
             });
             
-            // ???뮞???紐꾩벥???袁る퉸 ?봔??甕곌쑵????湲???뽮쉐??
+            // ?�스???�의�??�해 부??버튼 ??�� ?�성??
             document.getElementById('btn-submit-stage2').disabled = false;
         });
         
-        // ?봔??疫뀀뜃??揶쎛??甕곌쑵??
+        // 부??금고 가??버튼
         document.getElementById('btn-submit-stage2').onclick = async () => {
             const pw = document.getElementById('manager-vault-pw').value;
-            if (pw === PUZZLE_DATA.stage2.puzzles['?봔??].answer) {
+            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
-                // Firestore???믪눘? ??낅쑓??꾨뱜??뤿연 ??삘뀲 ???癒?굶???遺얇늺????뤿선揶쎛野???
+                // Firestore�?먼�? ?�데?�트?�여 ?�른 ?�?�들???�면???�어가�???
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
                         currentStage: 3
                     });
                     
-                    alert("????⑤벊??揶쎛???袁⑥┷! 2??ｍ???됲뀱 ?源껊궗!\n\n(3??ｍ??????곗춦??살쨮 ??猷??몃빍??)");
+                    alert("?�� 공장 가???�료! 2?�계 ?�출 ?�공!\n\n(3?�계 ?��??�링?�로 ?�동?�니??)");
                 } catch(e) {
                     console.error(e);
                 }
@@ -977,25 +971,25 @@ function startScreen3() {
         };
         
     } else {
-        // ?????紐낃쉘/筌△뫁??
+        // ?�원/?�턴/차장
         document.getElementById('stage2-employee-panel').classList.remove('hidden');
         document.getElementById('stage2-manager-panel').classList.add('hidden');
         
         document.getElementById('stage2-puzzle-title').textContent = puzzleData.title;
         document.getElementById('stage2-puzzle-text').textContent = puzzleData.text;
-        document.getElementById('stage2-puzzle-hint').textContent = `??곕뱜: ${puzzleData.hint}`;
+        document.getElementById('stage2-puzzle-hint').textContent = `?�트: ${puzzleData.hint}`;
         
         const btnSubmit = document.getElementById('btn-stage2-submit');
         const input = document.getElementById('stage2-answer-input');
         
         btnSubmit.onclick = async () => {
             if (input.value === puzzleData.answer) {
-                alert(`?類ｋ뼗??낅빍?? ?諭???筌≪뼚? ??ъ쁽??[ ${puzzleData.answer} ] ??낅빍??\n?봔?貫??癒?쓺 ????ъ쁽????뽮퐣??嚥????젻雅뚯눘苑??`);
+                alert(`?�답?�니?? ?�신??찾�? ?�자??[ ${puzzleData.answer} ] ?�니??\n부?�님?�게 ???�자�??�서?��??�려주세??`);
                 btnSubmit.disabled = true;
-                btnSubmit.textContent = "??猷??袁⑥┷ (??疫?餓?";
+                btnSubmit.textContent = "?�독 ?�료 (?��?�?";
                 input.disabled = true;
                 
-                // Firebase ??낅쑓??꾨뱜
+                // Firebase ?�데?�트
                 try {
                     await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
                         stage2Confirmed: true,
@@ -1006,14 +1000,14 @@ function startScreen3() {
                 }
                 
             } else {
-                alert("??쑬?甕곕뜇?뉐첎? ???紐꾨뮸??덈뼄. ??곕뱜????쇰뻻 ??뚮선癰귣똻苑??");
+                alert("비�?번호가 ?�?�습?�다. ?�트�??�시 ?�어보세??");
             }
         };
     }
 }
 
 // ==========================================
-// Screen 4: 3??ｍ?(?????곗춦?? 嚥≪뮇彛?
+// Screen 4: 3?�계 (?��??�링?? 로직
 // ==========================================
 function startScreen4() {
     mainHeader.classList.remove('hidden');
@@ -1031,12 +1025,12 @@ function startScreen4() {
     const personalColorData = PUZZLE_DATA.stage3.personalColor[currentRole];
     const bodyTypeData = PUZZLE_DATA.stage3.bodyType[currentRole];
     
-    if (currentRole === '?봔??) {
+    if (currentRole === '부장') {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-        const roles = ['인턴', '사원', '차장', '부장'];
+            const roles = ['인턴', '사원', '차장'];
             roles.forEach(role => {
                 const statusEl = document.getElementById(`status-stage3-${role}`);
                 if (!statusEl) return;
@@ -1046,27 +1040,27 @@ function startScreen4() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = 'X';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                 }
             });
         });
         
-        document.getElementById('stage3-manager-title').textContent = "??κ퐣 1: ??깅뮞???뚎됱쑎 ?ル굟鍮";
+        document.getElementById('stage3-manager-title').textContent = "?�서 1: ?�스??컬러 종합";
         document.getElementById('stage3-manager-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         
         document.getElementById('btn-stage3-manager-submit').onclick = () => {
             const val = document.getElementById('stage3-manager-answer-input').value.replace(/\s+/g, '');
             if (val === personalColorData.answer) {
-                alert("?類ｋ뼗??낅빍?? ??곸젫 ???癒?굶??筌뤴뫁? ??κ퐣嚥?筌ㅼ뮇伊??????곗춦???袁⑷쉐??뤾쉭??");
+                alert("?�답?�니?? ?�제 ?�?�들??모�? ?�서�?최종 ?��??�링???�성?�세??");
                 document.getElementById('stage3-manager-step1').classList.add('hidden');
                 document.getElementById('stage3-manager-step2').classList.remove('hidden');
             } else {
-                alert("??삳뼗??낅빍?? ??쇰뻻 ??룹퍟????紐꾩뒄.");
+                alert("?�답?�니?? ?�시 ?�각?�보?�요.");
             }
         };
 
@@ -1139,13 +1133,13 @@ function startScreen4() {
         });
         
         btnSubmit.onclick = async () => {
-            if (selectedItems['line'] === '揶쎛嚥≪뮇苑? && 
-                selectedItems['color'] === '??뽮퉳' && 
-                selectedItems['material'] === '筌묕퐢鍮?? &&
-                selectedItems['pattern'] === '?臾??얜???) {
+            if (selectedItems['line'] === '가로선' && 
+                selectedItems['color'] === '?�색' && 
+            selectedItems['material'] !== '' &&
+                selectedItems['pattern'] === '?��?무늬') {
                 
                 errorMsg.classList.add('hidden');
-                alert("????袁④펾??몃빍?? ??띻펾???遺우쁽?紐꾩뱽 筌뤴뫀紐??⑥쥓???燁살뮉?싧칰???롮첒 ?뚎됱젂??륁뵠 ?袁⑷쉐??뤿???щ빍??\n??곸젫 ??밸씜??롫뮉 '??쇱퓝???곕뗀以? ?얜챷?ｇ몴??봔??뽰뜚??븍궢 ?醫딆쨴??뤿연 ??욧퍙??뤾쉭??");
+                alert("?�� ?�벽?�니?? ?�경�??�자?�을 모두 고려??친환�??�류 컬렉?�이 ?�성?�었?�니??\n?�제 ?�업?�는 '?�천??추론' 문제�?부?�원?�과 ?�론?�여 ?�결?�세??");
                 btnSubmit.disabled = true;
                 
                 try {
@@ -1166,7 +1160,7 @@ function startScreen4() {
         document.getElementById('stage3-employee-panel').classList.remove('hidden');
         document.getElementById('stage3-manager-panel').classList.add('hidden');
         
-        document.getElementById('stage3-puzzle-title').textContent = "??κ퐣 1: ??깅뮞???뚎됱쑎";
+        document.getElementById('stage3-puzzle-title').textContent = "?�서 1: ?�스??컬러";
         document.getElementById('stage3-puzzle-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         document.getElementById('stage3-puzzle-hint').textContent = '';
         
@@ -1178,19 +1172,19 @@ function startScreen4() {
         btnSubmit.onclick = async () => {
             if (currentStep === 1) {
                 if (input.value.replace(/\s+/g, '') === personalColorData.answer) {
-                    alert(`?類μ넇????κ퐣??筌≪뼚釉??щ빍??\n??쇱벉 ??κ퐣???類ㅼ뵥??뤾쉭??`);
+                    alert(`?�확???�서�?찾았?�니??\n?�음 ?�서�??�인?�세??`);
                     currentStep = 2;
                     input.value = '';
-                    document.getElementById('stage3-puzzle-title').textContent = "??κ퐣 2: 筌△뫗???ｋ궢 ?醫뤾문";
+                    document.getElementById('stage3-puzzle-title').textContent = "?�서 2: 착시?�과 ?�택";
                     document.getElementById('stage3-puzzle-text').innerHTML = PUZZLE_DATA.stage3.bodyType.memo.replace(/\n/g, '<br>') + '<br><br>' + bodyTypeData.text;
                 } else {
-                    alert("??삳뼗??낅빍?? ?묅뫂?졿???쀫꽑 餓???롪돌????낆젾??뤾쉭??");
+                    alert("?�답?�니?? 쿨톤�??�톤 �??�나�??�력?�세??");
                 }
             } else if (currentStep === 2) {
                 if (input.value.replace(/\s+/g, '') === bodyTypeData.answer) {
-                    alert(`筌뤴뫀諭???κ퐣??筌≪뼚釉??щ빍?? ?봔?貫??癒?쓺 ???젻雅뚯눘苑??`);
+                    alert(`모든 ?�서�?찾았?�니?? 부?�님?�게 ?�려주세??`);
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "?袁⑸꽊 ?袁⑥┷ (??疫?餓?";
+                    btnSubmit.textContent = "?�송 ?�료 (?��?�?";
                     input.disabled = true;
                     
                     try {
@@ -1201,7 +1195,7 @@ function startScreen4() {
                         console.error(e);
                     }
                 } else {
-                    alert("??삳뼗??낅빍?? ??쇰뻻 ??룹퍟????紐꾩뒄!");
+                    alert("?�답?�니?? ?�시 ?�각?�보?�요!");
                 }
             }
         };
@@ -1210,11 +1204,11 @@ function startScreen4() {
     }
 }
 
-// 4??ｍ? ?怨쀫Ф????疫꿸퀣??(T.P.O 獄???띻펾?癒?땾)
+// 4?�계: ?�칭???�기실 (T.P.O �??�경?�수)
 function startScreen5() {
     document.getElementById('display-current-role-stage4').textContent = currentRole;
     
-    // 筌뤴뫀???袁⑹뒭疫?
+    // 모달 ?�우�?
     const storyModal = document.getElementById('stage4-story-modal');
     storyModal.classList.remove('hidden');
     document.getElementById('stage4-intro-text').innerHTML = PUZZLE_DATA.stage4.intro.replace(/\n/g, '<br>');
@@ -1225,27 +1219,27 @@ function startScreen5() {
     
     const puzzleData = PUZZLE_DATA.stage4.puzzles[currentRole];
     
-    if (currentRole === '?봔??) {
+    if (currentRole === '부장') {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
         document.getElementById('reasoning-textarea').classList.add('hidden');
         
-        // ?봔??Step 1: TPO ?癒?
+        // 부??Step 1: TPO ?��?
         document.getElementById('stage4-manager-step1-title').textContent = puzzleData.step1.title;
         document.getElementById('stage4-manager-step1-text').textContent = puzzleData.step1.text;
         
         document.getElementById('btn-stage4-manager-step1').onclick = () => {
             const val = document.getElementById('stage4-manager-step1-input').value.replace(/\s+/g, '');
             if (val === puzzleData.step1.answer) {
-                alert('?類ｋ뼗??낅빍?? ??곸젫 ???癒?굶????????κ퐣??筌뤴뫁釉?5R ??뽮퐣??筌띿쉸?쎿?筌ㅼ뮇伊???띻펾 ?癒?땾????낆젾??뤾쉭??');
+                alert('?�답?�니?? ?�제 ?�?�들???�린 ?�서�?모아 5R ?�서�?맞추�?최종 ?�경 ?�수�??�력?�세??');
                 document.getElementById('stage4-manager-step1').classList.add('hidden');
                 document.getElementById('stage4-5r-puzzle').classList.remove('hidden');
             } else {
-                alert('??삳뼗??낅빍?? ??쇰뻻 ??룹퍟????紐꾩뒄.');
+                alert('?�답?�니?? ?�시 ?�각?�보?�요.');
             }
         };
 
-        // 5R ??뺤삋域?????뺚댘 嚥≪뮇彛?
+        // 5R ?�래�????�롭 로직
         const draggables = document.querySelectorAll('.item-5r');
         const slots = document.querySelectorAll('.slot-5r');
         let selected5R = Array(5).fill(null);
@@ -1261,7 +1255,7 @@ function startScreen5() {
         });
         
         // ------------------------------------
-        // --- 筌?뗀苡?????燁살꼶??嚥≪뮇彛?---
+        // --- 캔버???��?치북 로직 ---
         const canvas = document.getElementById('design-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -1283,7 +1277,7 @@ function startScreen5() {
 
             function draw(e) {
                 if (!isDrawing) return;
-                e.preventDefault(); // ??쎄쾿嚥?獄쎻뫗?
+                e.preventDefault(); // ?�크�?방�?
                 const rect = canvas.getBoundingClientRect();
                 const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
                 const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
@@ -1311,7 +1305,7 @@ function startScreen5() {
 
             let currentTool = 'pen'; // 'pen', 'pencil', 'brush', 'eraser'
             
-            // ??깃맒 甕곌쑵????源??
+            // ?�상 버튼 ?�벤??
             document.querySelectorAll('.color-btn').forEach(btn => {
                 btn.onclick = () => {
                     document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
@@ -1320,19 +1314,19 @@ function startScreen5() {
                 };
             });
             
-            // ?袁㏓럡 甕곌쑵???⑤벏??筌ｌ꼶????λ땾
+            // ?�구 버튼 공통 처리 ?�수
             const setToolActive = (activeId) => {
                 document.querySelectorAll('.btn-tool').forEach(b => b.style.borderColor = 'transparent');
                 document.getElementById(activeId).style.borderColor = 'white';
             };
 
-            // ?袁㏓럡 甕곌쑵????源??
+            // ?�구 버튼 ?�벤??
             document.getElementById('btn-tool-pen').onclick = () => {
                 currentTool = 'pen';
                 setToolActive('btn-tool-pen');
                 ctx.lineWidth = 5;
                 ctx.globalAlpha = 1.0;
-                // ?袁⑹삺 ?醫뤾문????깃맒 ?醫?
+                // ?�재 ?�택???�상 ?��?
                 const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
                 if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
                 else ctx.strokeStyle = '#000000';
@@ -1371,19 +1365,19 @@ function startScreen5() {
             };
         }
         
-        // 筌?뗀苡??AI ?브쑴苑?甕곌쑵??
+        // 캔버??AI 분석 버튼
         const btnAnalyzeCanvas = document.getElementById('btn-analyze-canvas');
         if (btnAnalyzeCanvas) {
             btnAnalyzeCanvas.onclick = () => {
                 aiFeedback.classList.remove('hidden');
-                aiFeedbackText.textContent = "筌?뗀苡?????筌왖???브쑴苑?餓λ쵐???덈뼄...";
+                aiFeedbackText.textContent = "캔버???��?지�?분석 중입?�다...";
                 setTimeout(() => {
-                    aiFeedbackText.innerHTML = "<b>[Claude Vision API ?브쑴苑?野껉퀗??</b><br>??롮첒??筌욌뜃而??????쀬겱??뤿???거? ?醫롮벥 ?癒?カ??筌뤴뫀???筌ｋ똾???癰귣똻???????덈즲嚥????燁살꼶由??됰뮸??덈뼄. 5R 餓?'??沅?? ?遺용꺖???怨몄뒠??띾┛ ?ル뿭? ?遺우쁽???類κ묶??낅빍??";
+                    aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>?�류??질감?????�현?�었?�며, ?�의 ?�름??모델??체형??보완?????�도�??��?치되?�습?�다. 5R �?'?�사?? ?�소�??�용?�기 좋�? ?�자???�태?�니??";
                 }, 2500);
             };
         }
         
-        // ???뵬 ??낆쨮????AI ?브쑴苑??紐꾪뀱 ?袁⑸뻻 嚥≪뮇彛?
+        // ?�일 ?�로????AI 분석 ?�출 ?�시 로직
         const fileUpload = document.getElementById('design-upload');
         const aiFeedback = document.getElementById('ai-feedback-panel');
         const aiFeedbackText = document.getElementById('ai-feedback-text');
@@ -1392,10 +1386,10 @@ function startScreen5() {
             fileUpload.addEventListener('change', () => {
                 if(fileUpload.files && fileUpload.files[0]) {
                     aiFeedback.classList.remove('hidden');
-                    aiFeedbackText.textContent = "???筌왖???브쑴苑?餓λ쵐???덈뼄...";
-                    // ?袁⑸뻻 ?브쑴苑?筌왖????볦퍢
+                    aiFeedbackText.textContent = "?��?지�?분석 중입?�다...";
+                    // ?�시 분석 지???�간
                     setTimeout(() => {
-                        aiFeedbackText.innerHTML = "<b>[Claude Vision API ?브쑴苑?野껉퀗??</b><br>??롮첒??筌욌뜃而??????쀬겱??뤿???거? ?醫롮벥 ?癒?カ??筌뤴뫀???筌ｋ똾???癰귣똻???????덈즲嚥????燁살꼶由??됰뮸??덈뼄. 5R 餓?'??沅?? ?遺용꺖???怨몄뒠??띾┛ ?ル뿭? ?遺우쁽???類κ묶??낅빍??";
+                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>?�류??질감?????�현?�었?�며, ?�의 ?�름??모델??체형??보완?????�도�??��?치되?�습?�다. 5R �?'?�사?? ?�소�??�용?�기 좋�? ?�자???�태?�니??";
                     }, 2500);
                 }
             });
@@ -1413,21 +1407,21 @@ function startScreen5() {
             const isScoreCorrect = scoreInput.value.trim() === puzzleData.step3.answer;
             const isTeamDone = teamCorrectCount === 3;
             
-            // ??깆쁽 ???뮞?紐낅릭疫???덈즲嚥?isTeamDone 鈺곌퀗援??袁⑸뻻 ??곸젫
+            // ?�자 ?�스?�하�??�도�?isTeamDone 조건 ?�시 ?�제
             if (is5RCorrect && isScoreCorrect) {
                 btnLaunch.disabled = false;
                 btnLaunch.style.background = 'linear-gradient(45deg, #FFD700, #FFA500)';
                 btnLaunch.style.color = '#000';
                 btnLaunch.style.cursor = 'pointer';
                 btnLaunch.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.8)';
-                btnLaunch.textContent = "????怨쀫Ф??揶쎛?????;
+                btnLaunch.textContent = "?�� ?�칭??가???��";
             } else {
                 btnLaunch.disabled = true;
                 btnLaunch.style.background = '#555';
                 btnLaunch.style.color = '#888';
                 btnLaunch.style.cursor = 'not-allowed';
                 btnLaunch.style.boxShadow = 'none';
-                btnLaunch.textContent = "鈺곌퀗援???苑????怨쀫Ф??揶쎛??";
+                btnLaunch.textContent = "조건 ?�성 ???�칭??가??";
             }
         }
 
@@ -1448,7 +1442,7 @@ function startScreen5() {
         
         scoreInput.addEventListener('input', checkManagerStage4Complete);
         
-        // ???癒?굶???類ｋ뼗 ?袁れ넺 ??쇰뻻揶?揶쏅Ŋ??
+        // ?�?�들???�답 ?�황 ?�시�?감시
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             let correctCount = 0;
             
@@ -1456,37 +1450,37 @@ function startScreen5() {
                 const r = docSnap.id;
                 const d = docSnap.data();
                 
-                if (['?紐낃쉘', '????, '筌△뫁??].includes(r)) {
+                if (['인턴', '사원', '차장'].includes(r)) {
                     const statusEl = document.getElementById(`status-stage4-${r}`);
                     if (statusEl) {
                         if (d.stage4Confirmed) {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = 'X';
                             correctCount++;
                         } else {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = 'X';
                         }
                     }
                 }
             });
             
             teamCorrectCount = correctCount;
-            // 野껊슣?좑쭪? 獄???낅쑓??꾨뱜 (??????苑??疫꿸퀡而?
+            // 게이지 �??�데?�트 (?�???�성??기반)
             const simulatedScore = Math.floor((correctCount / 3) * 100);
             scoreFill.style.width = `${simulatedScore}%`;
-            scoreText.textContent = `${simulatedScore} / 100 ??;
+            scoreText.textContent = `${simulatedScore} / 100 점`;
             
             checkManagerStage4Complete();
         });
         
-        // ?怨쀫Ф 甕곌쑵??????(3??ｍ??袁⑥┷) - ??곸젫 DB????낅쑓??꾨뱜??뤿연 筌뤴뫀紐?癒?쓺 ?怨쀫Ф?????뵝
+        // ?�칭 버튼 ?�릭 (3?�계 ?�료) - ?�제 DB�??�데?�트?�여 모두?�게 ?�칭???�림
         btnLaunch.onclick = async () => {
             try {
                 await updateDoc(doc(db, 'departments', currentDeptId), {
                     currentStage: 5
                 });
             } catch(e) {
-                console.error("?怨쀫Ф??揶쎛????쎈솭:", e);
-                alert("??뺤쒔 ??살첒揶쎛 獄쏆뮇源??됰뮸??덈뼄. ??쇰뻻 ??뺣즲??곻폒?紐꾩뒄.");
+                console.error("?�칭??가???�패:", e);
+                alert("?�버 ?�류가 발생?�습?�다. ?�시 ?�도?�주?�요.");
             }
         };
         
@@ -1496,10 +1490,10 @@ function startScreen5() {
                 const reason = document.getElementById('personal-reason').value;
                 const r5 = document.getElementById('personal-5r').value;
                 if (!reason || !r5) {
-                    alert('?袁⑸땾 ?醫뤾문 ?遺용꺖(5R)?? ??곸????怨몃선雅뚯눘苑??');
+                    alert('?�수 ?�택 ?�소(5R)?� ?�유�??�어주세??');
                     return;
                 }
-                alert('揶쏆뮇???遺우쁽????뽱뀱???袁⑥┷??뤿???щ빍?? ??뺣짗 ???빵 ??륁뵠筌왖嚥???뤿선揶쏅쵎???');
+                alert('개인 ?�자???�출???�료?�었?�니?? ?�동 ?�감 ?�이지�??�어갑니??');
                 document.getElementById('screen-6').classList.add('hidden');
                 document.getElementById('screen-7').classList.remove('hidden');
             };
@@ -1511,17 +1505,17 @@ function startScreen5() {
                 const q1 = document.getElementById('reflection-q1').value;
                 const q2 = document.getElementById('reflection-q2').value;
                 if (!q1 || !q2) {
-                    alert('筌뤴뫀諭?筌욌뜄揆?????퉸雅뚯눘苑??');
+                    alert('모든 질문???�해주세??');
                     return;
                 }
-                alert('???㉦?????빵 揶쏅Ŋ沅??몃빍?? 筌뤴뫀諭???뺣짗???ル굝利??뤿???щ빍??');
+                alert('?�중???�감 감사?�니?? 모든 ?�동??종료?�었?�니??');
                 document.getElementById('screen-7').classList.add('hidden');
                 
-                // ?癒곕툡嚥≪뮄??筌뤴뫀????뽯뻻
+                // ?�필로그 모달 ?�시
                 const epilogueModal = document.getElementById('epilogue-modal');
                 if (epilogueModal) epilogueModal.classList.remove('hidden');
                 
-                // ?癒곕툡嚥≪뮄????ろ??袁⑥구???遺얇늺??곗쨮
+                // ?�필로그 ?�고 ?�명???�면?�로
                 const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
                 if (btnCloseEpilogue) {
                     btnCloseEpilogue.onclick = () => {
@@ -1529,8 +1523,8 @@ function startScreen5() {
                         const endingScreen = document.getElementById('screen-ending');
                         if (endingScreen) endingScreen.classList.remove('hidden');
                         
-                        // ?봔??뺤구 ??쇱젟
-                        let deptName = '?怨뺚봺 ?봔??;
+                        // 부?�명 ?�정
+    let deptName = '알 수 없음';
                         if (PUZZLE_DATA.departments) {
                             const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
                             if (found) deptName = found.name;
@@ -1546,7 +1540,7 @@ function startScreen5() {
         // ------------------------------------
         
     } else {
-        // ?紐낃쉘, ???? 筌△뫁??
+        // ?�턴, ?�원, 차장
         document.getElementById('stage4-employee-panel').classList.remove('hidden');
         document.getElementById('stage4-manager-panel').classList.add('hidden');
         
@@ -1554,7 +1548,7 @@ function startScreen5() {
         optionsContainer.innerHTML = `
             <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
             <p id="stage4-puzzle-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
-            <input type="text" id="stage4-employee-input" placeholder="?類ｋ뼗 ??낆젾" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
+            <input type="text" id="stage4-employee-input" placeholder="?�답 ?�력" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
         `;
         
         const input = document.getElementById('stage4-employee-input');
@@ -1578,15 +1572,15 @@ function startScreen5() {
                 
                 stepIdx++;
                 if (stepIdx < stepsSequence.length) {
-                    alert('?類ｋ뼗??낅빍?? ??쇱벉 沃섎챷???곗쨮 ??뤿선揶쏅쵎???');
+                    alert('?�답?�니?? ?�음 미션?�로 ?�어갑니??');
                     currentStep = stepsSequence[stepIdx];
                     titleEl.textContent = puzzleData[currentStep].title;
                     textEl.textContent = puzzleData[currentStep].text;
                     input.value = '';
                 } else {
-                    alert(`筌뤴뫀諭?疫꿸퀬???野꺜?醫? ?袁⑥┷??뤿???щ빍?? ?봔?貫???袁れ넺?癒?퓠 獄쏆꼷???뤿???щ빍??`);
+                    alert(`모든 기획??검?��? ?�료?�었?�니?? 부?�님 ?�황?�에 반영?�었?�니??`);
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "疫꿸퀬????類ㅼ젟 ?袁⑥┷";
+                    btnSubmit.textContent = "기획???�정 ?�료";
                     input.disabled = true;
                     
                     try {
@@ -1598,13 +1592,13 @@ function startScreen5() {
                     }
                 }
             } else {
-                feedback.textContent = "??롢걵???類ｋ뼗??낅빍?? ??쇰뻻 ??룹퍟????紐꾩뒄.";
+                feedback.textContent = "?�못???�답?�니?? ?�시 ?�각?�보?�요.";
                 feedback.classList.remove('hidden');
             }
         };
     }
     
-    // ?봔??獄?????筌뤴뫀紐?癒?쓺 ?怨몄뒠??롫뮉 ?袁⑸열 ?귐딅뮞??(Stage 5 / QR ??쇳떔 ??ｍ?筌욊쑴??
+    // 부??�??�??모두?�게 ?�용?�는 ?�역 리스??(Stage 5 / QR ?�캔 ?�계 진입)
     onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
         const d = docSnap.data();
         if (d && d.currentStage === 5) {
@@ -1615,17 +1609,17 @@ function startScreen5() {
             const waitingMsg = document.getElementById('stage3-waiting-msg');
 
             if (successModal && successModal.classList.contains('hidden')) {
-                // pwDisplay ?온??嚥≪뮇彛?? ??볤탢??
+                // pwDisplay 관??로직?� ?�거??
                 if (guideText) {
-                    guideText.innerHTML = "??곸젫 ???癒?굶????ｍ뜞 ?대Ŋ????逾뽩첎?????ｊ볼????덈뮉 <strong>鈺곌퀗而??癒?뼊</strong>??筌≪뼚釉섋퉪?곴쉭??<br>?癒?뼊??筌≪뼚? ?? <strong>??釉???怨???곸뵠 ?????袁㏓럡??????뺤쨮</strong> ?癒?뼊???븐늿堉???덈뮉 QR ?꾨뗀諭띄몴??????燁삳?李??곗쨮 ??쇳떔??뤾쉭??";
+                    guideText.innerHTML = "?�제 ?�?�들�??�께 교실 ?�딘가???�겨???�는 <strong>조각 ?�단</strong>??찾아보세??<br>?�단??찾�? ?? <strong>??��???��??�이 ?�???�구???�?�로</strong> ?�단??붙어 ?�는 QR 코드�??��???카메?�로 ?�캔?�세??";
                 }
                 
-                closeBtn.classList.remove('hidden'); // ?袁㏓럡????쇳떔 筌≪럩????????됱벉
+                closeBtn.classList.remove('hidden'); // ?�구???�캔 창을 ?????�음
                 if(waitingMsg) waitingMsg.classList.add('hidden');
                 
                 successModal.classList.remove('hidden');
 
-                // ?袁㏓럵揶쎛 QR??筌〓씮堉?鈺곌퀗而????얜굣??롢늺 筌뤴뫀紐℡첎? 6??ｍ롦에???뤿선揶?
+                // ?�군가 QR??찍어 조각???�득?�면 모두가 6?�계�??�어�?
                 const unsub = onSnapshot(doc(db, 'pieces', currentDeptId), (pieceSnap) => {
                     if (pieceSnap.exists() && pieceSnap.data().unlocked) {
                         unsub();
@@ -1634,7 +1628,7 @@ function startScreen5() {
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                         document.getElementById('screen-6').classList.remove('hidden');
                         document.getElementById('display-current-role-stage6').textContent = currentRole;
-                        alert('??????癒?뵠 鈺곌퀗而???源껊궗?怨몄몵嚥?筌≪뼚釉??щ빍?? ??쇱벉 沃섎챷???곗쨮 ??뤿선揶쏅쵎???');
+                        alert('?�� ?�?�이 조각???�공?�으�?찾았?�니?? ?�음 미션?�로 ?�어갑니??');
                     }
                 });
             }
@@ -1648,12 +1642,12 @@ function startScreen5() {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '?怨뺚봺 ?봔??;
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '알 수 없음';
         };
     }
 }
 
-// ??竊?(Confetti) ?醫딅빍筌롫뗄?????λ땾
+// ??�� (Confetti) ?�니메이???�수
 function triggerConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
@@ -1705,7 +1699,7 @@ function triggerConfetti() {
     draw();
 }
 
-// ??쇱퓝???곕뗀以?筌뤴뫀??嚥≪뮇彛?
+// ?�천??추론 모달 로직
 function showReasoningModal(stageData, targetStageNum) {
     const rData = stageData.reasoning;
     if (!rData) return;
@@ -1741,7 +1735,7 @@ function showReasoningModal(stageData, targetStageNum) {
         if (rData.teamKeywords) {
             Object.values(rData.teamKeywords).forEach(list => allKeywords.push(...list));
         } else if (rData.answers) {
-            allKeywords = rData.answers.concat(['??롢걵??, '??λ선', '?곕떽?']);
+            allKeywords = rData.answers.concat(['a', 'b', 'c']);
         }
         allKeywords = [...new Set(allKeywords)].sort(() => Math.random() - 0.5);
         
@@ -1791,23 +1785,23 @@ function showReasoningModal(stageData, targetStageNum) {
             }
         });
     } else {
-        // ??쇱뜖???癒??醫? ??용뮉 野껋럩??(??λ떄 ?醫딆쨴)
+        // ?�워???�물?��? ?�는 경우 (?�순 ?�론)
         keywordsContainer.parentElement.style.display = 'none';
         sentenceContainer.innerHTML = `
-            <p style="color: var(--accent-gold); text-align: center; margin-bottom: 1rem;">???癒?굶???겸뫖????醫딆쨴??筌욊쑵六???? ?봔?貫???<b>[??뱀벥 ?袁⑥┷]</b> 甕곌쑵??????쑎雅뚯눘苑??</p>
-            <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="????筌ㅼ뮇伊???뱀벥 ??곸뒠????용궔???癒??嚥?苡??類ｂ봺??뤾쉭??.."></textarea>
+            <p style="color: var(--accent-gold); text-align: center; margin-bottom: 1rem;">?�?�들�?충분???�론??진행???? 부?�님??<b>[?�의 ?�료]</b> 버튼???�러주세??</p>
+            <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="?�??최종 ?�의 ?�용???�곳???�유�?�� ?�리?�세??.."></textarea>
         `;
     }
     
     const btnSubmit = document.getElementById('btn-submit-reasoning');
     btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
-    btnSubmit.textContent = rData.keywordLock ? '?癒?????疫? : '??뱀벥 ?袁⑥┷';
+            btnSubmit.textContent = rData.keywordLock ? '제출 완료' : '최종 제출';
     btnSubmit.onclick = async () => {
-        if (currentRole !== '?봔??) {
-            alert('筌ㅼ뮇伊?野껉퀣??獄???뽱뀱?? [?봔??筌?揶쎛?館鍮??덈뼄. ?봔??뽰뜚??븍궢 ?怨몄벥??뤿연 ?봔?貫???野껉퀣???????틠?깃쉭??');
-            return;
-        }
+        // (������ ���� �Ϸ� ����)
+
+
+
         
         let isCorrect = true;
         if (rData.keywordLock && rData.answers) {
@@ -1822,7 +1816,7 @@ function showReasoningModal(stageData, targetStageNum) {
         }
         
         if (isCorrect) {
-            // ?遺용튋 ??용뮞?硫? ??됱몵筌?DB??????
+            // ?�약 ?�스?��? ?�으�?DB???�??
             const summaryEl = document.getElementById('reasoning-summary');
             if (summaryEl && summaryEl.value.trim() !== '') {
                 try {
@@ -1830,10 +1824,10 @@ function showReasoningModal(stageData, targetStageNum) {
                         roleGroup: currentRole,
                         summary: summaryEl.value.trim()
                     }, { merge: true });
-                } catch(e) { console.error("?遺용튋 ??????쎈솭:", e); }
+                } catch(e) { console.error("?�약 ?�???�패:", e); }
             }
 
-            alert('?????뱀벥 獄???쇱퓝???곕뗀以???袁⑥┷??뤿???щ빍?? ??쇱벉 ??ｍ롦에???猷??몃빍??');
+            alert('?�� ?�의 �??�천??추론???�료?�었?�니?? ?�음 ?�계�??�동?�니??');
             modal.classList.add('hidden');
             
             try {
@@ -1843,45 +1837,45 @@ function showReasoningModal(stageData, targetStageNum) {
                     showStage3Reasoning: false
                 });
             } catch(e) {
-                console.error("DB ??낅쑓??꾨뱜 ??쎈솭:", e);
-                alert('??뺤쒔?? ?怨뚭퍙???얜챷?ｅ첎? ??됰뮸??덈뼄. ?醫롫뻻 ????쇰뻻 ??뺣즲??곻폒?紐꾩뒄.');
+                console.error("DB ?�데?�트 ?�패:", e);
+                alert('?�버?� ?�결??문제가 ?�습?�다. ?�시 ???�시 ?�도?�주?�요.');
             }
         } else {
-            alert('???紐꾨뮸??덈뼄! ?얜챶?????쇰뻻 ???툢??뤿연 ??而?몴???쇱뜖??? 筌?쑴?숃퉪?곴쉭??');
+            alert('?�?�습?�다! 문맥???�시 ?�악?�여 ?�바�??�워?��? 채워보세??');
         }
     };
 }
 
-// ?λ뜃由????λ땾
+// 초기???�수
 async function initApp() {
     renderDeptGrid();
     
-    // QR ??쇳떔??곗쨮 筌욊쑴???덈뮉筌왖 ?類ㅼ뵥 (?qr=true)
+    // QR ?�캔?�로 진입?�는지 ?�인 (?qr=true)
     const urlParams = new URLSearchParams(window.location.search);
     const isQrScan = urlParams.get('qr') === 'true';
 
-    // ?紐꾨????λ툡??덈뼄筌???????ｍ롦에?獄쏅뗀以?癰귣벀??
+    // ?�션???�아?�다�??�당 ?�계�?바로 복구
     if (currentDeptId && currentRole) {
         try {
-            // ?봔??뽰벥 currentStage 癰궰野껋럩????쇰뻻揶쏄쑴?앮에?揶쏅Ŋ???뤿연 ?遺얇늺 ?癒?짗 ?袁れ넎
+            // 부?�의 currentStage 변경을 ?�시간으�?감�??�여 ?�면 ?�동 ?�환
             onSnapshot(doc(db, 'departments', currentDeptId), (snap) => {
                 if (snap.exists()) {
-                    const stage = snap.data().currentStage || 0;
-                    
+                    const d = snap.data();
+                    const stage = d.currentStage || 0;
                     deptSelection.classList.add('hidden');
                     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => { if (m.id !== 'reasoning-modal') m.classList.add('hidden'); });
                     
-                    // QR ??쇳떔 筌욊쑴???野껋럩??獄쏅뗀以?QR ?遺얇늺??곗쨮 ??猷?(?봔?貫彛???됱뒠)
+                    // QR ?�캔 진입??경우 바로 QR ?�면?�로 ?�동 (부?�만 ?�용)
                     if (isQrScan) {
-                        if (currentRole !== '?봔??) {
-                            alert('QR ??쇳떔???酉????낆젾?? ?봔?貫?귨쭕???????됰뮸??덈뼄!\n?봔?貫???????怨쀬몵嚥???쇳떔??곻폒?紐꾩뒄.');
-                            // ??쎈탣??뤿뻻????疫??遺얇늺??곗쨮 ???젻癰귣?源?(?怨쀪퐨 0??ｍ??遺얇늺 ?袁?)
+                        if (currentRole !== '부장') {
+                            alert('QR ?�캔�??�호 ?�력?� 부?�님�??????�습?�다!\n부?�님???��??�으�??�캔?�주?�요.');
+                            // ?�플?�시???��??�면?�로 ?�려보냄 (?�선 0?�계 ?�면 ?��?)
                             document.getElementById('screen-0').classList.remove('hidden');
                             return;
                         }
                         document.getElementById('screen-qr').classList.remove('hidden');
-                        document.getElementById('qr-dept-name').textContent = currentDeptName || '?怨뺚봺 ?봔??;
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '알 수 없음';
                         return;
                     }
 
@@ -1912,7 +1906,7 @@ async function initApp() {
                                 showReasoningModal(PUZZLE_DATA.stage3, 4);
                             }
                         }
-                    } else if (stage === 4) {
+                    } else if (stage >= 4) {
                         const s5 = document.getElementById('screen-5');
                         if (s5) {
                             s5.classList.remove('hidden');
@@ -1920,7 +1914,7 @@ async function initApp() {
                         }
                     }
                 } else {
-                    // ???뵠??荑??곷뮞???봔???얜챷苑뚦첎? ??곸몵筌??λ뜃由?遺얜쭆 野껋럩?? ?紐꾨??醫듼뵝
+                    // ?�이?�베?�스??부??문서가 ?�으�?초기?�된 경우) ?�션 ?�림
                     clearSessionState();
                     currentDeptId = null;
                     currentRole = null;
@@ -1937,20 +1931,20 @@ async function initApp() {
 
 // Removed dev test buttons logic to ensure clean production feel
 
-// ?袁⑷퍥 ?遺얇늺 筌뤴뫁釉섋퉪?용┛ (God Mode)
+// ?�체 ?�면 모아보기 (God Mode)
 const devGodModeBtn = document.getElementById('dev-god-mode');
 if (devGodModeBtn) {
     let godMode = false;
     devGodModeBtn.addEventListener('click', () => {
         godMode = !godMode;
         if (godMode) {
-            devGodModeBtn.textContent = '???癒?삋??嚥?癰귣벀???띾┛ (??덉쨮?⑥쥙臾?';
+            devGodModeBtn.textContent = '???�래?��?복구?�기 (?�로고침)';
             devGodModeBtn.style.background = '#ff0055';
             
-            // ??삳쐭 ??뽯뻻
+            // ?�더 ?�시
             document.getElementById('main-header').classList.remove('hidden');
             
-            // 筌뤴뫀諭???쎄쾿????뽯뻻 (??쎈탣??뤿뻻, ?봔???醫뤾문 ??뽰뇚)
+            // 모든 ?�크�??�시 (?�플?�시, 부???�택 ?�외)
             document.getElementById('screen-splash').classList.add('hidden');
             document.getElementById('dept-selection').classList.add('hidden');
             
@@ -1963,7 +1957,7 @@ if (devGodModeBtn) {
                 }
             });
             
-            // 筌뤴뫀諭??봔????????ㅺ섯, 筌뤴뫀??????? ??곸젫
+            // 모든 부???�???�널, 모달 ???��? ?�제
             const hideables = [
                 'manager-montage-panel', 'manager-submit-panel',
                 'stage2-employee-panel', 'stage2-manager-panel',
@@ -1976,7 +1970,7 @@ if (devGodModeBtn) {
                 if (el) el.classList.remove('hidden');
             });
             
-            // ??쎈꽅??筌뤴뫀?뽳㎕?덈굶???紐껋뵬?紐꾩몵嚥???뽯뻻
+            // ?�토�?모달창들???�라?�으�??�시
             document.querySelectorAll('.modal').forEach(m => {
                 m.classList.remove('hidden');
                 m.style.position = 'relative';
@@ -1994,7 +1988,7 @@ if (devGodModeBtn) {
     });
 }
 
-// --- QR 鈺곌퀗而?筌≪뼐由??遺얇늺 嚥≪뮇彛?---
+// --- QR 조각 찾기 ?�면 로직 ---
 const btnSubmitQr = document.getElementById('btn-submit-qr');
 const qrPasswordInput = document.getElementById('qr-password-input');
 const qrErrorMsg = document.getElementById('qr-error-msg');
@@ -2007,14 +2001,14 @@ if (btnSubmitQr) {
         const inputPw = qrPasswordInput.value.trim();
         const correctPw = PUZZLE_DATA.qrMessages[currentDeptId];
         
-        // ??낆젾揶쏅????類ｋ뼗?癒?퐣 ?袁⑸선?怨뚮┛??筌뤴뫀紐???볤탢??뤿연 ??쑨??(?온????띿쓺)
+        // ?�력값과 ?�답?�서 ?�어?�기�?모두 ?�거?�여 비교 (관?�?�게)
         if (inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
             qrErrorMsg.classList.add('hidden');
             btnSubmitQr.classList.add('hidden');
             qrPasswordInput.disabled = true;
             qrSuccessPanel.classList.remove('hidden');
             
-            // pieces ?뚎됱젂????낅쑓??꾨뱜
+            // pieces 컬렉???�데?�트
             try {
                 await setDoc(doc(db, 'pieces', currentDeptId), { 
                     unlocked: true, 
@@ -2040,7 +2034,7 @@ if (btnGoToPersonal) {
     });
 }
 
-// --- ????뺣궖??嚥≪뮇彛?---
+// --- ?�?�보??로직 ---
 const btnOpenDashboard = document.getElementById('btn-open-dashboard');
 const btnCloseDashboard = document.getElementById('btn-close-dashboard');
 const screenDashboard = document.getElementById('screen-dashboard');
@@ -2065,7 +2059,7 @@ function openDashboard() {
     screenDashboard.classList.remove('hidden');
     renderDashboardSlots();
     
-    // Firestore pieces ?뚎됱젂????쇰뻻揶??닌됰즴
+    // Firestore pieces 컬렉???�시�?구독
     dashboardUnsubscribe = onSnapshot(collection(db, 'pieces'), (snapshot) => {
         let unlockedCount = 0;
         const totalDepts = JSON.parse(localStorage.getItem('rebrand_departments') || '[]').length;
@@ -2081,15 +2075,15 @@ function openDashboard() {
             }
         });
         
-        // 筌뤴뫀紐???곸젫??뤿??????怨쀭뀱
+        // 모두 ?�제?�었?????�출
         if (unlockedCount >= totalDepts && totalDepts > 0) {
             setTimeout(() => {
                 fabricPuzzleContainer.classList.add('scale-up-anim');
                 const finalMsg = document.getElementById('dashboard-final-message');
                 finalMsg.classList.remove('hidden');
                 
-                // ?袁⑸뻻嚥???롫굡?꾨뗀逾??筌롫뗄?놅쭪? (野껊슣?좑쭪? ?怨뺣짗 ??
-                document.getElementById('dashboard-final-text').innerHTML = "?⑥쥓彛???뒄, ????겫? ????겫袁⑹뵠 筌왖?녹뮆沅?筌띾슦寃?? ?브쑬梨?????よ???선?? ??쇱벉?癒?뮉 鈺곌퀗???? 筌왖????館釉??醫뤾문 筌잛럩?앮에????紐꾩뵠 疫꿸퀣?깍쭖??ル뿪荑??곸뒄.";
+                // ?�시�??�드코딩??메시지 (게이지 ?�동 ??
+                document.getElementById('dashboard-final-text').innerHTML = "고마?�요, ?�러�? ?�러분이 지켜낸 만큼?� 분명???�라졌어?? ?�음?�는 조금 ?? 지?��??�한 ?�택 쪽으�??�?�이 기울�?좋겠?�요.";
             }, 1000);
         }
     });
@@ -2105,8 +2099,8 @@ if (btnCloseDashboard) btnCloseDashboard.addEventListener('click', () => {
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
     if (currentDeptId) {
-        // ?癒?삋 ??덈쐲 ?遺얇늺??곗쨮 ???툡揶쎛疫?(????뺣궖??뺣뮉 ?온?귐딆쁽??QR ?袁⑥┷ ?遺얇늺?癒?퐣筌???쇰선??
-        // ??由????쎈탣??뤿뻻??QR ?遺얇늺??곗쨮 癰귣?沅↑린袁ⓥ뵝
+        // ?�래 ?�던 ?�면?�로 ?�아가�?(?�?�보?�는 관리자??QR ?�료 ?�면?�서�??�어??
+        // ?�기???�플?�시??QR ?�면?�로 보내버림
         if (qrSuccessPanel && !qrSuccessPanel.classList.contains('hidden')) {
             document.getElementById('screen-qr').classList.remove('hidden');
         } else {
@@ -2122,7 +2116,7 @@ initApp();
 const btnFloatingReset = document.getElementById('btn-secret-reset');
 if (btnFloatingReset) {
     btnFloatingReset.addEventListener('click', () => {
-        if (confirm('筌뤴뫀諭?疫꿸퀗由???紐꾨???λ뜃由?酉釉??筌ｌ꼷???遺얇늺??곗쨮 ???툡揶쎛??볦퓢??щ빍繹?')) {
+        if (confirm('모든 기기???�션??초기?�하�?처음 ?�면?�로 ?�아가?�겠?�니�?')) {
             sessionStorage.clear();
             location.href = location.pathname;
         }
@@ -2147,5 +2141,6 @@ if (btnSecretSkip) {
         } catch(e) { console.error(e); }
     });
 }
+
 
 
