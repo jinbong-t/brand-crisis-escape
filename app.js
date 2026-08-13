@@ -929,7 +929,7 @@ function startScreen3() {
         
         // 遺???꾪솴??由ъ뒪??
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
+            const roles = ['?명꽩', '?ъ썝', '李⑥옣'];
             let allConfirmed = true;
             
             roles.forEach(role => {
@@ -1036,7 +1036,7 @@ function startScreen4() {
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
+            const roles = ['?명꽩', '?ъ썝', '李⑥옣'];
             roles.forEach(role => {
                 const statusEl = document.getElementById(`status-stage3-${role}`);
                 if (!statusEl) return;
