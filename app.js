@@ -3,7 +3,7 @@ import { PUZZLE_DATA } from './puzzle-data.js';
 
 sessionStorage.clear();
 
-// DOM ?붿냼
+// DOM 요소
 const deptGrid = document.getElementById('dept-grid');
 const deptSelection = document.getElementById('department-selection');
 const roleSelection = document.getElementById('role-selection');
@@ -13,7 +13,7 @@ const btnBackToDept = document.getElementById('btn-back-to-dept');
 const mainHeader = document.getElementById('main-header');
 const currentTeamDisplay = document.getElementById('current-team-display');
 
-// 愿由ъ옄 紐⑤뱶 DOM
+// 관리자 모드 DOM
 const adminToggleBtn = document.getElementById('admin-toggle-btn');
 const adminModal = document.getElementById('admin-modal');
 const closeAdminModal = document.getElementById('close-admin-modal');
@@ -42,7 +42,7 @@ const diaryText = document.getElementById('diary-text');
 const btnSubmitOpening = document.getElementById('btn-submit-opening');
 const openingErrorMsg = document.getElementById('opening-error-msg');
 
-// ?곹깭 愿由?
+// 상태 관리
 let currentDeptId = sessionStorage.getItem('currentDeptId') || null;
 let currentDeptName = sessionStorage.getItem('currentDeptName') || null;
 let currentRole = sessionStorage.getItem('currentRole') || null;
@@ -61,22 +61,22 @@ function clearSessionState() {
     sessionStorage.removeItem('currentRole');
 }
 
-// 湲곕낯 遺??紐⑸줉
+// 기본 부서 목록
 const DEFAULT_DEPTS = [
-    { id: 'dept-1', name: '?붿옄?멸린?띾?' },
-    { id: 'dept-2', name: '?뚯옱媛쒕컻遺' },
-    { id: 'dept-3', name: '?ㅽ??쇰쭅遺' },
-    { id: 'dept-4', name: '?앹궛?꾨왂遺' },
-    { id: 'dept-5', name: '留덉??낅?' },
-    { id: 'dept-6', name: '?덉쭏愿由щ?' }
+    { id: 'dept-1', name: '디자인기획부' },
+    { id: 'dept-2', name: '소재개발부' },
+    { id: 'dept-3', name: '스타일링부' },
+    { id: 'dept-4', name: '생산전략부' },
+    { id: 'dept-5', name: '마케팅부' },
+    { id: 'dept-6', name: '품질관리부' }
 ];
 
 // Splash Screen Logic
 btnEnterGame.addEventListener('click', () => {
-    // 1. 媛뺣젹???앹뾽 "?뱀떊??遺?쒕뒗 臾댁뾿?낅땲源?" ?꾩슦湲?
+    // 1. 강렬한 팝업 "당신의 부서는 무엇입니까?" 띄우기
     geniusModal.classList.remove('hidden');
     
-    // 2. 2.5珥????앹뾽怨??ㅽ뵆?섏떆 ?붾㈃ 紐⑤몢 ?щ씪吏怨?Screen 0 ?깆옣
+    // 2. 2.5초 후 팝업과 스플래시 화면 모두 사라지고 Screen 0 등장
     setTimeout(() => {
         geniusModal.classList.add('hidden');
         screenSplash.classList.add('hidden');
@@ -84,7 +84,7 @@ btnEnterGame.addEventListener('click', () => {
     }, 2500);
 });
 
-// 遺??愿由?
+// 부서 관리
 function getDepartments() {
     const saved = localStorage.getItem('rebrand_departments');
     if (saved) return JSON.parse(saved);
@@ -96,7 +96,7 @@ function saveDepartments(depts) {
     localStorage.setItem('rebrand_departments', JSON.stringify(depts));
 }
 
-// ?붾㈃ ?뚮뜑留?
+// 화면 렌더링
 function renderDeptGrid() {
     const depts = getDepartments();
     deptGrid.innerHTML = '';
@@ -117,7 +117,7 @@ function renderAdminDeptList() {
         div.className = 'admin-dept-item';
         div.innerHTML = `
             <span>${dept.name}</span>
-            <button class="btn-delete" data-id="${dept.id}">??젣</button>
+            <button class="btn-delete" data-id="${dept.id}">삭제</button>
         `;
         adminDeptList.appendChild(div);
     });
@@ -133,7 +133,7 @@ function renderAdminDeptList() {
     });
 }
 
-// 遺???좏깮
+// 부서 선택
 async function selectDepartment(dept) {
     currentDeptId = dept.id;
     currentDeptName = dept.name;
@@ -142,7 +142,7 @@ async function selectDepartment(dept) {
     deptSelection.classList.add('hidden');
     roleSelection.classList.remove('hidden');
 
-    // Firestore?먯꽌 遺??臾몄꽌媛 ?놁쑝硫??앹꽦
+    // Firestore에서 부서 문서가 없으면 생성
     const deptRef = doc(db, 'departments', currentDeptId);
     const snap = await getDoc(deptRef);
     if (!snap.exists()) {
@@ -157,7 +157,7 @@ async function selectDepartment(dept) {
     checkRoleAvailability();
 }
 
-// 吏곴툒 ?쒖꽦???곹깭 ?뺤씤
+// 직급 활성화 상태 확인
 async function checkRoleAvailability() {
     roleCards.forEach(async (card) => {
         const role = card.getAttribute('data-role');
@@ -166,7 +166,7 @@ async function checkRoleAvailability() {
         
         if (snap.exists() && snap.data().taken) {
             card.disabled = true;
-            card.innerHTML = `<h3>${role}</h3><p>(?좏깮 ?꾨즺)</p>`;
+            card.innerHTML = `<h3>${role}</h3><p>(선택 완료)</p>`;
         } else {
             card.disabled = false;
             card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}</p>`;
@@ -176,14 +176,14 @@ async function checkRoleAvailability() {
 
 function getRoleDesc(role) {
     switch(role) {
-        case '?명꽩': return '吏곸젒?곸씤 ?⑥꽌 ?먯깋';
-        case '?ъ썝': return '?먮즺 ?댁꽍 諛?遺꾩꽍';
-        case '李⑥옣': return '?듭떖 媛쒕뀗 ?꾩텧';
-        case '遺??: return '醫낇빀 ?먮떒 諛??쒖텧';
+        case '인턴': return '직접적인 단서 탐색';
+        case '사원': return '자료 해석 및 분석';
+        case '차장': return '핵심 개념 도출';
+        case '부장': return '종합 판단 및 제출';
     }
 }
 
-// 吏곴툒 ?좏깮 (?몃옖??뀡)
+// 직급 선택 (트랜잭션)
 roleCards.forEach(card => {
     card.addEventListener('click', async () => {
         if (card.disabled) return;
@@ -194,17 +194,17 @@ roleCards.forEach(card => {
             await runTransaction(db, async (transaction) => {
                 const docSnap = await transaction.get(roleRef);
                 if (docSnap.exists() && docSnap.data().taken) {
-                    throw "?대? ?좏깮??吏곴툒?낅땲??";
+                    throw "이미 선택된 직급입니다.";
                 }
                 transaction.set(roleRef, { taken: true, timestamp: Date.now() });
             });
             
-            // ?깃났
+            // 성공
             currentRole = role;
             saveSessionState();
-            alert(`${role} 吏곴툒?쇰줈 ?쒖옉?⑸땲??`);
+            alert(`${role} 직급으로 시작합니다!`);
             
-            // ?ㅼ씠?대━ ?섍린???섏씠吏 ?? ?좊땲硫붿씠?섏쑝濡??붾㈃ ?꾪솚
+            // 다이어리 넘기는(페이지 턴) 애니메이션으로 화면 전환
             screen0.classList.add('page-turn-out');
             setTimeout(() => {
                 screen0.classList.add('hidden');
@@ -214,17 +214,17 @@ roleCards.forEach(card => {
                 screen1.classList.add('page-turn-in');
                 setTimeout(() => screen1.classList.remove('page-turn-in'), 800);
                 
-                startScreen1(); // ?붾㈃ 1(?ㅽ봽?? ?뗮똿
+                startScreen1(); // 화면 1(오프닝) 셋팅
             }, 800);
             
         } catch (e) {
             alert(e);
-            checkRoleAvailability(); // ?곹깭 媛깆떊
+            checkRoleAvailability(); // 상태 갱신
         }
     });
 });
 
-// ?ㅻ줈媛湲?
+// 뒤로가기
 btnBackToDept.addEventListener('click', () => {
     currentDeptId = null;
     currentDeptName = null;
@@ -234,11 +234,11 @@ btnBackToDept.addEventListener('click', () => {
     deptSelection.classList.remove('hidden');
 });
 
-// ??븷 蹂寃?(濡쒓렇?꾩썐 - ?곗씠???좎?)
+// 역할 변경 (로그아웃 - 데이터 유지)
 const btnLogoutRoles = document.querySelectorAll('#btn-logout-role, .btn-logout-role');
 btnLogoutRoles.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (confirm("?꾩옱 ??븷?먯꽌 濡쒓렇?꾩썐?섏떆寃좎뒿?덇퉴? (??먮뱾??湲곗븞 湲곕줉? DB??洹몃?濡?蹂댁〈?⑸땲??)")) {
+        if (confirm("현재 역할에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다!)")) {
             currentRole = null;
             sessionStorage.removeItem('currentRole');
             location.reload();
@@ -246,7 +246,7 @@ btnLogoutRoles.forEach(btn => {
     });
 });
 
-// 愿由ъ옄 紐⑤뱶 濡쒖쭅 (5踰??대┃ ???쒖꽦??
+// 관리자 모드 로직 (5번 클릭 시 활성화)
 adminToggleBtn.addEventListener('click', () => {
     adminClickCount++;
     if (adminClickCount >= 5) {
@@ -289,12 +289,12 @@ btnAddDept.addEventListener('click', () => {
 });
 
 btnResetDepts.addEventListener('click', async () => {
-    if (confirm("?뺣쭚 紐⑤뱺 遺???곗씠?곗? 吏곴툒 ?좏깮 湲곕줉??珥덇린?뷀븯?쒓쿋?듬땲源? (?섎룎由????놁뒿?덈떎!)")) {
+    if (confirm("정말 모든 부서 데이터와 직급 선택 기록을 초기화하시겠습니까? (되돌릴 수 없습니다!)")) {
         const depts = getDepartments();
-        const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
+        const roles = ['인턴', '사원', '차장', '부장'];
         for (const dept of depts) {
             try {
-                // 遺??湲곕낯 ?뺣낫 諛??ㅽ뀒?댁? 珥덇린??
+                // 부서 기본 정보 및 스테이지 초기화
                 await setDoc(doc(db, 'departments', dept.id), {
                     name: dept.name,
                     currentStage: 0,
@@ -305,12 +305,12 @@ btnResetDepts.addEventListener('click', async () => {
                     qrScanned: false
                 });
                 
-                // QR ?쇱뒪 ?곹깭 珥덇린??
+                // QR 피스 상태 초기화
                 await setDoc(doc(db, 'pieces', dept.id), {
                     unlocked: false
                 });
 
-                // 吏곴툒 ?곹깭 珥덇린??
+                // 직급 상태 초기화
                 for (const role of roles) {
                     await setDoc(doc(db, `departments/${dept.id}/roles`, role), { 
                         taken: false,
@@ -327,20 +327,20 @@ btnResetDepts.addEventListener('click', async () => {
         currentDeptId = null;
         currentRole = null;
         
-        alert("珥덇린?붾릺?덉뒿?덈떎.");
+        alert("초기화되었습니다.");
         location.reload();
     }
 });
 
-// ?뚯뒪?몄슜 鍮좊Ⅸ ?꾩껜 珥덇린??踰꾪듉
+// 테스트용 빠른 전체 초기화 버튼
 const btnEasyReset = document.getElementById('btn-easy-reset');
 if (btnEasyReset) {
     btnEasyReset.addEventListener('click', async () => {
-        if (confirm("紐⑤뱺 遺??湲곕줉怨??곗씠??踰좎씠??吏꾪뻾 ?곹솴???꾩쟾??珥덇린?뷀븯怨?泥섏쓬遺??0?④퀎) ?ㅼ떆 ?쒖옉?섏떆寃좎뒿?덇퉴?")) {
+        if (confirm("모든 부서 기록과 데이터 베이스 진행 상황을 완전히 초기화하고 처음부터(0단계) 다시 시작하시겠습니까?")) {
             const depts = getDepartments();
-        const roles = ['?명꽩', '?ъ썝', '李⑥옣', '遺??];
+        const roles = ['인턴', '사원', '차장', '부장'];
             
-            // 紐⑤뱺 遺?쒖쓽 沅뚰븳 諛섑솚 諛??ㅽ뀒?댁? 0?쇰줈 ?섎룎由ш린 (?꾩쟾 珥덇린??
+            // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기 (완전 초기화)
             for (const dept of depts) {
                 try {
                     await setDoc(doc(db, 'departments', dept.id), {
@@ -372,69 +372,69 @@ if (btnEasyReset) {
             currentDeptId = null;
             currentRole = null;
             
-            alert("?꾨꼍?섍쾶 珥덇린?붾릺?덉뒿?덈떎! 源⑤걮???곹깭?먯꽌 ?쒖옉?⑸땲??");
+            alert("완벽하게 초기화되었습니다! 깨끗한 상태에서 시작합니다.");
             location.reload();
         }
     });
 }
 
-// ?뚯뒪?몄슜 ?ㅼ쿇??異붾줎 諛붾줈媛湲?踰꾪듉
+// 테스트용 실천적 추론 바로가기 버튼
 const debugRoleBtns = document.querySelectorAll('.btn-debug-role');
 debugRoleBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
-        currentDeptId = 'test-dept'; // ?꾩쓽??遺??
+        currentDeptId = 'test-dept'; // 임의의 부서
         currentRole = btn.getAttribute('data-role');
-        currentDeptName = '?뚯뒪?몃???;
+        currentDeptName = '테스트부서';
         sessionStorage.setItem('currentRole', currentRole);
         
-        // 遺??臾몄꽌 媛뺤젣 ?앹꽦 (updateDoc ?ㅻ쪟 諛⑹?)
+        // 부서 문서 강제 생성 (updateDoc 오류 방지)
         try {
             await setDoc(doc(db, 'departments', currentDeptId), {
-                name: '?뚯뒪?몃???,
+                name: '테스트부서',
                 currentStage: 1
             }, { merge: true });
         } catch(e) { console.error(e); }
 
         document.getElementById('screen-splash').classList.remove('active');
         
-        // ?뺤떇 ??珥덇린??(??怨쇱젙?먯꽌 onSnapshot???쒕?濡?臾띠씠怨??붾㈃ 1???뺤긽 ?뗮똿??
+        // 정식 앱 초기화 (이 과정에서 onSnapshot이 제대로 묶이고 화면 1이 정상 셋팅됨)
         initApp();
         
         setTimeout(() => showReasoningModal(PUZZLE_DATA.stage1, 2), 800);
     });
 });
 
-// ?섏씠吏 ?ㅽ궢 濡쒖쭅
+// 페이지 스킵 로직
 const skipButtons = document.querySelectorAll('.btn-skip');
 skipButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
         const targetStage = parseInt(btn.getAttribute('data-target'));
         
         if (!currentDeptId || !currentRole) {
-            const forceTest = confirm("?꾩옱 ?좏깮??遺?쒕굹 吏곴툒???놁뒿?덈떎! ?뚯뒪?몄슜 '?뚯뒪?몃???遺?? 沅뚰븳?쇰줈 媛뺤젣 ?낆옣?섏떆寃좎뒿?덇퉴?");
+            const forceTest = confirm("현재 선택된 부서나 직급이 없습니다! 테스트용 '테스트부서-부장' 권한으로 강제 입장하시겠습니까?");
             if (forceTest) {
-                currentDeptId = 'test-dept-' + Date.now(); // ?꾩떆 遺???앹꽦
-                currentDeptName = '?뚯뒪?몃???;
-                currentRole = '遺??;
+                currentDeptId = 'test-dept-' + Date.now(); // 임시 부서 생성
+                currentDeptName = '테스트부서';
+                currentRole = '부장';
                 saveSessionState();
             } else {
                 return;
             }
         }
         
-        if (confirm(`${targetStage}?④퀎濡?媛뺤젣 ?대룞?섏떆寃좎뒿?덇퉴?`)) {
+        if (confirm(`${targetStage}단계로 강제 이동하시겠습니까?`)) {
             try {
-                // 遺??臾몄꽌媛 ?놁쑝硫??꾩떆 ?앹꽦
+                // 부서 문서가 없으면 임시 생성
                 await setDoc(doc(db, 'departments', currentDeptId), {
                     name: currentDeptName,
                     currentStage: targetStage,
                     startTime: Date.now()
                 }, { merge: true });
                 
-                // 紐⑤떖 ?リ린
+                // 모달 닫기
                 adminModal.classList.add('hidden');
                 
-                // 紐⑤뱺 ?붾㈃ ?④린湲?
+                // 모든 화면 숨기기
                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                 
@@ -454,7 +454,7 @@ skipButtons.forEach(btn => {
                     document.getElementById('screen-5').classList.remove('hidden');
                     startScreen5();
                 } else {
-                    alert(`${targetStage}?④퀎 ?붾㈃? ?꾩쭅 怨듭궗 以묒엯?덈떎! ?앸뵳?앸뵳 ?썱截?);
+                    alert(`${targetStage}단계 화면은 아직 공사 중입니다! 뚝딱뚝딱 🛠️`);
                 }
                 
             } catch(e) {
@@ -465,7 +465,7 @@ skipButtons.forEach(btn => {
 });
 
 // ==========================================
-// Screen 1: ?ㅽ봽??濡쒖쭅
+// Screen 1: 오프닝 로직
 // ==========================================
 let introParagraphs = [];
 let currentIntroIndex = 0;
@@ -474,7 +474,7 @@ function startScreen1() {
     mainHeader.classList.remove('hidden');
     currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
 
-    // ?ㅽ봽???ㅽ넗由?紐⑤떖 以鍮?
+    // 오프닝 스토리 모달 준비
     let rawIntroText = PUZZLE_DATA.opening.introText;
     rawIntroText = rawIntroText.replace('[ROLE]', currentRole);
     introParagraphs = rawIntroText.split('<br><br>');
@@ -497,7 +497,7 @@ function startScreen1() {
             p.innerHTML = introParagraphs[currentIntroIndex];
             container.appendChild(p);
             
-            // 而⑦뀒?대꼫 ?ㅽ겕濡?留??꾨옒濡?
+            // 컨테이너 스크롤 맨 아래로
             container.parentElement.scrollTop = container.parentElement.scrollHeight;
             
             if (currentIntroIndex === introParagraphs.length - 1) {
@@ -509,9 +509,9 @@ function startScreen1() {
 
     introModal.classList.remove('hidden');
     
-    // ?곸긽 ?먮룞 ?ъ깮 ?쒕룄
+    // 영상 자동 재생 시도
     if (introVideo) {
-        introVideo.play().catch(e => console.log("?먮룞 ?ъ깮 諛⑹???, e));
+        introVideo.play().catch(e => console.log("자동 재생 방지됨", e));
     }
 
     renderOpeningCards();
@@ -526,7 +526,7 @@ document.getElementById('close-intro-modal').addEventListener('click', () => {
 
 function renderOpeningCards() {
     openingCardsContainer.innerHTML = '';
-    // 珥덇린?먮뒗 臾댁옉?꾨줈 ?욎뼱??諛곗튂
+    // 초기에는 무작위로 섞어서 배치
     const shuffledCards = [...PUZZLE_DATA.opening.cards].sort(() => Math.random() - 0.5);
     
     shuffledCards.forEach(cardData => {
@@ -536,31 +536,31 @@ function renderOpeningCards() {
         card.dataset.id = cardData.id;
         card.dataset.back = cardData.back;
 
-        // ?댁쭏?ъ쭊 ?먮굦???꾪빐 ?쎄컙???쒕뜡 ?뚯쟾怨??ㅽ봽??遺??
-        const randomRot = (Math.random() - 0.5) * 10; // -15??~ +15??
+        // 어질러진 느낌을 위해 약간의 랜덤 회전과 오프셋 부여
+        const randomRot = (Math.random() - 0.5) * 10; // -15도 ~ +15도
         const randomY = (Math.random() - 0.5) * 10;   // -10px ~ +10px
         card.style.transform = `rotate(${randomRot}deg) translateY(${randomY}px)`;
         
         card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; border: 2px solid var(--accent-gold);">
-                    <!-- ?욌㈃? ?④꺼吏??곹깭 -->
-                    <span style="background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px; font-weight: bold; color: white;">議곗궗 移대뱶</span>
+                    <!-- 앞면은 숨겨진 상태 -->
+                    <span style="background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px; font-weight: bold; color: white;">조사 카드</span>
                 </div>
                 <div class="flip-card-back" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1rem;">
                     <span style="font-size: 0.85rem; font-family: 'Noto Sans KR'; font-weight: 500; word-break: keep-all; line-height: 1.5; color: var(--text-main);">${cardData.text}</span>
-                    <!-- ?レ옄???붾㈃??蹂댁뿬二쇱? ?딄퀬 ?ㅼ쭅 ?뺣젹 ?쒖꽌 泥댄겕?⑹쑝濡쒕쭔 ?ъ슜?⑸땲??-->
+                    <!-- 숫자는 화면에 보여주지 않고 오직 정렬 순서 체크용으로만 사용합니다 -->
                 </div>
             </div>
         `;
 
-        // ?ㅼ쭛湲??대깽??
+        // 뒤집기 이벤트
         card.addEventListener('click', () => {
             card.classList.toggle('flipped');
             checkUnlockCondition();
         });
 
-        // ?쒕옒洹????쒕∼ ?대깽??
+        // 드래그 앤 드롭 이벤트
         card.addEventListener('dragstart', (e) => {
             card.classList.add('dragging');
         });
@@ -572,7 +572,7 @@ function renderOpeningCards() {
         openingCardsContainer.appendChild(card);
     });
 
-    // 而⑦뀒?대꼫 ?쒕옒洹??뺣젹 濡쒖쭅
+    // 컨테이너 드래그 정렬 로직
     openingCardsContainer.addEventListener('dragover', e => {
         e.preventDefault();
         const afterElement = getDragAfterElement(openingCardsContainer, e.clientX);
@@ -584,12 +584,12 @@ function renderOpeningCards() {
         }
     });
 
-    // 紐⑤컮???곗튂(?쒕옒洹? 吏??
+    // 모바일 터치(드래그) 지원
     let touchDragging = null;
     openingCardsContainer.addEventListener('touchstart', e => {
         if (e.target.closest('.flip-card')) {
             touchDragging = e.target.closest('.flip-card');
-            // ?곗튂 ?쒖옉 ??諛붾줈 ?ㅼ쭛?덉? ?딅룄濡??쎄컙???쒕젅??
+            // 터치 시작 시 바로 뒤집히지 않도록 약간의 딜레이
             setTimeout(() => { if (touchDragging) touchDragging.classList.add('dragging'); }, 100);
         }
     });
@@ -613,7 +613,7 @@ function renderOpeningCards() {
     });
 }
 
-// ?쒕옒洹??꾩튂 怨꾩궛 ?⑥닔
+// 드래그 위치 계산 함수
 function getDragAfterElement(container, x) {
     const draggableElements = [...container.querySelectorAll('.flip-card:not(.dragging)')];
     
@@ -628,7 +628,7 @@ function getDragAfterElement(container, x) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// ?좉툑 ?댁젣 議곌굔 寃??(?쇰뱶諛깆슜 ?쒓컖???④낵留?
+// 잠금 해제 조건 검사 (피드백용 시각적 효과만)
 function checkUnlockCondition() {
     const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
     const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
@@ -641,19 +641,19 @@ function checkUnlockCondition() {
     }
 }
 
-// ?좉툑 ?댁젣 踰꾪듉 ?대┃
+// 잠금 해제 버튼 클릭
 btnUnlock.addEventListener('click', () => {
     const cards = [...openingCardsContainer.querySelectorAll('.flip-card')];
     const isAllFlipped = cards.every(c => c.classList.contains('flipped'));
     const currentOrder = cards.map(c => c.dataset.back).join('');
 
     if (!isAllFlipped) {
-        alert("紐⑤뱺 議곗궗 移대뱶瑜??ㅼ쭛???댁슜???뺤씤?댁＜?몄슂!");
+        alert("모든 조사 카드를 뒤집어 내용을 확인해주세요!");
         return;
     }
     
     if (currentOrder !== '1234') {
-        alert("?쒖꽌媛 ??몄뒿?덈떎. ?섎쪟 ?앹궛遺???먭린源뚯? ?섍꼍 ?ㅼ뿼??諛쒖깮?섎뒗 ?щ컮瑜??쒖꽌?濡??섏뿴?대낫?몄슂!");
+        alert("순서가 틀렸습니다. 의류 생산부터 폐기까지 환경 오염이 발생하는 올바른 순서대로 나열해보세요!");
         return;
     }
 
@@ -661,28 +661,28 @@ btnUnlock.addEventListener('click', () => {
     diaryModal.classList.remove('hidden');
 });
 
-// ?ㅼ씠?대━ ???쒖텧
+// 다이어리 답 제출
 btnSubmitOpening.addEventListener('click', async () => {
     const selected = document.querySelector('input[name="flow-type"]:checked');
     if (!selected) {
-        alert('?듭쓣 ?좏깮?댁＜?몄슂.');
+        alert('답을 선택해주세요.');
         return;
     }
 
     if (selected.value === PUZZLE_DATA.opening.answer) {
-        // ?뺣떟 ??
+        // 정답 시
         openingErrorMsg.classList.add('hidden');
         diaryModal.classList.add('hidden');
-        alert('?뺣떟?낅땲?? 1?④퀎濡??대룞?⑸땲??');
+        alert('정답입니다! 1단계로 이동합니다.');
         
-        // ?곹깭 ?낅뜲?댄듃
+        // 상태 업데이트
         try {
             await updateDoc(doc(db, 'departments', currentDeptId), {
                 currentStage: 1
             });
         } catch(e) { console.error(e); }
 
-        // 1?④퀎 ?붾㈃?쇰줈 ?꾪솚
+        // 1단계 화면으로 전환
         document.getElementById('screen-1').classList.add('hidden');
         document.getElementById('screen-2').classList.remove('hidden');
         startScreen2();
@@ -692,7 +692,7 @@ btnSubmitOpening.addEventListener('click', async () => {
 });
 
 // ==========================================
-// Screen 2: 1?④퀎 (?붿옄?몄슂?뚯떎) 濡쒖쭅
+// Screen 2: 1단계 (디자인요소실) 로직
 // ==========================================
 function startScreen2(deptData) {
     mainHeader.classList.remove('hidden');
@@ -700,7 +700,7 @@ function startScreen2(deptData) {
     
     document.getElementById('display-current-role').textContent = currentRole;
     
-    // 1?④퀎 ?ㅽ넗由?紐⑤떖 ?꾩슦湲?
+    // 1단계 스토리 모달 띄우기
     if (!(deptData && deptData.showStage1Reasoning)) {
         document.getElementById('stage1-story-modal').classList.remove('hidden');
     }
@@ -709,12 +709,12 @@ function startScreen2(deptData) {
         document.getElementById('stage1-story-modal').classList.add('hidden');
     };
     
-    // 誘몄뀡 1-1 (紐쏀?二? ?명똿
+    // 미션 1-1 (몽타주) 세팅
     const montageData = PUZZLE_DATA.stage1.montage[currentRole];
 
     if (!montageData) {
         console.error('Invalid currentRole for montageData:', currentRole);
-        alert('??釉??怨쀬뵠?怨? ?醫륁뒞??? ??녿뮸??덈뼄.');
+        alert('??븷 ?곗씠?곌? ?좏슚?섏? ?딆뒿?덈떎.');
         return;
     }
     document.getElementById('montage-clue-text').innerHTML = montageData.text;
@@ -730,7 +730,7 @@ function startScreen2(deptData) {
             btn.classList.add('selected');
             
             if (btn.textContent === montageData.answer) {
-                alert('?뺣떟?낅땲?? ?ㅼ쓬 誘몄뀡???대졇?듬땲??');
+                alert('정답입니다! 다음 미션이 열렸습니다.');
                 optionsContainer.querySelectorAll('button').forEach(b => b.disabled = true);
                 const m2 = document.getElementById('mission-1-2');
                 if (m2) {
@@ -738,32 +738,32 @@ function startScreen2(deptData) {
                     m2.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             } else {
-                alert('??몄뒿?덈떎. ?⑥꽌瑜??ㅼ떆 ?뺤씤?대낫?몄슂.');
+                alert('틀렸습니다. 단서를 다시 확인해보세요.');
                 btn.classList.remove('selected');
             }
         });
         optionsContainer.appendChild(btn);
     });
 
-    // 誘몄뀡 1-2 (?먮떒 援먯쭛?? ?명똿
+    // 미션 1-2 (원단 교집합) 세팅
     const fabricData = PUZZLE_DATA.stage1.fabricStandards[currentRole];
     document.getElementById('fabric-clue-title').textContent = fabricData.title;
     document.getElementById('fabric-clue-text').textContent = fabricData.text;
     
     const btnSubmitM2 = document.getElementById('btn-submit-mission-1-2');
     if (btnSubmitM2) {
-        btnSubmitM2.textContent = currentRole === '遺?? ? '理쒖쥌 ?뱀씤?섍린' : '遺?λ떂猿?寃곗옱 ?щ━湲?;
+        btnSubmitM2.textContent = currentRole === '부장' ? '최종 승인하기' : '부장님께 결재 올리기';
     }
     
     document.querySelectorAll('.fabric-btn').forEach(btn => {
-        // 蹂듭닔 ?좏깮 媛?ν븯?꾨줉 ?좉?
+        // 복수 선택 가능하도록 토글
         btn.onclick = () => btn.classList.toggle('selected');
     });
 
     document.getElementById('btn-submit-mission-1-2').onclick = () => {
         const selectedButtons = Array.from(document.querySelectorAll('.fabric-btn.selected'));
         if (selectedButtons.length === 0) {
-            alert('?먮떒???섎굹 ?댁긽 ?좏깮?댁＜?몄슂.');
+            alert('원단을 하나 이상 선택해주세요.');
             return;
         }
         
@@ -777,9 +777,9 @@ function startScreen2(deptData) {
         }
         
         if (isCorrect) {
-            alert(currentRole === '遺?? ? '?뺣떟?낅땲?? ?꾨꼍???먮떒??怨⑤씪 理쒖쥌 ?뱀씤?섏뀲?듬땲??' : '?뺣떟?낅땲?? 遺?λ떂猿?湲곗븞??臾댁궗???곸떊?덉뒿?덈떎!');
+            alert(currentRole === '부장' ? '정답입니다! 완벽한 원단을 골라 최종 승인하셨습니다!' : '정답입니다! 부장님께 기안을 무사히 상신했습니다!');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '遺?? ? '理쒖쥌 ?뱀씤 ?꾨즺' : '寃곗옱 ?붿껌 ?꾨즺 (湲곗븞 ?곸떊)';
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 승인 완료' : '결재 요청 완료 (기안 상신)';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
@@ -788,27 +788,27 @@ function startScreen2(deptData) {
                 m3.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } else {
-            alert('??몄뒿?덈떎. ?깅텇?쒖? 議곌굔???ㅼ떆 ?쒕쾲 瑗쇨세???뺤씤?섏꽭??');
+            alert('틀렸습니다. 성분표와 조건을 다시 한번 꼼꼼히 확인하세요.');
         }
     };
 
-    // 誘몄뀡 1-3 (?ㅼ쿇??異붾줎) ?명똿
+    // 미션 1-3 (실천적 추론) 세팅
     const reasoningData = PUZZLE_DATA.stage1.reasoning;
     document.getElementById('reasoning-context').innerHTML = reasoningData.context.replace(/\n/g, '<br>');
     document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
 
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
-        document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 遺?μ? ?꾩껜 ?쒖텧 李??댁슜
-        document.getElementById('reasoning-textarea').style.display = 'none'; // 遺?μ? 紐⑤떖?먯꽌 ?낅젰
-        document.getElementById('reasoning-role-label').textContent = "遺?λ떂? ??먮뱾??紐⑤몢 ?⑥꽌? ?섍껄???쒖텧???뚭퉴吏 湲곕떎??二쇱꽭?? ?섎떒??'理쒖쥌 ?뺣떟 ?쒖텧'???꾨즺?섎㈃ ?좊줎 李쎌씠 ?대┰?덈떎.";
+        document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부장은 전체 제출 창 이용
+        document.getElementById('reasoning-textarea').style.display = 'none'; // 부장은 모달에서 입력
+        document.getElementById('reasoning-role-label').textContent = "부장님은 팀원들이 모두 단서와 의견을 제출할 때까지 기다려 주세요. 하단의 '최종 정답 제출'을 완료하면 토론 창이 열립니다.";
         document.getElementById('reasoning-role-label').style.color = '#ff9f43';
         
-        // 遺???꾩슜 ?ㅼ떆媛?????꾪솴 紐⑤땲?곕쭅
+        // 부장 전용 실시간 팀원 현황 모니터링
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             let allConfirmed = true;
-            const requiredRoles = ['?명꽩', '?ъ썝', '李⑥옣'];
+            const requiredRoles = ['인턴', '사원', '차장'];
             
             requiredRoles.forEach(role => {
                 const statusEl = document.getElementById(`status-${role}`);
@@ -821,24 +821,24 @@ function startScreen2(deptData) {
                 const reasoningDisplay = statusEl.querySelector('.reasoning-display');
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '✅';
                     if (reasoningDisplay && reasoningText) {
                         reasoningDisplay.textContent = `"${reasoningText}"`;
                         reasoningDisplay.style.display = 'block';
                     }
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '❌';
                     if (reasoningDisplay) reasoningDisplay.style.display = 'none';
                     allConfirmed = false;
                 }
             });
             
-            // ?뚯뒪???몄쓽瑜??꾪빐 ??먯씠 紐⑤몢 ?쒖텧?섏? ?딆븘??遺??踰꾪듉 ??긽 ?쒖꽦??
+            // 테스트 편의를 위해 팀원이 모두 제출하지 않아도 부장 버튼 항상 활성화
             document.getElementById('btn-submit-stage1').disabled = false;
         });
         
-        // 遺???꾩슜 理쒖쥌 ?쒖텧 踰꾪듉
+        // 부장 전용 최종 제출 버튼
         const btnSubmitStage1 = document.getElementById('btn-submit-stage1');
         btnSubmitStage1.onclick = async () => {
             const finalAnswer1 = document.getElementById('manager-final-answer-1').value;
@@ -846,20 +846,20 @@ function startScreen2(deptData) {
             const errorMsg = document.getElementById('manager-error-msg');
             
             if (!finalAnswer1 || !finalAnswer2) {
-                alert('誘몄뀡 1(紐쏀?二?怨?誘몄뀡 2(移쒗솚寃???理쒖쥌 ?뺣떟??紐⑤몢 ?좏깮?댁＜?몄슂.');
+                alert('미션 1(몽타주)과 미션 2(친환경)의 최종 정답을 모두 선택해주세요.');
                 return;
             }
             
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
                 btnSubmitStage1.disabled = true;
-                btnSubmitStage1.textContent = '理쒖쥌 ?뱀씤 ?꾨즺 (?ㅼ쿇??異붾줎 吏꾪뻾以?';
+                btnSubmitStage1.textContent = '최종 승인 완료 (실천적 추론 진행중)';
                 
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
                         showStage1Reasoning: true
                     });
-                    alert('?럦 紐⑤뱺 ??먯쓽 ?섍껄??醫낇빀?섏뿬 吏꾩쭨 ?꾩븞怨??먮떒??李얠븯?듬땲??\n\n?댁젣 ?앹뾽?섎뒗 \'?ㅼ쿇??異붾줎\' 臾몄젣瑜?遺?쒖썝?ㅺ낵 ?좊줎?섏뿬 ?닿껐?섏꽭??');
+                    alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n이제 팝업되는 \'실천적 추론\' 문제를 부서원들과 토론하여 해결하세요!');
                     showReasoningModal(PUZZLE_DATA.stage1, 2);
                 } catch(e) {
                     console.error(e);
@@ -867,7 +867,7 @@ function startScreen2(deptData) {
                 
             } else {
                 errorMsg.classList.remove('hidden');
-                errorMsg.textContent = '?ㅻ떟?낅땲?? ??먮뱾??紐⑥븘???⑥꽌(援먯쭛??瑜??ㅼ떆 ?쒕쾲 遺꾩꽍?대낫?몄슂.';
+                errorMsg.textContent = '오답입니다! 팀원들이 모아온 단서(교집합)를 다시 한번 분석해보세요.';
             }
         };
     } else {
@@ -879,7 +879,7 @@ function startScreen2(deptData) {
             btnConfirmAll.onclick = async () => {
                 const textarea = document.getElementById('reasoning-textarea');
                 if (textarea.value.trim().length < 5) {
-                    alert('?섍껄??議곌툑 ???곸꽭???곸뼱??湲곗븞?댁＜?몄슂.');
+                    alert('의견을 조금 더 상세히 적어서 기안해주세요.');
                     return;
                 }
                 
@@ -887,13 +887,13 @@ function startScreen2(deptData) {
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
                     await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
                     
-                    alert('遺?λ떂猿?理쒖쥌 湲곗븞(寃곗옱 ?붿껌)??臾댁궗???섍꼈?듬땲?? 遺?λ떂??紐⑤몢???섍껄??痍⑦빀??理쒖쥌 ?뱀씤???뚭퉴吏 ?湲고빐二쇱꽭??');
+                    alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.');
                     btnConfirmAll.disabled = true;
-                    btnConfirmAll.textContent = '湲곗븞 ?곸떊 ?꾨즺 (遺???뱀씤 ?湲?以?..)';
+                    btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
                     textarea.disabled = true;
                 } catch(e) {
                     console.error(e);
-                    alert('湲곗븞 ?곸떊 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.');
+                    alert('기안 상신 중 오류가 발생했습니다.');
                 }
             };
         }
@@ -903,7 +903,7 @@ function startScreen2(deptData) {
 }
 
 // ==========================================
-// Screen 3: 2?④퀎 (?⑦꽩/遊됱젣?? 濡쒖쭅
+// Screen 3: 2단계 (패턴/봉제실) 로직
 // ==========================================
 function startScreen3() {
     mainHeader.classList.remove('hidden');
@@ -911,7 +911,7 @@ function startScreen3() {
     
     document.getElementById('display-current-role-stage2').textContent = currentRole;
     
-    // 2?④퀎 ?ㅽ넗由?紐⑤떖 ?꾩슦湲?
+    // 2단계 스토리 모달 띄우기
     const storyModal = document.getElementById('stage2-story-modal');
     storyModal.classList.remove('hidden');
     
@@ -923,13 +923,13 @@ function startScreen3() {
     
     const puzzleData = PUZZLE_DATA.stage2.puzzles[currentRole];
     
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('stage2-employee-panel').classList.add('hidden');
         document.getElementById('stage2-manager-panel').classList.remove('hidden');
         
-        // 遺???꾪솴??由ъ뒪??
+        // 부장 현황판 리스너
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣'];
+            const roles = ['인턴', '사원', '차장'];
             let allConfirmed = true;
             
             roles.forEach(role => {
@@ -941,33 +941,33 @@ function startScreen3() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '✅';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '❌';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                     allConfirmed = false;
                 }
             });
             
-            // ?뚯뒪???몄쓽瑜??꾪빐 遺??踰꾪듉 ??긽 ?쒖꽦??
+            // 테스트 편의를 위해 부장 버튼 항상 활성화
             document.getElementById('btn-submit-stage2').disabled = false;
         });
         
-        // 遺??湲덇퀬 媛??踰꾪듉
+        // 부장 금고 가동 버튼
         document.getElementById('btn-submit-stage2').onclick = async () => {
             const pw = document.getElementById('manager-vault-pw').value;
-            if (pw === PUZZLE_DATA.stage2.puzzles['遺??].answer) {
+            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
-                // Firestore瑜?癒쇱? ?낅뜲?댄듃?섏뿬 ?ㅻⅨ ??먮뱾???붾㈃???섏뼱媛寃???
+                // Firestore를 먼저 업데이트하여 다른 팀원들의 화면이 넘어가게 함
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
                         currentStage: 3
                     });
                     
-                    alert("?럦 怨듭옣 媛???꾨즺! 2?④퀎 ?덉텧 ?깃났!\n\n(3?④퀎 ?ㅽ??쇰쭅?ㅻ줈 ?대룞?⑸땲??)");
+                    alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이동합니다.)");
                 } catch(e) {
                     console.error(e);
                 }
@@ -977,25 +977,25 @@ function startScreen3() {
         };
         
     } else {
-        // ?ъ썝/?명꽩/李⑥옣
+        // 사원/인턴/차장
         document.getElementById('stage2-employee-panel').classList.remove('hidden');
         document.getElementById('stage2-manager-panel').classList.add('hidden');
         
         document.getElementById('stage2-puzzle-title').textContent = puzzleData.title;
         document.getElementById('stage2-puzzle-text').textContent = puzzleData.text;
-        document.getElementById('stage2-puzzle-hint').textContent = `?뚰듃: ${puzzleData.hint}`;
+        document.getElementById('stage2-puzzle-hint').textContent = `힌트: ${puzzleData.hint}`;
         
         const btnSubmit = document.getElementById('btn-stage2-submit');
         const input = document.getElementById('stage2-answer-input');
         
         btnSubmit.onclick = async () => {
             if (input.value === puzzleData.answer) {
-                alert(`?뺣떟?낅땲?? ?뱀떊??李얠? ?レ옄??[ ${puzzleData.answer} ] ?낅땲??\n遺?λ떂?먭쾶 ???レ옄瑜??쒖꽌?濡??뚮젮二쇱꽭??`);
+                alert(`정답입니다! 당신이 찾은 숫자는 [ ${puzzleData.answer} ] 입니다.\n부장님에게 이 숫자를 순서대로 알려주세요!`);
                 btnSubmit.disabled = true;
-                btnSubmit.textContent = "?대룆 ?꾨즺 (?湲?以?";
+                btnSubmit.textContent = "해독 완료 (대기 중)";
                 input.disabled = true;
                 
-                // Firebase ?낅뜲?댄듃
+                // Firebase 업데이트
                 try {
                     await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
                         stage2Confirmed: true,
@@ -1006,14 +1006,14 @@ function startScreen3() {
                 }
                 
             } else {
-                alert("鍮꾨?踰덊샇媛 ??몄뒿?덈떎. ?뚰듃瑜??ㅼ떆 ?쎌뼱蹂댁꽭??");
+                alert("비밀번호가 틀렸습니다. 힌트를 다시 읽어보세요!");
             }
         };
     }
 }
 
 // ==========================================
-// Screen 4: 3?④퀎 (?ㅽ??쇰쭅?? 濡쒖쭅
+// Screen 4: 3단계 (스타일링실) 로직
 // ==========================================
 function startScreen4() {
     mainHeader.classList.remove('hidden');
@@ -1031,12 +1031,12 @@ function startScreen4() {
     const personalColorData = PUZZLE_DATA.stage3.personalColor[currentRole];
     const bodyTypeData = PUZZLE_DATA.stage3.bodyType[currentRole];
     
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
-            const roles = ['?명꽩', '?ъ썝', '李⑥옣'];
+            const roles = ['인턴', '사원', '차장'];
             roles.forEach(role => {
                 const statusEl = document.getElementById(`status-stage3-${role}`);
                 if (!statusEl) return;
@@ -1046,27 +1046,27 @@ function startScreen4() {
                 
                 if (isConfirmed) {
                     statusEl.classList.add('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '✅';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
                 } else {
                     statusEl.classList.remove('done');
-                    statusEl.querySelector('.status-icon').textContent = '??;
+                    statusEl.querySelector('.status-icon').textContent = '❌';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                 }
             });
         });
         
-        document.getElementById('stage3-manager-title').textContent = "?⑥꽌 1: ?쇱뒪??而щ윭 醫낇빀";
+        document.getElementById('stage3-manager-title').textContent = "단서 1: 퍼스널 컬러 종합";
         document.getElementById('stage3-manager-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         
         document.getElementById('btn-stage3-manager-submit').onclick = () => {
             const val = document.getElementById('stage3-manager-answer-input').value.replace(/\s+/g, '');
             if (val === personalColorData.answer) {
-                alert("?뺣떟?낅땲?? ?댁젣 ??먮뱾??紐⑥? ?⑥꽌濡?理쒖쥌 ?ㅽ??쇰쭅???꾩꽦?섏꽭??");
+                alert("정답입니다! 이제 팀원들이 모은 단서로 최종 스타일링을 완성하세요.");
                 document.getElementById('stage3-manager-step1').classList.add('hidden');
                 document.getElementById('stage3-manager-step2').classList.remove('hidden');
             } else {
-                alert("?ㅻ떟?낅땲?? ?ㅼ떆 ?앷컖?대낫?몄슂.");
+                alert("오답입니다. 다시 생각해보세요.");
             }
         };
 
@@ -1139,13 +1139,13 @@ function startScreen4() {
         });
         
         btnSubmit.onclick = async () => {
-            if (selectedItems['line'] === '媛濡쒖꽑' && 
-                selectedItems['color'] === '?쒖깋' && 
-                selectedItems['material'] === '六ｋ빰?? &&
-                selectedItems['pattern'] === '?묒?臾대뒳') {
+            if (selectedItems['line'] === '가로선' && 
+                selectedItems['color'] === '한색' && 
+                selectedItems['material'] === '뻣뻣한' &&
+                selectedItems['pattern'] === '작은무늬') {
                 
                 errorMsg.classList.add('hidden');
-                alert("?럦 ?꾨꼍?⑸땲?? ?섍꼍怨??붿옄?몄쓣 紐⑤몢 怨좊젮??移쒗솚寃??섎쪟 而щ젆?섏씠 ?꾩꽦?섏뿀?듬땲??\n?댁젣 ?앹뾽?섎뒗 '?ㅼ쿇??異붾줎' 臾몄젣瑜?遺?쒖썝?ㅺ낵 ?좊줎?섏뿬 ?닿껐?섏꽭??");
+                alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
                 try {
@@ -1166,7 +1166,7 @@ function startScreen4() {
         document.getElementById('stage3-employee-panel').classList.remove('hidden');
         document.getElementById('stage3-manager-panel').classList.add('hidden');
         
-        document.getElementById('stage3-puzzle-title').textContent = "?⑥꽌 1: ?쇱뒪??而щ윭";
+        document.getElementById('stage3-puzzle-title').textContent = "단서 1: 퍼스널 컬러";
         document.getElementById('stage3-puzzle-text').innerHTML = personalColorData.text.replace(/\n/g, '<br>');
         document.getElementById('stage3-puzzle-hint').textContent = '';
         
@@ -1178,19 +1178,19 @@ function startScreen4() {
         btnSubmit.onclick = async () => {
             if (currentStep === 1) {
                 if (input.value.replace(/\s+/g, '') === personalColorData.answer) {
-                    alert(`?뺥솗???⑥꽌瑜?李얠븯?듬땲??\n?ㅼ쓬 ?⑥꽌瑜??뺤씤?섏꽭??`);
+                    alert(`정확한 단서를 찾았습니다!\n다음 단서를 확인하세요.`);
                     currentStep = 2;
                     input.value = '';
-                    document.getElementById('stage3-puzzle-title').textContent = "?⑥꽌 2: 李⑹떆?④낵 ?좏깮";
+                    document.getElementById('stage3-puzzle-title').textContent = "단서 2: 착시효과 선택";
                     document.getElementById('stage3-puzzle-text').innerHTML = PUZZLE_DATA.stage3.bodyType.memo.replace(/\n/g, '<br>') + '<br><br>' + bodyTypeData.text;
                 } else {
-                    alert("?ㅻ떟?낅땲?? 荑⑦넠怨??쒗넠 以??섎굹瑜??낅젰?섏꽭??");
+                    alert("오답입니다. 쿨톤과 웜톤 중 하나를 입력하세요!");
                 }
             } else if (currentStep === 2) {
                 if (input.value.replace(/\s+/g, '') === bodyTypeData.answer) {
-                    alert(`紐⑤뱺 ?⑥꽌瑜?李얠븯?듬땲?? 遺?λ떂?먭쾶 ?뚮젮二쇱꽭??`);
+                    alert(`모든 단서를 찾았습니다! 부장님에게 알려주세요!`);
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "?꾩넚 ?꾨즺 (?湲?以?";
+                    btnSubmit.textContent = "전송 완료 (대기 중)";
                     input.disabled = true;
                     
                     try {
@@ -1201,7 +1201,7 @@ function startScreen4() {
                         console.error(e);
                     }
                 } else {
-                    alert("?ㅻ떟?낅땲?? ?ㅼ떆 ?앷컖?대낫?몄슂!");
+                    alert("오답입니다. 다시 생각해보세요!");
                 }
             }
         };
@@ -1210,11 +1210,11 @@ function startScreen4() {
     }
 }
 
-// 4?④퀎: ?곗묶???湲곗떎 (T.P.O 諛??섍꼍?먯닔)
+// 4단계: 런칭쇼 대기실 (T.P.O 및 환경점수)
 function startScreen5() {
     document.getElementById('display-current-role-stage4').textContent = currentRole;
     
-    // 紐⑤떖 ?꾩슦湲?
+    // 모달 띄우기
     const storyModal = document.getElementById('stage4-story-modal');
     storyModal.classList.remove('hidden');
     document.getElementById('stage4-intro-text').innerHTML = PUZZLE_DATA.stage4.intro.replace(/\n/g, '<br>');
@@ -1225,27 +1225,27 @@ function startScreen5() {
     
     const puzzleData = PUZZLE_DATA.stage4.puzzles[currentRole];
     
-    if (currentRole === '遺??) {
+    if (currentRole === '부장') {
         document.getElementById('stage4-employee-panel').classList.add('hidden');
         document.getElementById('stage4-manager-panel').classList.remove('hidden');
         document.getElementById('reasoning-textarea').classList.add('hidden');
         
-        // 遺??Step 1: TPO ?먭?
+        // 부장 Step 1: TPO 점검
         document.getElementById('stage4-manager-step1-title').textContent = puzzleData.step1.title;
         document.getElementById('stage4-manager-step1-text').textContent = puzzleData.step1.text;
         
         document.getElementById('btn-stage4-manager-step1').onclick = () => {
             const val = document.getElementById('stage4-manager-step1-input').value.replace(/\s+/g, '');
             if (val === puzzleData.step1.answer) {
-                alert('?뺣떟?낅땲?? ?댁젣 ??먮뱾???щ┛ ?⑥꽌瑜?紐⑥븘 5R ?쒖꽌瑜?留욎텛怨?理쒖쥌 ?섍꼍 ?먯닔瑜??낅젰?섏꽭??');
+                alert('정답입니다! 이제 팀원들이 올린 단서를 모아 5R 순서를 맞추고 최종 환경 점수를 입력하세요.');
                 document.getElementById('stage4-manager-step1').classList.add('hidden');
                 document.getElementById('stage4-5r-puzzle').classList.remove('hidden');
             } else {
-                alert('?ㅻ떟?낅땲?? ?ㅼ떆 ?앷컖?대낫?몄슂.');
+                alert('오답입니다. 다시 생각해보세요.');
             }
         };
 
-        // 5R ?쒕옒洹????쒕∼ 濡쒖쭅
+        // 5R 드래그 앤 드롭 로직
         const draggables = document.querySelectorAll('.item-5r');
         const slots = document.querySelectorAll('.slot-5r');
         let selected5R = Array(5).fill(null);
@@ -1261,7 +1261,7 @@ function startScreen5() {
         });
         
         // ------------------------------------
-        // --- 罹붾쾭???ㅼ?移섎턿 濡쒖쭅 ---
+        // --- 캔버스 스케치북 로직 ---
         const canvas = document.getElementById('design-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -1283,7 +1283,7 @@ function startScreen5() {
 
             function draw(e) {
                 if (!isDrawing) return;
-                e.preventDefault(); // ?ㅽ겕濡?諛⑹?
+                e.preventDefault(); // 스크롤 방지
                 const rect = canvas.getBoundingClientRect();
                 const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
                 const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
@@ -1311,7 +1311,7 @@ function startScreen5() {
 
             let currentTool = 'pen'; // 'pen', 'pencil', 'brush', 'eraser'
             
-            // ?됱긽 踰꾪듉 ?대깽??
+            // 색상 버튼 이벤트
             document.querySelectorAll('.color-btn').forEach(btn => {
                 btn.onclick = () => {
                     document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
@@ -1320,19 +1320,19 @@ function startScreen5() {
                 };
             });
             
-            // ?꾧뎄 踰꾪듉 怨듯넻 泥섎━ ?⑥닔
+            // 도구 버튼 공통 처리 함수
             const setToolActive = (activeId) => {
                 document.querySelectorAll('.btn-tool').forEach(b => b.style.borderColor = 'transparent');
                 document.getElementById(activeId).style.borderColor = 'white';
             };
 
-            // ?꾧뎄 踰꾪듉 ?대깽??
+            // 도구 버튼 이벤트
             document.getElementById('btn-tool-pen').onclick = () => {
                 currentTool = 'pen';
                 setToolActive('btn-tool-pen');
                 ctx.lineWidth = 5;
                 ctx.globalAlpha = 1.0;
-                // ?꾩옱 ?좏깮???됱긽 ?좎?
+                // 현재 선택된 색상 유지
                 const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
                 if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
                 else ctx.strokeStyle = '#000000';
@@ -1371,19 +1371,19 @@ function startScreen5() {
             };
         }
         
-        // 罹붾쾭??AI 遺꾩꽍 踰꾪듉
+        // 캔버스 AI 분석 버튼
         const btnAnalyzeCanvas = document.getElementById('btn-analyze-canvas');
         if (btnAnalyzeCanvas) {
             btnAnalyzeCanvas.onclick = () => {
                 aiFeedback.classList.remove('hidden');
-                aiFeedbackText.textContent = "罹붾쾭???대?吏瑜?遺꾩꽍 以묒엯?덈떎...";
+                aiFeedbackText.textContent = "캔버스 이미지를 분석 중입니다...";
                 setTimeout(() => {
-                    aiFeedbackText.innerHTML = "<b>[Claude Vision API 遺꾩꽍 寃곌낵]</b><br>?섎쪟??吏덇컧?????쒗쁽?섏뿀?쇰ŉ, ?좎쓽 ?먮쫫??紐⑤뜽??泥댄삎??蹂댁셿?????덈룄濡??ㅼ?移섎릺?덉뒿?덈떎. 5R 以?'?ъ궗?? ?붿냼瑜??곸슜?섍린 醫뗭? ?붿옄???뺥깭?낅땲??";
+                    aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
                 }, 2500);
             };
         }
         
-        // ?뚯씪 ?낅줈????AI 遺꾩꽍 ?몄텧 ?꾩떆 濡쒖쭅
+        // 파일 업로드 시 AI 분석 호출 임시 로직
         const fileUpload = document.getElementById('design-upload');
         const aiFeedback = document.getElementById('ai-feedback-panel');
         const aiFeedbackText = document.getElementById('ai-feedback-text');
@@ -1392,10 +1392,10 @@ function startScreen5() {
             fileUpload.addEventListener('change', () => {
                 if(fileUpload.files && fileUpload.files[0]) {
                     aiFeedback.classList.remove('hidden');
-                    aiFeedbackText.textContent = "?대?吏瑜?遺꾩꽍 以묒엯?덈떎...";
-                    // ?꾩떆 遺꾩꽍 吏???쒓컙
+                    aiFeedbackText.textContent = "이미지를 분석 중입니다...";
+                    // 임시 분석 지연 시간
                     setTimeout(() => {
-                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 遺꾩꽍 寃곌낵]</b><br>?섎쪟??吏덇컧?????쒗쁽?섏뿀?쇰ŉ, ?좎쓽 ?먮쫫??紐⑤뜽??泥댄삎??蹂댁셿?????덈룄濡??ㅼ?移섎릺?덉뒿?덈떎. 5R 以?'?ъ궗?? ?붿냼瑜??곸슜?섍린 醫뗭? ?붿옄???뺥깭?낅땲??";
+                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
                     }, 2500);
                 }
             });
@@ -1413,21 +1413,21 @@ function startScreen5() {
             const isScoreCorrect = scoreInput.value.trim() === puzzleData.step3.answer;
             const isTeamDone = teamCorrectCount === 3;
             
-            // ?쇱옄 ?뚯뒪?명븯湲??쎈룄濡?isTeamDone 議곌굔 ?꾩떆 ?댁젣
+            // 혼자 테스트하기 쉽도록 isTeamDone 조건 임시 해제
             if (is5RCorrect && isScoreCorrect) {
                 btnLaunch.disabled = false;
                 btnLaunch.style.background = 'linear-gradient(45deg, #FFD700, #FFA500)';
                 btnLaunch.style.color = '#000';
                 btnLaunch.style.cursor = 'pointer';
                 btnLaunch.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.8)';
-                btnLaunch.textContent = "?뙚 ?곗묶??媛???뙚";
+                btnLaunch.textContent = "🌟 런칭쇼 가동 🌟";
             } else {
                 btnLaunch.disabled = true;
                 btnLaunch.style.background = '#555';
                 btnLaunch.style.color = '#888';
                 btnLaunch.style.cursor = 'not-allowed';
                 btnLaunch.style.boxShadow = 'none';
-                btnLaunch.textContent = "議곌굔 ?ъ꽦 ???곗묶??媛??";
+                btnLaunch.textContent = "조건 달성 시 런칭쇼 가동!";
             }
         }
 
@@ -1448,7 +1448,7 @@ function startScreen5() {
         
         scoreInput.addEventListener('input', checkManagerStage4Complete);
         
-        // ??먮뱾???뺣떟 ?꾪솴 ?ㅼ떆媛?媛먯떆
+        // 팀원들의 정답 현황 실시간 감시
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             let correctCount = 0;
             
@@ -1456,37 +1456,37 @@ function startScreen5() {
                 const r = docSnap.id;
                 const d = docSnap.data();
                 
-                if (['?명꽩', '?ъ썝', '李⑥옣'].includes(r)) {
+                if (['인턴', '사원', '차장'].includes(r)) {
                     const statusEl = document.getElementById(`status-stage4-${r}`);
                     if (statusEl) {
                         if (d.stage4Confirmed) {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = '✅';
                             correctCount++;
                         } else {
-                            statusEl.querySelector('.status-icon').textContent = '??;
+                            statusEl.querySelector('.status-icon').textContent = '❌';
                         }
                     }
                 }
             });
             
             teamCorrectCount = correctCount;
-            // 寃뚯씠吏 諛??낅뜲?댄듃 (????ъ꽦??湲곕컲)
+            // 게이지 바 업데이트 (팀원 달성도 기반)
             const simulatedScore = Math.floor((correctCount / 3) * 100);
             scoreFill.style.width = `${simulatedScore}%`;
-            scoreText.textContent = `${simulatedScore} / 100 ??;
+            scoreText.textContent = `${simulatedScore} / 100 점`;
             
             checkManagerStage4Complete();
         });
         
-        // ?곗묶 踰꾪듉 ?대┃ (3?④퀎 ?꾨즺) - ?댁젣 DB瑜??낅뜲?댄듃?섏뿬 紐⑤몢?먭쾶 ?곗묶???뚮┝
+        // 런칭 버튼 클릭 (3단계 완료) - 이제 DB를 업데이트하여 모두에게 런칭을 알림
         btnLaunch.onclick = async () => {
             try {
                 await updateDoc(doc(db, 'departments', currentDeptId), {
                     currentStage: 5
                 });
             } catch(e) {
-                console.error("?곗묶??媛???ㅽ뙣:", e);
-                alert("?쒕쾭 ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎. ?ㅼ떆 ?쒕룄?댁＜?몄슂.");
+                console.error("런칭쇼 가동 실패:", e);
+                alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
             }
         };
         
@@ -1496,10 +1496,10 @@ function startScreen5() {
                 const reason = document.getElementById('personal-reason').value;
                 const r5 = document.getElementById('personal-5r').value;
                 if (!reason || !r5) {
-                    alert('?꾩닔 ?좏깮 ?붿냼(5R)? ?댁쑀瑜??곸뼱二쇱꽭??');
+                    alert('필수 선택 요소(5R)와 이유를 적어주세요.');
                     return;
                 }
-                alert('媛쒖씤 ?붿옄???쒖텧???꾨즺?섏뿀?듬땲?? ?쒕룞 ?뚭컧 ?섏씠吏濡??섏뼱媛묐땲??');
+                alert('개인 디자인 제출이 완료되었습니다! 활동 소감 페이지로 넘어갑니다.');
                 document.getElementById('screen-6').classList.add('hidden');
                 document.getElementById('screen-7').classList.remove('hidden');
             };
@@ -1511,17 +1511,17 @@ function startScreen5() {
                 const q1 = document.getElementById('reflection-q1').value;
                 const q2 = document.getElementById('reflection-q2').value;
                 if (!q1 || !q2) {
-                    alert('紐⑤뱺 吏덈Ц???듯빐二쇱꽭??');
+                    alert('모든 질문에 답해주세요.');
                     return;
                 }
-                alert('?뚯쨷???뚭컧 媛먯궗?⑸땲?? 紐⑤뱺 ?쒕룞??醫낅즺?섏뿀?듬땲??');
+                alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
                 document.getElementById('screen-7').classList.add('hidden');
                 
-                // ?먰븘濡쒓렇 紐⑤떖 ?쒖떆
+                // 에필로그 모달 표시
                 const epilogueModal = document.getElementById('epilogue-modal');
                 if (epilogueModal) epilogueModal.classList.remove('hidden');
                 
-                // ?먰븘濡쒓렇 ?リ퀬 ?꾨챸???붾㈃?쇰줈
+                // 에필로그 닫고 임명장 화면으로
                 const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
                 if (btnCloseEpilogue) {
                     btnCloseEpilogue.onclick = () => {
@@ -1529,8 +1529,8 @@ function startScreen5() {
                         const endingScreen = document.getElementById('screen-ending');
                         if (endingScreen) endingScreen.classList.remove('hidden');
                         
-                        // 遺?쒕챸 ?ㅼ젙
-                        let deptName = '?곕━ 遺??;
+                        // 부서명 설정
+                        let deptName = '우리 부서';
                         if (PUZZLE_DATA.departments) {
                             const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
                             if (found) deptName = found.name;
@@ -1546,7 +1546,7 @@ function startScreen5() {
         // ------------------------------------
         
     } else {
-        // ?명꽩, ?ъ썝, 李⑥옣
+        // 인턴, 사원, 차장
         document.getElementById('stage4-employee-panel').classList.remove('hidden');
         document.getElementById('stage4-manager-panel').classList.add('hidden');
         
@@ -1554,7 +1554,7 @@ function startScreen5() {
         optionsContainer.innerHTML = `
             <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
             <p id="stage4-puzzle-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
-            <input type="text" id="stage4-employee-input" placeholder="?뺣떟 ?낅젰" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
+            <input type="text" id="stage4-employee-input" placeholder="정답 입력" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
         `;
         
         const input = document.getElementById('stage4-employee-input');
@@ -1578,15 +1578,15 @@ function startScreen5() {
                 
                 stepIdx++;
                 if (stepIdx < stepsSequence.length) {
-                    alert('?뺣떟?낅땲?? ?ㅼ쓬 誘몄뀡?쇰줈 ?섏뼱媛묐땲??');
+                    alert('정답입니다! 다음 미션으로 넘어갑니다.');
                     currentStep = stepsSequence[stepIdx];
                     titleEl.textContent = puzzleData[currentStep].title;
                     textEl.textContent = puzzleData[currentStep].text;
                     input.value = '';
                 } else {
-                    alert(`紐⑤뱺 湲고쉷??寃?좉? ?꾨즺?섏뿀?듬땲?? 遺?λ떂 ?꾪솴?먯뿉 諛섏쁺?섏뿀?듬땲??`);
+                    alert(`모든 기획안 검토가 완료되었습니다! 부장님 현황판에 반영되었습니다.`);
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "湲고쉷???뺤젙 ?꾨즺";
+                    btnSubmit.textContent = "기획안 확정 완료";
                     input.disabled = true;
                     
                     try {
@@ -1598,13 +1598,13 @@ function startScreen5() {
                     }
                 }
             } else {
-                feedback.textContent = "?섎せ???뺣떟?낅땲?? ?ㅼ떆 ?앷컖?대낫?몄슂.";
+                feedback.textContent = "잘못된 정답입니다! 다시 생각해보세요.";
                 feedback.classList.remove('hidden');
             }
         };
     }
     
-    // 遺??諛????紐⑤몢?먭쾶 ?곸슜?섎뒗 ?꾩뿭 由ъ뒪??(Stage 5 / QR ?ㅼ틪 ?④퀎 吏꾩엯)
+    // 부장 및 팀원 모두에게 적용되는 전역 리스너 (Stage 5 / QR 스캔 단계 진입)
     onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
         const d = docSnap.data();
         if (d && d.currentStage === 5) {
@@ -1615,17 +1615,17 @@ function startScreen5() {
             const waitingMsg = document.getElementById('stage3-waiting-msg');
 
             if (successModal && successModal.classList.contains('hidden')) {
-                // pwDisplay 愿??濡쒖쭅? ?쒓굅??
+                // pwDisplay 관련 로직은 제거됨
                 if (guideText) {
-                    guideText.innerHTML = "?댁젣 ??먮뱾怨??④퍡 援먯떎 ?대뵖媛???④꺼???덈뒗 <strong>議곌컖 ?먮떒</strong>??李얠븘蹂댁꽭??<br>?먮떒??李얠? ?? <strong>??븷???곴??놁씠 ????꾧뎄????쒕줈</strong> ?먮떒??遺숈뼱 ?덈뒗 QR 肄붾뱶瑜??대???移대찓?쇰줈 ?ㅼ틪?섏꽭??";
+                    guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
                 }
                 
-                closeBtn.classList.remove('hidden'); // ?꾧뎄???ㅼ틪 李쎌쓣 ?????덉쓬
+                closeBtn.classList.remove('hidden'); // 누구나 스캔 창을 열 수 있음
                 if(waitingMsg) waitingMsg.classList.add('hidden');
                 
                 successModal.classList.remove('hidden');
 
-                // ?꾧뎔媛 QR??李띿뼱 議곌컖???띾뱷?섎㈃ 紐⑤몢媛 6?④퀎濡??섏뼱媛?
+                // 누군가 QR을 찍어 조각을 획득하면 모두가 6단계로 넘어감
                 const unsub = onSnapshot(doc(db, 'pieces', currentDeptId), (pieceSnap) => {
                     if (pieceSnap.exists() && pieceSnap.data().unlocked) {
                         unsub();
@@ -1634,7 +1634,7 @@ function startScreen5() {
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                         document.getElementById('screen-6').classList.remove('hidden');
                         document.getElementById('display-current-role-stage6').textContent = currentRole;
-                        alert('?럦 ??먯씠 議곌컖???깃났?곸쑝濡?李얠븯?듬땲?? ?ㅼ쓬 誘몄뀡?쇰줈 ?섏뼱媛묐땲??');
+                        alert('🎉 팀원이 조각을 성공적으로 찾았습니다! 다음 미션으로 넘어갑니다.');
                     }
                 });
             }
@@ -1648,12 +1648,12 @@ function startScreen5() {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '?곕━ 遺??;
+            document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
         };
     }
 }
 
-// ??＝ (Confetti) ?좊땲硫붿씠???⑥닔
+// 폭죽 (Confetti) 애니메이션 함수
 function triggerConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
@@ -1705,7 +1705,7 @@ function triggerConfetti() {
     draw();
 }
 
-// ?ㅼ쿇??異붾줎 紐⑤떖 濡쒖쭅
+// 실천적 추론 모달 로직
 function showReasoningModal(stageData, targetStageNum) {
     const rData = stageData.reasoning;
     if (!rData) return;
@@ -1741,7 +1741,7 @@ function showReasoningModal(stageData, targetStageNum) {
         if (rData.teamKeywords) {
             Object.values(rData.teamKeywords).forEach(list => allKeywords.push(...list));
         } else if (rData.answers) {
-            allKeywords = rData.answers.concat(['?섎せ??, '?⑥뼱', '異붽?']);
+            allKeywords = rData.answers.concat(['잘못된', '단어', '추가']);
         }
         allKeywords = [...new Set(allKeywords)].sort(() => Math.random() - 0.5);
         
@@ -1791,21 +1791,21 @@ function showReasoningModal(stageData, targetStageNum) {
             }
         });
     } else {
-        // ?ㅼ썙???먮Ъ?좉? ?녿뒗 寃쎌슦 (?⑥닚 ?좊줎)
+        // 키워드 자물쇠가 없는 경우 (단순 토론)
         keywordsContainer.parentElement.style.display = 'none';
         sentenceContainer.innerHTML = `
-            <p style="color: var(--accent-gold); text-align: center; margin-bottom: 1rem;">??먮뱾怨?異⑸텇???좊줎??吏꾪뻾???? 遺?λ떂??<b>[?⑹쓽 ?꾨즺]</b> 踰꾪듉???뚮윭二쇱꽭??</p>
-            <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="???理쒖쥌 ?⑹쓽 ?댁슜???닿납???먯쑀濡?쾶 ?뺣━?섏꽭??.."></textarea>
+            <p style="color: var(--accent-gold); text-align: center; margin-bottom: 1rem;">팀원들과 충분히 토론을 진행한 후, 부장님이 <b>[합의 완료]</b> 버튼을 눌러주세요.</p>
+            <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="팀의 최종 합의 내용을 이곳에 자유롭게 정리하세요..."></textarea>
         `;
     }
     
     const btnSubmit = document.getElementById('btn-submit-reasoning');
     btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
-    btnSubmit.textContent = rData.keywordLock ? '?먮Ъ???湲? : '?⑹쓽 ?꾨즺';
+    btnSubmit.textContent = rData.keywordLock ? '자물쇠 풀기' : '합의 완료';
     btnSubmit.onclick = async () => {
-        if (currentRole !== '遺??) {
-            alert('理쒖쥌 寃곗젙 諛??쒖텧? [遺??留?媛?ν빀?덈떎. 遺?쒖썝?ㅺ낵 ?곸쓽?섏뿬 遺?λ떂??寃곗젙???대젮二쇱꽭??');
+        if (currentRole !== '부장') {
+            alert('최종 결정 및 제출은 [부장]만 가능합니다. 부서원들과 상의하여 부장님이 결정을 내려주세요!');
             return;
         }
         
@@ -1822,7 +1822,7 @@ function showReasoningModal(stageData, targetStageNum) {
         }
         
         if (isCorrect) {
-            // ?붿빟 ?띿뒪?멸? ?덉쑝硫?DB?????
+            // 요약 텍스트가 있으면 DB에 저장
             const summaryEl = document.getElementById('reasoning-summary');
             if (summaryEl && summaryEl.value.trim() !== '') {
                 try {
@@ -1830,10 +1830,10 @@ function showReasoningModal(stageData, targetStageNum) {
                         roleGroup: currentRole,
                         summary: summaryEl.value.trim()
                     }, { merge: true });
-                } catch(e) { console.error("?붿빟 ????ㅽ뙣:", e); }
+                } catch(e) { console.error("요약 저장 실패:", e); }
             }
 
-            alert('?럦 ?⑹쓽 諛??ㅼ쿇??異붾줎???꾨즺?섏뿀?듬땲?? ?ㅼ쓬 ?④퀎濡??대룞?⑸땲??');
+            alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
             modal.classList.add('hidden');
             
             try {
@@ -1843,27 +1843,27 @@ function showReasoningModal(stageData, targetStageNum) {
                     showStage3Reasoning: false
                 });
             } catch(e) {
-                console.error("DB ?낅뜲?댄듃 ?ㅽ뙣:", e);
-                alert('?쒕쾭? ?곌껐??臾몄젣媛 ?덉뒿?덈떎. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.');
+                console.error("DB 업데이트 실패:", e);
+                alert('서버와 연결에 문제가 있습니다. 잠시 후 다시 시도해주세요.');
             }
         } else {
-            alert('??몄뒿?덈떎! 臾몃㎘???ㅼ떆 ?뚯븙?섏뿬 ?щ컮瑜??ㅼ썙?쒕? 梨꾩썙蹂댁꽭??');
+            alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
         }
     };
 }
 
-// 珥덇린???⑥닔
+// 초기화 함수
 async function initApp() {
     renderDeptGrid();
     
-    // QR ?ㅼ틪?쇰줈 吏꾩엯?덈뒗吏 ?뺤씤 (?qr=true)
+    // QR 스캔으로 진입했는지 확인 (?qr=true)
     const urlParams = new URLSearchParams(window.location.search);
     const isQrScan = urlParams.get('qr') === 'true';
 
-    // ?몄뀡???⑥븘?덈떎硫??대떦 ?④퀎濡?諛붾줈 蹂듦뎄
+    // 세션이 남아있다면 해당 단계로 바로 복구
     if (currentDeptId && currentRole) {
         try {
-            // 遺?쒖쓽 currentStage 蹂寃쎌쓣 ?ㅼ떆媛꾩쑝濡?媛먯??섏뿬 ?붾㈃ ?먮룞 ?꾪솚
+            // 부서의 currentStage 변경을 실시간으로 감지하여 화면 자동 전환
             onSnapshot(doc(db, 'departments', currentDeptId), (snap) => {
                 if (snap.exists()) {
                     const stage = snap.data().currentStage || 0;
@@ -1872,16 +1872,16 @@ async function initApp() {
                     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                     
-                    // QR ?ㅼ틪 吏꾩엯??寃쎌슦 諛붾줈 QR ?붾㈃?쇰줈 ?대룞 (遺?λ쭔 ?덉슜)
+                    // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
                     if (isQrScan) {
-                        if (currentRole !== '遺??) {
-                            alert('QR ?ㅼ틪怨??뷀샇 ?낅젰? 遺?λ떂留??????덉뒿?덈떎!\n遺?λ떂???대??곗쑝濡??ㅼ틪?댁＜?몄슂.');
-                            // ?ㅽ뵆?섏떆???湲??붾㈃?쇰줈 ?뚮젮蹂대깂 (?곗꽑 0?④퀎 ?붾㈃ ?꾩?)
+                        if (currentRole !== '부장') {
+                            alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
+                            // 스플래시나 대기 화면으로 돌려보냄 (우선 0단계 화면 띄움)
                             document.getElementById('screen-0').classList.remove('hidden');
                             return;
                         }
                         document.getElementById('screen-qr').classList.remove('hidden');
-                        document.getElementById('qr-dept-name').textContent = currentDeptName || '?곕━ 遺??;
+                        document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
                         return;
                     }
 
@@ -1920,7 +1920,7 @@ async function initApp() {
                         }
                     }
                 } else {
-                    // ?뚯씠?대쿋?댁뒪??遺??臾몄꽌媛 ?놁쑝硫?珥덇린?붾맂 寃쎌슦) ?몄뀡 ?좊┝
+                    // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
                     clearSessionState();
                     currentDeptId = null;
                     currentRole = null;
@@ -1937,20 +1937,20 @@ async function initApp() {
 
 // Removed dev test buttons logic to ensure clean production feel
 
-// ?꾩껜 ?붾㈃ 紐⑥븘蹂닿린 (God Mode)
+// 전체 화면 모아보기 (God Mode)
 const devGodModeBtn = document.getElementById('dev-god-mode');
 if (devGodModeBtn) {
     let godMode = false;
     devGodModeBtn.addEventListener('click', () => {
         godMode = !godMode;
         if (godMode) {
-            devGodModeBtn.textContent = '???먮옒?濡?蹂듦뎄?섍린 (?덈줈怨좎묠)';
+            devGodModeBtn.textContent = '❌ 원래대로 복구하기 (새로고침)';
             devGodModeBtn.style.background = '#ff0055';
             
-            // ?ㅻ뜑 ?쒖떆
+            // 헤더 표시
             document.getElementById('main-header').classList.remove('hidden');
             
-            // 紐⑤뱺 ?ㅽ겕由??쒖떆 (?ㅽ뵆?섏떆, 遺???좏깮 ?쒖쇅)
+            // 모든 스크린 표시 (스플래시, 부서 선택 제외)
             document.getElementById('screen-splash').classList.add('hidden');
             document.getElementById('dept-selection').classList.add('hidden');
             
@@ -1963,7 +1963,7 @@ if (devGodModeBtn) {
                 }
             });
             
-            // 紐⑤뱺 遺??????⑤꼸, 紐⑤떖 ???④? ?댁젣
+            // 모든 부장/팀원 패널, 모달 등 숨김 해제
             const hideables = [
                 'manager-montage-panel', 'manager-submit-panel',
                 'stage2-employee-panel', 'stage2-manager-panel',
@@ -1976,7 +1976,7 @@ if (devGodModeBtn) {
                 if (el) el.classList.remove('hidden');
             });
             
-            // ?ㅽ넗由?紐⑤떖李쎈뱾???몃씪?몄쑝濡??쒖떆
+            // 스토리 모달창들을 인라인으로 표시
             document.querySelectorAll('.modal').forEach(m => {
                 m.classList.remove('hidden');
                 m.style.position = 'relative';
@@ -1994,7 +1994,7 @@ if (devGodModeBtn) {
     });
 }
 
-// --- QR 議곌컖 李얘린 ?붾㈃ 濡쒖쭅 ---
+// --- QR 조각 찾기 화면 로직 ---
 const btnSubmitQr = document.getElementById('btn-submit-qr');
 const qrPasswordInput = document.getElementById('qr-password-input');
 const qrErrorMsg = document.getElementById('qr-error-msg');
@@ -2007,14 +2007,14 @@ if (btnSubmitQr) {
         const inputPw = qrPasswordInput.value.trim();
         const correctPw = PUZZLE_DATA.qrMessages[currentDeptId];
         
-        // ?낅젰媛믨낵 ?뺣떟?먯꽌 ?꾩뼱?곌린瑜?紐⑤몢 ?쒓굅?섏뿬 鍮꾧탳 (愿??섍쾶)
+        // 입력값과 정답에서 띄어쓰기를 모두 제거하여 비교 (관대하게)
         if (inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
             qrErrorMsg.classList.add('hidden');
             btnSubmitQr.classList.add('hidden');
             qrPasswordInput.disabled = true;
             qrSuccessPanel.classList.remove('hidden');
             
-            // pieces 而щ젆???낅뜲?댄듃
+            // pieces 컬렉션 업데이트
             try {
                 await setDoc(doc(db, 'pieces', currentDeptId), { 
                     unlocked: true, 
@@ -2040,7 +2040,7 @@ if (btnGoToPersonal) {
     });
 }
 
-// --- ??쒕낫??濡쒖쭅 ---
+// --- 대시보드 로직 ---
 const btnOpenDashboard = document.getElementById('btn-open-dashboard');
 const btnCloseDashboard = document.getElementById('btn-close-dashboard');
 const screenDashboard = document.getElementById('screen-dashboard');
@@ -2065,7 +2065,7 @@ function openDashboard() {
     screenDashboard.classList.remove('hidden');
     renderDashboardSlots();
     
-    // Firestore pieces 而щ젆???ㅼ떆媛?援щ룆
+    // Firestore pieces 컬렉션 실시간 구독
     dashboardUnsubscribe = onSnapshot(collection(db, 'pieces'), (snapshot) => {
         let unlockedCount = 0;
         const totalDepts = JSON.parse(localStorage.getItem('rebrand_departments') || '[]').length;
@@ -2081,15 +2081,15 @@ function openDashboard() {
             }
         });
         
-        // 紐⑤몢 ?댁젣?섏뿀?????곗텧
+        // 모두 해제되었을 때 연출
         if (unlockedCount >= totalDepts && totalDepts > 0) {
             setTimeout(() => {
                 fabricPuzzleContainer.classList.add('scale-up-anim');
                 const finalMsg = document.getElementById('dashboard-final-message');
                 finalMsg.classList.remove('hidden');
                 
-                // ?꾩떆濡??섎뱶肄붾뵫??硫붿떆吏 (寃뚯씠吏 ?곕룞 ??
-                document.getElementById('dashboard-final-text').innerHTML = "怨좊쭏?뚯슂, ?щ윭遺? ?щ윭遺꾩씠 吏耳쒕궦 留뚰겮? 遺꾨챸???щ씪議뚯뼱?? ?ㅼ쓬?먮뒗 議곌툑 ?? 吏?띻??ν븳 ?좏깮 履쎌쑝濡???몄씠 湲곗슱硫?醫뗪쿋?댁슂.";
+                // 임시로 하드코딩된 메시지 (게이지 연동 전)
+                document.getElementById('dashboard-final-text').innerHTML = "고마워요, 여러분. 여러분이 지켜낸 만큼은 분명히 달라졌어요. 다음에는 조금 더, 지속가능한 선택 쪽으로 저울이 기울면 좋겠어요.";
             }, 1000);
         }
     });
@@ -2105,8 +2105,8 @@ if (btnCloseDashboard) btnCloseDashboard.addEventListener('click', () => {
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
     if (currentDeptId) {
-        // ?먮옒 ?덈뜕 ?붾㈃?쇰줈 ?뚯븘媛湲?(??쒕낫?쒕뒗 愿由ъ옄??QR ?꾨즺 ?붾㈃?먯꽌留??ㅼ뼱??
-        // ?ш린???ㅽ뵆?섏떆??QR ?붾㈃?쇰줈 蹂대궡踰꾨┝
+        // 원래 있던 화면으로 돌아가기 (대시보드는 관리자나 QR 완료 화면에서만 들어옴)
+        // 여기선 스플래시나 QR 화면으로 보내버림
         if (qrSuccessPanel && !qrSuccessPanel.classList.contains('hidden')) {
             document.getElementById('screen-qr').classList.remove('hidden');
         } else {
@@ -2122,7 +2122,7 @@ initApp();
 const btnFloatingReset = document.getElementById('btn-secret-reset');
 if (btnFloatingReset) {
     btnFloatingReset.addEventListener('click', () => {
-        if (confirm('紐⑤뱺 湲곌린???몄뀡??珥덇린?뷀븯怨?泥섏쓬 ?붾㈃?쇰줈 ?뚯븘媛?쒓쿋?듬땲源?')) {
+        if (confirm('모든 기기의 세션을 초기화하고 처음 화면으로 돌아가시겠습니까?')) {
             sessionStorage.clear();
             location.href = location.pathname;
         }
