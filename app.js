@@ -1039,9 +1039,9 @@ function startScreen3() {
                     btn.disabled = false;
                     btn.style.backgroundColor = '#cc0000';
                     btn.style.color = 'white';
-                    btn.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                    btn.textContent = '통신 장애 (긴급 직권 승인)';
                     btn.onclick = () => {
-                        if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(3단계)를 강행하시겠습니까?')) {
+                        if (confirm('서버 통신 지연으로 화면이 넘어가지 않고 있습니다. 관리자 직권으로 즉시 다음 단계(3단계)를 승인하고 진행하시겠습니까?')) {
                             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                             document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                             const s4 = document.getElementById('screen-4');
@@ -1269,9 +1269,9 @@ function startScreen4() {
                     btnSubmit.disabled = false;
                     btnSubmit.style.backgroundColor = '#cc0000';
                     btnSubmit.style.color = 'white';
-                    btnSubmit.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                    btnSubmit.textContent = '통신 장애 (긴급 직권 승인)';
                     btnSubmit.onclick = () => {
-                        if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 실천적 추론(팝업)을 강행하시겠습니까?')) {
+                        if (confirm('서버 통신 지연으로 화면이 넘어가지 않고 있습니다. 관리자 직권으로 즉시 실천적 추론(팝업)을 승인하고 진행하시겠습니까?')) {
                             showReasoningModal(PUZZLE_DATA.stage3, 4);
                         }
                     };
@@ -1410,16 +1410,24 @@ function startScreen5() {
             function startDrawing(e) {
                 isDrawing = true;
                 const rect = canvas.getBoundingClientRect();
-                lastX = (e.clientX || e.touches[0].clientX) - rect.left;
-                lastY = (e.clientY || e.touches[0].clientY) - rect.top;
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                lastX = (clientX - rect.left) * scaleX;
+                lastY = (clientY - rect.top) * scaleY;
             }
 
             function draw(e) {
                 if (!isDrawing) return;
                 e.preventDefault(); // 스크롤 방지
                 const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-                const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                const x = (clientX - rect.left) * scaleX;
+                const y = (clientY - rect.top) * scaleY;
 
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
@@ -1624,9 +1632,9 @@ function startScreen5() {
                 btnLaunch.disabled = false;
                 btnLaunch.style.backgroundColor = '#cc0000';
                 btnLaunch.style.color = 'white';
-                btnLaunch.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                btnLaunch.textContent = '통신 장애 (긴급 런칭 가동)';
                 btnLaunch.onclick = () => {
-                    if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(QR 스캔)를 강행하시겠습니까?')) {
+                    if (confirm('서버 통신 지연으로 화면이 넘어가지 않고 있습니다. 관리자 직권으로 즉시 런칭쇼(QR 스캔) 가동을 진행하시겠습니까?')) {
                         const successModal = document.getElementById('stage3-success-modal');
                         const guideText = document.getElementById('stage3-guide-text');
                         const closeBtn = document.getElementById('btn-close-stage3-success');
@@ -2022,9 +2030,9 @@ function showReasoningModal(stageData, targetStageNum) {
                 btnSubmit.disabled = false;
                 btnSubmit.style.backgroundColor = '#cc0000';
                 btnSubmit.style.color = 'white';
-                btnSubmit.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                btnSubmit.textContent = '통신 장애 (긴급 직권 승인)';
                 btnSubmit.onclick = () => {
-                    if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무를 강행하시겠습니까?')) {
+                    if (confirm('서버 통신 지연으로 화면이 넘어가지 않고 있습니다. 관리자 직권으로 즉시 다음 단계를 승인하고 진행하시겠습니까?')) {
                         alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
                         modal.classList.add('hidden');
                         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -2034,9 +2042,9 @@ function showReasoningModal(stageData, targetStageNum) {
                             if (s) s.classList.remove('hidden');
                             try { startScreen2(); } catch(err) {}
                         } else if (targetStageNum === 4) {
-                            const s = document.getElementById('screen-4');
+                            const s = document.getElementById('screen-5');
                             if (s) s.classList.remove('hidden');
-                            try { startScreen4(); } catch(err) {}
+                            try { startScreen5(); } catch(err) {}
                         }
                     }
                 };
