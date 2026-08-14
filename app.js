@@ -1,4 +1,4 @@
-import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
+import { db, collection, doc, setDoc, getDoc, getDocFromServer, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js?v=5.0';
 
 sessionStorage.clear();
@@ -2032,10 +2032,10 @@ async function initApp() {
                 }
             });
             
-            // 방화벽 대비 3초 간격 폴링
+            // 방화벽 대비 3초 간격 폴링 (오프라인 캐시 무시하고 강제로 서버에서 가져옴)
             setInterval(async () => {
                 try {
-                    const snap = await getDoc(doc(db, 'departments', currentDeptId));
+                    const snap = await getDocFromServer(doc(db, 'departments', currentDeptId));
                     if (snap.exists()) {
                         handleStageUpdate(snap.data());
                     }
