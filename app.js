@@ -869,28 +869,19 @@ function startScreen2(deptData) {
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
                 btnSubmitStage1.disabled = true;
-                btnSubmitStage1.textContent = '최종 승인 완료 (2단계 이동 중...)';
+                btnSubmitStage1.textContent = '토론 준비 중...';
                 
                 try {
-                    // 서버 응답 대기로 인한 UI 멈춤 현상 방지를 위해 await 제거
-                    updateDoc(doc(db, 'departments', currentDeptId), {
-                        currentStage: 2,
-                        showStage1Reasoning: false
-                    }).catch(e => console.error("Stage 1 DB 업데이트 지연/실패:", e));
-                    
-                    alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n2단계로 이동합니다!');
-                    
-                    // 로컬에서 강제로 화면 전환
-                    const s3 = document.getElementById('screen-3');
-                    if (s3) {
-                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                        s3.classList.remove('hidden');
-                        try { startScreen3(); } catch(err) {}
-                    }
+                    await updateDoc(doc(db, 'departments', currentDeptId), {
+                        showStage1Reasoning: true
+                    });
+                    alert("🎉 완벽합니다! 팀원들의 의견을 종합하여 친환경 의류 도안과 원단을 찾았습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
+                    showReasoningModal(PUZZLE_DATA.stage1, 2);
                 } catch(e) {
-                    console.error(e);
+                    console.error("Stage 1 DB 업데이트 실패:", e);
                     alert('오류 발생: ' + e.message);
+                    btnSubmitStage1.disabled = false;
+                    btnSubmitStage1.textContent = '최종 승인 완료 (결재하기)';
                 }
                 
             } else {
@@ -994,16 +985,21 @@ function startScreen3() {
             if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
-                // Firestore를 먼저 업데이트하여 다른 팀원들의 화면이 넘어가게 함
+                const btnSubmitStage2 = document.getElementById('btn-submit-stage2');
+                btnSubmitStage2.disabled = true;
+                btnSubmitStage2.textContent = '가동 중...';
+                
                 try {
-                    await updateDoc(doc(db, 'departments', currentDeptId), {
+                    await setDoc(doc(db, 'departments', currentDeptId), {
                         currentStage: 3
-                    });
+                    }, { merge: true });
                     
                     alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이동합니다.)");
                 } catch(e) {
-                    console.error(e);
+                    console.error("Stage 2 DB 업데이트 실패:", e);
                     alert("오류: " + e.message);
+                    btnSubmitStage2.disabled = false;
+                    btnSubmitStage2.textContent = '최종 생산 공장 제어판 작동 (부장 전용)';
                 }
             } else {
                 document.getElementById('manager-error-msg-stage2').classList.remove('hidden');
@@ -1886,31 +1882,22 @@ function showReasoningModal(stageData, targetStageNum) {
                 } catch(e) { console.error("요약 저장 실패:", e); }
             }
 
-            alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
-            modal.classList.add('hidden');
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = '제출 중...';
             
             try {
-                // UI 전환을 멈추지 않도록 비동기 처리
-                updateDoc(doc(db, 'departments', currentDeptId), {
+                await updateDoc(doc(db, 'departments', currentDeptId), {
                     currentStage: targetStageNum,
                     showStage1Reasoning: false,
                     showStage3Reasoning: false
-                }).then(() => {
-                    console.log('DB Updated successfully to stage', targetStageNum);
-                }).catch(e => {
-                    console.error("DB 업데이트 실패:", e);
                 });
-                
-                // 로컬에서 강제로 화면 전환 (DB 업데이트 지연 시 대비)
-                const s3 = document.getElementById('screen-3');
-                if (s3 && targetStageNum === 2) {
-                    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                    s3.classList.remove('hidden');
-                    try { startScreen3(); } catch(err) {}
-                }
+                alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
+                modal.classList.add('hidden');
             } catch(e) {
-                console.error("화면 전환 오류:", e);
+                console.error("DB 업데이트 실패:", e);
+                alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = rData.keywordLock ? '자물쇠 풀기' : '합의 완료';
             }
         } else {
             alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
