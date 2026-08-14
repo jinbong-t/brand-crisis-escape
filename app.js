@@ -1052,11 +1052,6 @@ function startScreen3() {
                         }
                     };
                 }, 10000);
-                    console.error("Stage 2 DB 업데이트 실패:", e);
-                    alert("오류: " + e.message);
-                    btnSubmitStage2.disabled = false;
-                    btnSubmitStage2.textContent = '최종 생산 공장 제어판 작동 (부장 전용)';
-                }
             } else {
                 document.getElementById('manager-error-msg-stage2').classList.remove('hidden');
             }
