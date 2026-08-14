@@ -1944,63 +1944,77 @@ async function initApp() {
     // 세션이 남아있다면 해당 단계로 바로 복구
     if (currentDeptId && currentRole) {
         try {
-            // 화면 전환 로직을 별도 함수로 분리
             let lastStage = -1;
+            let lastShowReasoning1 = false;
+            let lastShowReasoning3 = false;
+            
             function handleStageUpdate(d) {
                 const stage = d.currentStage || 0;
-                if (lastStage === stage) return;
-                lastStage = stage;
+                const showReasoning1 = !!d.showStage1Reasoning;
+                const showReasoning3 = !!d.showStage3Reasoning;
                 
-                deptSelection.classList.add('hidden');
-                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                
-                // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
-                if (isQrScan) {
-                    if (currentRole !== '부장') {
-                        alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
-                        document.getElementById('screen-0').classList.remove('hidden');
+                // 1. Stage가 완전히 바뀌었을 때 (화면 전면 교체)
+                if (lastStage !== stage) {
+                    lastStage = stage;
+                    lastShowReasoning1 = showReasoning1;
+                    lastShowReasoning3 = showReasoning3;
+                    
+                    deptSelection.classList.add('hidden');
+                    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                    
+                    // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
+                    if (isQrScan) {
+                        if (currentRole !== '부장') {
+                            alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
+                            document.getElementById('screen-0').classList.remove('hidden');
+                            return;
+                        }
+                        document.getElementById('screen-qr').classList.remove('hidden');
+                        document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
                         return;
                     }
-                    document.getElementById('screen-qr').classList.remove('hidden');
-                    document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
-                    return;
-                }
 
-                if (stage == 0) {
-                    screen1.classList.remove('hidden');
-                    startScreen1();
-                } else if (stage == 1) {
-                    const s2 = document.getElementById('screen-2');
-                    if (s2) {
-                        s2.classList.remove('hidden');
+                    if (stage == 0) {
+                        screen1.classList.remove('hidden');
+                        startScreen1();
+                    } else if (stage == 1) {
+                        const s2 = document.getElementById('screen-2');
+                        if (s2) s2.classList.remove('hidden');
                         startScreen2();
-                    }
-                } else if (stage == 2) {
-                    const s3 = document.getElementById('screen-3');
-                    if (s3) {
-                        s3.classList.remove('hidden');
-                        try {
-                            startScreen3();
-                        } catch (err) {
-                            console.error('startScreen3 error:', err);
-                            alert('2단계 로드 중 오류가 발생했습니다: ' + err.message);
-                        }
-                    }
-                } else if (stage == 3) {
-                    const s4 = document.getElementById('screen-4');
-                    if (s4) {
-                        s4.classList.remove('hidden');
+                        if (showReasoning1) showReasoningModal(PUZZLE_DATA.stage1, 2);
+                    } else if (stage == 2) {
+                        const s3 = document.getElementById('screen-3');
+                        if (s3) s3.classList.remove('hidden');
+                        try { startScreen3(); } catch (err) { console.error(err); }
+                    } else if (stage == 3) {
+                        const s4 = document.getElementById('screen-4');
+                        if (s4) s4.classList.remove('hidden');
                         startScreen4();
-                        if (d && d.showStage3Reasoning) {
-                            showReasoningModal(PUZZLE_DATA.stage3, 4);
+                        if (showReasoning3) showReasoningModal(PUZZLE_DATA.stage3, 4);
+                    } else if (stage === 4) {
+                        const s5 = document.getElementById('screen-5');
+                        if (s5) s5.classList.remove('hidden');
+                        startScreen5();
+                    }
+                } 
+                // 2. Stage는 같은데 팝업(Reasoning Modal) 상태만 바뀌었을 때 (화면 유지, 팝업만 띄움/닫음)
+                else {
+                    if (stage == 1 && lastShowReasoning1 !== showReasoning1) {
+                        lastShowReasoning1 = showReasoning1;
+                        if (showReasoning1) showReasoningModal(PUZZLE_DATA.stage1, 2);
+                        else {
+                            const modal = document.getElementById('stage1-reasoning-modal');
+                            if (modal) modal.classList.add('hidden');
                         }
                     }
-                } else if (stage === 4) {
-                    const s5 = document.getElementById('screen-5');
-                    if (s5) {
-                        s5.classList.remove('hidden');
-                        startScreen5();
+                    if (stage == 3 && lastShowReasoning3 !== showReasoning3) {
+                        lastShowReasoning3 = showReasoning3;
+                        if (showReasoning3) showReasoningModal(PUZZLE_DATA.stage3, 4);
+                        else {
+                            const modal = document.getElementById('stage1-reasoning-modal'); // stage3도 같은 모달 ID 사용함
+                            if (modal) modal.classList.add('hidden');
+                        }
                     }
                 }
             }
