@@ -1948,9 +1948,6 @@ async function initApp() {
                         if (s2) {
                             s2.classList.remove('hidden');
                             startScreen2();
-                            if (d && d.showStage1Reasoning) {
-                                showReasoningModal(PUZZLE_DATA.stage1, 2);
-                            }
                         }
                     } else if (stage == 2) {
                         const s3 = document.getElementById('screen-3');
