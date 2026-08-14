@@ -936,10 +936,10 @@ function startScreen2(deptData) {
                         btnConfirmAll.disabled = false;
                         btnConfirmAll.style.backgroundColor = '#cc0000';
                         btnConfirmAll.style.color = 'white';
-                        btnConfirmAll.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
+                        btnConfirmAll.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
                         
                         btnConfirmAll.onclick = () => {
-                            if (confirm('부장님의 승인이 늦어지고 있습니다. 우리끼리 먼저 2단계로 넘어갈까요?')) {
+                            if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(2단계)를 강행하시겠습니까?')) {
                                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                                 document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                                 const s3 = document.getElementById('screen-3');
@@ -1085,9 +1085,9 @@ function startScreen3() {
                     btnSubmit.disabled = false;
                     btnSubmit.style.backgroundColor = '#cc0000';
                     btnSubmit.style.color = 'white';
-                    btnSubmit.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
+                    btnSubmit.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
                     btnSubmit.onclick = () => {
-                        if (confirm('부장님의 승인이 늦어지고 있습니다. 우리끼리 먼저 3단계로 넘어갈까요?')) {
+                        if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(3단계)를 강행하시겠습니까?')) {
                             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                             document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                             const s4 = document.getElementById('screen-4');
@@ -1293,9 +1293,9 @@ function startScreen4() {
                         btnSubmit.disabled = false;
                         btnSubmit.style.backgroundColor = '#cc0000';
                         btnSubmit.style.color = 'white';
-                        btnSubmit.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
+                        btnSubmit.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
                         btnSubmit.onclick = () => {
-                            if (confirm('부장님의 승인이 늦어지고 있습니다. 우리끼리 먼저 4단계로 넘어갈까요?')) {
+                            if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(4단계)를 강행하시겠습니까?')) {
                                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                                 document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                                 const s5 = document.getElementById('screen-5');
@@ -1705,9 +1705,9 @@ function startScreen5() {
                         btnSubmit.disabled = false;
                         btnSubmit.style.backgroundColor = '#cc0000';
                         btnSubmit.style.color = 'white';
-                        btnSubmit.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
+                        btnSubmit.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
                         btnSubmit.onclick = () => {
-                            if (confirm('부장님의 확인이 늦어지고 있습니다. 우리끼리 먼저 QR 스캔 단계로 넘어갈까요?')) {
+                            if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(QR 스캔)를 강행하시겠습니까?')) {
                                 document.getElementById('stage3-success-modal').classList.remove('hidden');
                             }
                         };
