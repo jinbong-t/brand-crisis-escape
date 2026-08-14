@@ -936,10 +936,10 @@ function startScreen2(deptData) {
                         btnConfirmAll.disabled = false;
                         btnConfirmAll.style.backgroundColor = '#cc0000';
                         btnConfirmAll.style.color = 'white';
-                        btnConfirmAll.textContent = '오류로 화면이 안 넘어가면 여기를 눌러 강제 이동';
+                        btnConfirmAll.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
                         
                         btnConfirmAll.onclick = () => {
-                            if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 2단계로 넘어갈까요?')) {
+                            if (confirm('부장님의 승인이 늦어지고 있습니다. 우리끼리 먼저 2단계로 넘어갈까요?')) {
                                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                                 document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                                 const s3 = document.getElementById('screen-3');
@@ -1085,9 +1085,9 @@ function startScreen3() {
                     btnSubmit.disabled = false;
                     btnSubmit.style.backgroundColor = '#cc0000';
                     btnSubmit.style.color = 'white';
-                    btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
+                    btnSubmit.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
                     btnSubmit.onclick = () => {
-                        if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 3단계로 넘어갈까요?')) {
+                        if (confirm('부장님의 승인이 늦어지고 있습니다. 우리끼리 먼저 3단계로 넘어갈까요?')) {
                             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                             document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                             const s4 = document.getElementById('screen-4');
@@ -1293,9 +1293,9 @@ function startScreen4() {
                         btnSubmit.disabled = false;
                         btnSubmit.style.backgroundColor = '#cc0000';
                         btnSubmit.style.color = 'white';
-                        btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
+                        btnSubmit.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
                         btnSubmit.onclick = () => {
-                            if (confirm('네트워크 오류로 다음 단계 진행이 안 되고 있습니다. 강제로 4단계로 넘어갈까요?')) {
+                            if (confirm('부장님의 승인이 늦어지고 있습니다. 우리끼리 먼저 4단계로 넘어갈까요?')) {
                                 document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                                 document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                                 const s5 = document.getElementById('screen-5');
@@ -1583,14 +1583,24 @@ function startScreen5() {
         });
         
         // 런칭 버튼 클릭 (3단계 완료) - 이제 DB를 업데이트하여 모두에게 런칭을 알림
-        btnLaunch.onclick = async () => {
-            try {
-                await updateDoc(doc(db, 'departments', currentDeptId), {
-                    currentStage: 5
-                });
-            } catch(e) {
-                console.error("런칭쇼 가동 실패:", e);
-                alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+        btnLaunch.onclick = () => {
+            updateDoc(doc(db, 'departments', currentDeptId), {
+                currentStage: 5
+            }).catch(e => console.error("런칭쇼 가동 실패:", e));
+            
+            // 로컬에서 즉시 모달 표시
+            const successModal = document.getElementById('stage3-success-modal');
+            const guideText = document.getElementById('stage3-guide-text');
+            const closeBtn = document.getElementById('btn-close-stage3-success');
+            const waitingMsg = document.getElementById('stage3-waiting-msg');
+            
+            if (successModal) {
+                if (guideText) {
+                    guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
+                }
+                if (closeBtn) closeBtn.classList.remove('hidden');
+                if (waitingMsg) waitingMsg.classList.add('hidden');
+                successModal.classList.remove('hidden');
             }
         };
         
@@ -1654,16 +1664,9 @@ function startScreen5() {
         document.getElementById('stage4-employee-panel').classList.remove('hidden');
         document.getElementById('stage4-manager-panel').classList.add('hidden');
         
-        const optionsContainer = document.getElementById('stage4-options-container');
-        optionsContainer.innerHTML = `
-            <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
-            <p id="stage4-puzzle-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
-            <input type="text" id="stage4-employee-input" placeholder="정답 입력" style="width:100%; padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white;">
-        `;
-        
-        const input = document.getElementById('stage4-employee-input');
         const titleEl = document.getElementById('stage4-puzzle-title');
         const textEl = document.getElementById('stage4-puzzle-text');
+        const input = document.getElementById('stage4-answer-input');
         
         let currentStep = 'bonus';
         const stepsSequence = ['bonus', 'step1', 'step2', 'step3'];
@@ -1702,9 +1705,9 @@ function startScreen5() {
                         btnSubmit.disabled = false;
                         btnSubmit.style.backgroundColor = '#cc0000';
                         btnSubmit.style.color = 'white';
-                        btnSubmit.textContent = '강제 다음 단계 (QR 스캔)';
+                        btnSubmit.textContent = '부장님이 바쁘시니 셀프결재로 넘어가기 (클릭)';
                         btnSubmit.onclick = () => {
-                            if (confirm('네트워크 오류로 런칭쇼가 시작되지 않습니다. 강제로 QR 스캔 단계로 넘어갈까요?')) {
+                            if (confirm('부장님의 확인이 늦어지고 있습니다. 우리끼리 먼저 QR 스캔 단계로 넘어갈까요?')) {
                                 document.getElementById('stage3-success-modal').classList.remove('hidden');
                             }
                         };
