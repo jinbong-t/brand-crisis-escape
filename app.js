@@ -1944,65 +1944,71 @@ async function initApp() {
     // 세션이 남아있다면 해당 단계로 바로 복구
     if (currentDeptId && currentRole) {
         try {
+            // 화면 전환 로직을 별도 함수로 분리
+            let lastStage = -1;
+            function handleStageUpdate(d) {
+                const stage = d.currentStage || 0;
+                if (lastStage === stage) return;
+                lastStage = stage;
+                
+                deptSelection.classList.add('hidden');
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                
+                // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
+                if (isQrScan) {
+                    if (currentRole !== '부장') {
+                        alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
+                        document.getElementById('screen-0').classList.remove('hidden');
+                        return;
+                    }
+                    document.getElementById('screen-qr').classList.remove('hidden');
+                    document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
+                    return;
+                }
+
+                if (stage == 0) {
+                    screen1.classList.remove('hidden');
+                    startScreen1();
+                } else if (stage == 1) {
+                    const s2 = document.getElementById('screen-2');
+                    if (s2) {
+                        s2.classList.remove('hidden');
+                        startScreen2();
+                    }
+                } else if (stage == 2) {
+                    const s3 = document.getElementById('screen-3');
+                    if (s3) {
+                        s3.classList.remove('hidden');
+                        try {
+                            startScreen3();
+                        } catch (err) {
+                            console.error('startScreen3 error:', err);
+                            alert('2단계 로드 중 오류가 발생했습니다: ' + err.message);
+                        }
+                    }
+                } else if (stage == 3) {
+                    const s4 = document.getElementById('screen-4');
+                    if (s4) {
+                        s4.classList.remove('hidden');
+                        startScreen4();
+                        if (d && d.showStage3Reasoning) {
+                            showReasoningModal(PUZZLE_DATA.stage3, 4);
+                        }
+                    }
+                } else if (stage === 4) {
+                    const s5 = document.getElementById('screen-5');
+                    if (s5) {
+                        s5.classList.remove('hidden');
+                        startScreen5();
+                    }
+                }
+            }
+
             // 부서의 currentStage 변경을 실시간으로 감지하여 화면 자동 전환
             onSnapshot(doc(db, 'departments', currentDeptId), (snap) => {
                 if (snap.exists()) {
-                    const d = snap.data();
-                    const stage = d.currentStage || 0;
-                    
-                    deptSelection.classList.add('hidden');
-                    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                    
-                    // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
-                    if (isQrScan) {
-                        if (currentRole !== '부장') {
-                            alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
-                            // 스플래시나 대기 화면으로 돌려보냄 (우선 0단계 화면 띄움)
-                            document.getElementById('screen-0').classList.remove('hidden');
-                            return;
-                        }
-                        document.getElementById('screen-qr').classList.remove('hidden');
-                        document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
-                        return;
-                    }
-
-                    if (stage == 0) {
-                        screen1.classList.remove('hidden');
-                        startScreen1();
-                    } else if (stage == 1) {
-                        const s2 = document.getElementById('screen-2');
-                        if (s2) {
-                            s2.classList.remove('hidden');
-                            startScreen2();
-                        }
-                    } else if (stage == 2) {
-                        const s3 = document.getElementById('screen-3');
-                        if (s3) {
-                            s3.classList.remove('hidden');
-                            try {
-                                startScreen3();
-                            } catch (err) {
-                                console.error('startScreen3 error:', err);
-                                alert('2단계 로드 중 오류가 발생했습니다: ' + err.message);
-                            }
-                        }
-                    } else if (stage == 3) {
-                        const s4 = document.getElementById('screen-4');
-                        if (s4) {
-                            s4.classList.remove('hidden');
-                            startScreen4();
-                            if (d && d.showStage3Reasoning) {
-                                showReasoningModal(PUZZLE_DATA.stage3, 4);
-                            }
-                        }
-                    } else if (stage === 4) {
-                        const s5 = document.getElementById('screen-5');
-                        if (s5) {
-                            s5.classList.remove('hidden');
-                            startScreen5();
-                        }
-                    }
+                    handleStageUpdate(snap.data());
                 } else {
                     // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
                     clearSessionState();
@@ -2011,6 +2017,16 @@ async function initApp() {
                     location.reload();
                 }
             });
+            
+            // 방화벽 대비 3초 간격 폴링
+            setInterval(async () => {
+                try {
+                    const snap = await getDoc(doc(db, 'departments', currentDeptId));
+                    if (snap.exists()) {
+                        handleStageUpdate(snap.data());
+                    }
+                } catch(e) {}
+            }, 3000);
             
         } catch(e) { 
             console.error(e); 
