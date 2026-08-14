@@ -1,0 +1,8 @@
+case174=        case '부장': return '팀의 최종 결정자';
+roles4=        const roles = ['인턴', '사원', '차장', '부장'];
+roles4_indent=            const roles = ['인턴', '사원', '차장', '부장'];
+btnSubmit=        btnSubmitM2.textContent = currentRole === '부장' ? '최종 확인 완료' : '결재 올리기';
+alertSubmit=            alert(currentRole === '부장' ? '확인되었습니다.' : '제출되었습니다.');
+btnSubmit2=            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 확인 완료' : '결재 올리기';
+ifBujang=    if (currentRole === '부장') {
+roles3=            const roles = ['인턴', '사원', '차장'];

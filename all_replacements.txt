@@ -1,0 +1,20 @@
+379=        currentDeptName = 'test-dept';
+385=                name: 'test-dept',
+409=                currentDeptName = 'test-dept';
+410=                currentRole = '부장';
+810=                    statusEl.querySelector('.status-icon').textContent = '?';
+817=                    statusEl.querySelector('.status-icon').textContent = '?';
+930=                    statusEl.querySelector('.status-icon').textContent = '?';
+934=                    statusEl.querySelector('.status-icon').textContent = '?';
+947=            if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
+1035=                    statusEl.querySelector('.status-icon').textContent = '?';
+1039=                    statusEl.querySelector('.status-icon').textContent = '?';
+1130=                selectedItems['material'] === 'silk' &&
+1449=                            statusEl.querySelector('.status-icon').textContent = '?';
+1452=                            statusEl.querySelector('.status-icon').textContent = '?';
+1519=                        let deptName = '알수없음';
+1637=            document.getElementById('qr-dept-name').textContent = currentDeptName || '알수없음';
+1730=            allKeywords = rData.answers.concat(['a', 'b', 'c']);
+1791=    btnSubmit.textContent = rData.keywordLock ? '제출 완료' : '제출';
+1863=                        if (currentRole !== '부장') {
+1870=                        document.getElementById('qr-dept-name').textContent = currentDeptName || '알수없음';

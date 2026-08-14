@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>브랜드 위기 탈출</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=1.1">
+</head>
+<body>
+    <div id="app-container">
+        <!-- 상단 고정 헤더 -->
+        <header id="main-header" class="hidden">
+            <div class="header-left">
+                <span id="btn-secret-skip" class="brand-logo" style="cursor: pointer;">RE:BRAND</span>
+                <span id="current-team-display" class="team-badge"></span>
+            </div>
+            <div class="header-right">
+                <div id="inventory-bar" class="inventory">
+                    <div class="slot" data-index="0"></div>
+                    <div class="slot" data-index="1"></div>
+                    <div class="slot" data-index="2"></div>
+                </div>
+            </div>
+        </header>
+
+        <main id="screen-container">
+            <!-- Splash Screen (게임 진입 씬) -->
+            <section id="screen-splash" class="screen active">
+                <div class="splash-bg"></div>
+                <div class="splash-content">
+                    <h1 class="splash-title">브랜드 위기 탈출</h1>
+                    <p class="splash-subtitle">위기에 빠진 브랜드를 구출하라</p>
+                    <button id="btn-enter-game" class="btn-genius pulse-glow">게임 입장</button>
+                    <!-- 선생님 전용 비밀 리셋 버튼 (투명) -->
+                    <div id="btn-secret-reset" style="position: absolute; top: 0; left: 0; width: 80px; height: 80px; cursor: pointer; z-index: 100;"></div>
+                </div>
+            </section>
+
+            <!-- 더 지니어스 스타일 질문 팝업 -->
+            <div id="genius-modal" class="modal hidden">
+                <div class="modal-content genius-content">
+                    <h2 class="genius-text glow-text">"당신의 부서는 무엇입니까?"</h2>
+                </div>
+            </div>
+
+            <!-- Screen 0: 부서/직급 선택 -->
+            <section id="screen-0" class="screen hidden">
+                <div class="admin-toggle-area" id="admin-toggle-btn"></div> <!-- 숨겨진 버튼 영역 -->
+                
+                <div id="department-selection" class="selection-panel">
+                    <h2 class="genius-header">부서 선택</h2>
+                    <div id="dept-grid" class="grid-container">
+                        <!-- JS에서 동적 렌더링 -->
+                    </div>
+                </div>
+
+                <div id="role-selection" class="selection-panel hidden">
+                    <button id="btn-back-to-dept" class="btn-text">← 부서 다시 선택</button>
+                    <h2><span id="selected-dept-name"></span> 직급 선택</h2>
+                    <p class="guide-text">본인의 역할을 선택하세요. 한 번 선택하면 되돌릴 수 없습니다.</p>
+                    <div id="role-grid" class="grid-container">
+                        <button class="role-card" data-role="인턴">
+                            <h3>인턴</h3>
+                            <p>직접적인 단서 탐색</p>
+                        </button>
+                        <button class="role-card" data-role="사원">
+                            <h3>사원</h3>
+                            <p>자료 해석 및 분석</p>
+                        </button>
+                        <button class="role-card" data-role="차장">
+                            <h3>차장</h3>
+                            <p>핵심 개념 도출</p>
+                        </button>
+                        <button class="role-card" data-role="부장">
+                            <h3>부장</h3>
+                            <p>종합 판단 및 제출</p>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 1: 오프닝 -->
+            <section id="screen-1" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <h2>사건의 시작: 잠긴 다이어리</h2>
+                <p class="guide-text">조사 카드 4장을 뒤집어 단서를 확인하고, 올바른 순서로 정렬하여 잠금을 해제하세요.</p>
+                
+                <div id="intro-modal" class="modal hidden">
+                    <div class="modal-content" style="max-width: 600px; position: relative; padding-bottom: 4rem;">
+                        <h3 style="margin-bottom: 1rem; text-align: center;">사건의 시작</h3>
+                        <video id="intro-video" controls width="100%" class="intro-video-player" style="margin-bottom: 1rem; border-radius: 8px;">
+                            <source src="intro_video.mp4" type="video/mp4">
+                            브라우저가 비디오 태그를 지원하지 않습니다.
+                        </video>
+                        <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 1rem; padding-right: 10px;">
+                            <!-- JS에서 문단별로 렌더링 -->
+                        </div>
+                        <button id="btn-intro-next" class="btn-primary" style="position: absolute; bottom: 1.5rem; right: 1.5rem;">다음 ▶</button>
+                        <button id="close-intro-modal" class="btn-primary hidden" style="position: absolute; bottom: 1.5rem; right: 1.5rem; width: auto;">단서 찾기 시작!</button>
+                    </div>
+                </div>
+
+                <div id="opening-cards" class="card-container sortable-container">
+                    <!-- JS 렌더링 -->
+                </div>
+                
+                <div class="action-area">
+                    <button id="btn-unlock" class="btn-primary">잠금 해제</button>
+                </div>
+
+                <!-- 다이어리 모달 -->
+                <div id="diary-modal" class="modal hidden">
+                    <div class="modal-content diary-content">
+                        <h3>한서연의 메모</h3>
+                        <p id="diary-text"></p>
+                        
+                        <div class="question-box">
+                            <p><strong>이 흐름(생산 → 사용 → 폐기)은 어떤 구조인가요?</strong></p>
+                            <div class="radio-group">
+                                <label><input type="radio" name="flow-type" value="선형"> 선형 구조</label>
+                                <label><input type="radio" name="flow-type" value="순환"> 순환 구조</label>
+                            </div>
+                            <button id="btn-submit-opening" class="btn-primary">제출</button>
+                            <p id="opening-error-msg" class="error-text hidden">틀렸습니다. 부장님과 상의해보세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 2 (1단계: 디자인요소실) -->
+            <section id="screen-2" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e'); background-size: cover; background-position: center; min-height: 100vh;">
+                <style>.glass-overlay::-webkit-scrollbar { display: none; }</style>
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>1단계: 디자인요소실 🔍</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div id="role-badge" class="badge">현재 역할: <span id="display-current-role">인턴</span></div>
+                            <button id="btn-logout-role" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">역할 변경(로그아웃)</button>
+                        </div>
+                    </header>
+
+                    <!-- 미션 컨테이너 -->
+                    <div class="mission-container">
+                        <!-- 1-1. 몽타주 추리 (직급별 비대칭 단서) -->
+                        <div class="mission-card" id="mission-1-1">
+                            <h3>[미션 1] 목격자의 몽타주 조각</h3>
+                            <div class="clue-box">
+                                <p id="montage-clue-text" style="font-size: 1.1rem; margin-bottom: 1rem; font-style: italic;">"단서 텍스트가 여기에 표시됩니다."</p>
+                                <div id="montage-options" class="options-group">
+                                    <!-- JS 렌더링 -->
+                                </div>
+                                
+                                <!-- 부장 전용 -->
+                                <div id="manager-montage-panel" class="hidden manager-panel" style="margin-top: 1rem;">
+                                    <h4 style="margin-bottom: 0.5rem; color: var(--accent-gold);">전체 원단 대조표 (부장 전용)</h4>
+                                    <table class="clue-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                                        <tr style="background: rgba(0,0,0,0.3);"><th>원단</th><th>선</th><th>색</th><th>재질</th><th>무늬</th></tr>
+                                        <tr><td>A</td><td>세로선</td><td>난색</td><td>부드러운</td><td>큰무늬</td></tr>
+                                        <tr><td>B</td><td>가로선</td><td>한색</td><td>뻣뻣한</td><td>작은무늬</td></tr>
+                                        <tr><td>C</td><td>가로선</td><td>한색</td><td>뻣뻣한</td><td>큰무늬</td></tr>
+                                        <tr><td>D</td><td>가로선</td><td>난색</td><td>부드러운</td><td>작은무늬</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1-2. 원단 선별 (직급별 비대칭 단서) -->
+                        <div class="mission-card hidden" id="mission-1-2">
+                            <h3>[미션 2] 진짜 원단을 가려내라</h3>
+                            <div class="clue-box">
+                                <h4 id="fabric-clue-title" style="margin-bottom: 0.5rem; color: var(--accent-gold);">물 사용량 기준</h4>
+                                <p id="fabric-clue-text" style="font-size: 1rem; margin-bottom: 1rem; white-space: pre-line;">"단서 텍스트가 여기에 표시됩니다."</p>
+                                
+                                <!-- 학생들에게 제공되는 공통 데이터베이스 표 -->
+                                <div style="margin-bottom: 1rem; background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px;">
+                                    <h4 style="margin-bottom: 0.5rem; color: #a4b0be;">[참고 자료: 원단 환경 성분표]</h4>
+                                    <table class="clue-table" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem;">
+                                        <tr style="background: rgba(255,255,255,0.1);"><th>원단명</th><th>물 사용량</th><th>재활용 여부</th><th>유해물질 배출</th></tr>
+                                        <tr><td>원단 E</td><td>낮음</td><td>가능</td><td>있음</td></tr>
+                                        <tr><td>원단 F</td><td>높음</td><td>가능</td><td>없음</td></tr>
+                                        <tr><td>원단 G</td><td>낮음</td><td>불가능</td><td>없음</td></tr>
+                                        <tr><td>원단 H</td><td>낮음</td><td>가능</td><td>없음</td></tr>
+                                        <tr><td>원단 I</td><td>높음</td><td>불가능</td><td>있음</td></tr>
+                                    </table>
+                                </div>
+
+                                <div class="options-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    <button class="btn-secondary fabric-btn" data-val="E">원단 E</button>
+                                    <button class="btn-secondary fabric-btn" data-val="F">원단 F</button>
+                                    <button class="btn-secondary fabric-btn" data-val="G">원단 G</button>
+                                    <button class="btn-secondary fabric-btn" data-val="H">원단 H</button>
+                                    <button class="btn-secondary fabric-btn" data-val="I">원단 I</button>
+                                </div>
+                                
+                                <div style="margin-top: 1rem; text-align: center;">
+                                    <button id="btn-submit-mission-1-2" class="btn-primary">선택 완료 및 제출</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1-3. 실천적 추론 -->
+                        <div class="mission-card hidden" id="mission-1-3">
+                            <h3>[미션 3] 실천적 추론 - 대표의 쪽지</h3>
+                            <div class="clue-box">
+                                <div id="reasoning-context" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; line-height: 1.6;">
+                                </div>
+                                <h4 id="reasoning-role-label" style="color: var(--accent-gold); margin-bottom: 0.5rem;">입장 정리</h4>
+                                <textarea id="reasoning-textarea" placeholder="이곳에 의견을 자유롭게 서술해 주세요. (최소 15자 이상, '환경' 등 관련 키워드 포함)" style="width: 100%; height: 100px; padding: 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border-color); border-radius: 4px; resize: vertical;"></textarea>
+                            </div>
+                        </div>
+
+                        <button id="btn-stage1-confirm-all" class="btn-primary" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem; width: 100%;">이 화면의 단서 확인 완료 (부장에게 전달)</button>
+
+                        <!-- 부장 전용 팀원 확인 현황판 및 최종 제출 -->
+                        <div id="manager-submit-panel" class="hidden mission-card" style="border: 2px solid var(--accent-gold); background: rgba(15, 15, 15, 0.95);">
+                            <h3>👑 팀원 확인 현황 및 최종 제출</h3>
+                            <div id="team-status-board" style="display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-인턴" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>인턴: <span class="status-icon">❌</span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                                <div class="status-item" id="status-사원" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>사원: <span class="status-icon">❌</span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                                <div class="status-item" id="status-차장" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>차장: <span class="status-icon">❌</span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 0.5rem; text-align: center;">모든 팀원이 단서 확인을 완료해야 최종 제출이 가능합니다.</p>
+                            <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">🗣️ 부장님은 팀원들과의 회의(대화)를 통해 알아낸 미션 1과 2의 정답을 아래에 선택해주세요!</p>
+                            <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+                                <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%; justify-content: space-between; max-width: 400px;">
+                                    <span style="color: var(--accent-gold);">미션 1 몽타주 결과:</span>
+                                    <select id="manager-final-answer-1" class="manager-select" style="padding: 0.5rem; background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--accent-gold); border-radius: 4px;">
+                                        <option value="">디자인 요소 원단 선택</option>
+                                        <option value="A">원단 A</option>
+                                        <option value="B">원단 B</option>
+                                        <option value="C">원단 C</option>
+                                        <option value="D">원단 D</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%; justify-content: space-between; max-width: 400px;">
+                                    <span style="color: var(--accent-gold);">미션 2 친환경 원단 결과:</span>
+                                    <select id="manager-final-answer-2" class="manager-select" style="padding: 0.5rem; background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--accent-gold); border-radius: 4px;">
+                                        <option value="">진짜 원단 선택</option>
+                                        <option value="E">원단 E</option>
+                                        <option value="F">원단 F</option>
+                                        <option value="G">원단 G</option>
+                                        <option value="H">원단 H</option>
+                                        <option value="I">원단 I</option>
+                                    </select>
+                                </div>
+                                <button id="btn-submit-stage1" class="btn-primary" style="width: 100%; max-width: 400px;" disabled>최종 정답 제출</button>
+                            </div>
+                            <p id="manager-error-msg" class="error-text hidden" style="text-align: center; margin-top: 1rem;">오답입니다! 팀원들의 단서를 다시 확인해보세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2단계 스토리 모달 -->
+            <div id="stage2-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">패턴/봉제실 진입 🔓</h2>
+                    <div id="stage2-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS에서 채움 -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage2-missions" class="btn-primary">암호 해독 시작</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2단계 방 (Screen 3) -->
+            <section id="screen-3" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1581093450021-4a7360e9a6b5'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>2단계: 패턴/봉제실 🧵</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">현재 역할: <span id="display-current-role-stage2"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">역할 변경(로그아웃)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage2-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 600px; margin: 0 auto;">
+                            <h3 id="stage2-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage2-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem;"></p>
+                            <p id="stage2-puzzle-hint" style="color: #aaa; font-size: 0.9rem; text-align: left; margin-top: 1rem;"></p>
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="number" id="stage2-answer-input" placeholder="정답 숫자 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 200px;">
+                                <button id="btn-stage2-submit" class="btn-primary">암호 해독 완료</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stage2-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 600px; margin: 0 auto; border: 2px solid var(--accent-gold);">
+                            <h3 style="color: var(--accent-gold);">👑 최종 생산 공장 제어판</h3>
+                            <div id="team-status-board-stage2" style="display: flex; gap: 1rem; margin: 1.5rem 0; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage2-인턴" style="background: rgba(0,0,0,0.5);">인턴: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage2-사원" style="background: rgba(0,0,0,0.5);">사원: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage2-차장" style="background: rgba(0,0,0,0.5);">차장: <span class="status-icon">❌</span></div>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">🗣️ 부장님은 팀원들이 해독한 숫자 3개를 모아 금고 비밀번호(3자리)를 완성하세요!</p>
+                            
+                            <div class="factory-machine-container" style="position: relative; width: 100%; max-width: 600px; aspect-ratio: 3/2; margin: 0 auto; background-image: url('factory_panel.png'); background-size: cover; background-position: center; border-radius: 12px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+                                <!-- 화면 영역의 기본 별 4개를 가리기 위한 배경(검은색에 가까운 짙은 녹색) 덮개 및 입력창 -->
+                                <input type="password" id="manager-vault-pw" placeholder="***" maxlength="3" style="position: absolute; top: 35%; left: 30%; width: 40%; height: 25%; background: #071007; border: none; color: #0f0; font-size: 4.5rem; text-align: center; letter-spacing: 20px; text-shadow: 0 0 15px #0f0; outline: none; z-index: 10;">
+                                <!-- 가동 버튼 영역에 투명 버튼 덮어씌우기 -->
+                                <button id="btn-submit-stage2" style="position: absolute; top: 62%; left: 37%; width: 26%; height: 28%; background: transparent; border: none; cursor: pointer; z-index: 10; border-radius: 50%;" disabled></button>
+                            </div>
+                            
+                            <p id="manager-error-msg-stage2" class="error-text hidden" style="text-align: center; margin-top: 1rem;">비밀번호가 틀렸습니다. 순서(인턴-사원-차장)가 맞는지 확인하세요!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3단계 스토리 모달 -->
+            <div id="stage3-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">스타일링실 진입 🔓</h2>
+                    <div id="stage3-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS에서 채움 -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage3-missions" class="btn-primary">스타일링 단서 수집 시작</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3단계 방 (Screen 4) -->
+            <section id="screen-4" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1567113463300-102a7eb3cb26'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>3단계: 스타일링실 👗</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">현재 역할: <span id="display-current-role-stage3"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">역할 변경(로그아웃)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage3-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 600px; margin: 0 auto;">
+                            <h3 id="stage3-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage3-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem;"></p>
+                            <p id="stage3-puzzle-hint" style="color: #aaa; font-size: 0.9rem; text-align: left; margin-top: 1rem;"></p>
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="text" id="stage3-answer-input" placeholder="정답 텍스트 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
+                                <button id="btn-stage3-submit" class="btn-primary">단서 전송</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stage3-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 900px; margin: 0 auto; border: 2px solid var(--accent-gold); padding: 1rem;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem;">👑 프리미엄 부티크 스타일링 룸</h3>
+                            
+                            <div id="team-status-board-stage3" style="display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage3-인턴" style="background: rgba(0,0,0,0.5);">인턴: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage3-사원" style="background: rgba(0,0,0,0.5);">사원: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage3-차장" style="background: rgba(0,0,0,0.5);">차장: <span class="status-icon">❌</span></div>
+                            </div>
+                            
+                            <!-- 부장 단서 1 (퍼스널 컬러) -->
+                            <div id="stage3-manager-step1" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 id="stage3-manager-title" style="color: #c7a477; margin-bottom: 1rem;"></h4>
+                                <p id="stage3-manager-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
+                                <input type="text" id="stage3-manager-answer-input" placeholder="정답 텍스트 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 60%; margin-bottom: 1rem;">
+                                <br>
+                                <button id="btn-stage3-manager-submit" class="btn-primary" style="width: 60%;">단서 전송</button>
+                            </div>
+
+                            <!-- 부장 단서 2 (종이인형) -->
+                            <div id="stage3-manager-step2" class="hidden">
+                                <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">🗣️ 팀원들이 알아낸 4가지 요소(컬러/선/온도/무늬)에 정확히 맞는 옷을 왼쪽 옷장에서 골라 아바타나 우측 슬롯에 입히세요!</p>
+                                
+                                <div class="paperdoll-studio-container" style="display: flex; gap: 1rem; align-items: flex-start; justify-content: center; margin-top: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                                <!-- 왼쪽: 옷장 (인벤토리) - 나중에 옷 종류가 늘어날 것에 대비해 초소형 패딩 적용 -->
+                                <div class="closet-section" style="flex: 1; background: #e6cfa3; border: 3px solid #8b5a2b; border-radius: 10px; padding: 0.5rem; box-shadow: inset 0 0 10px rgba(139,90,43,0.3);">
+                                    <h4 style="text-align: center; color: #5a3a1b; margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 0.9rem;">👗 패션쇼 백스테이지 (Showroom)</h4>
+                                    
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">선 (착시효과)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="세로선">
+                                                <img src="cloth_line_v_1786282011681.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="가로선">
+                                                <img src="cloth_line_h_1786282021678.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="사선">
+                                                <img src="cloth_line_d_1786282163630.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="무지">
+                                                <img src="cloth_line_n_1786282235174.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">색 (온도)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="한색">
+                                                <img src="cloth_color_cool_1786282244609.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="난색">
+                                                <img src="cloth_color_warm_1786282255619.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="뉴트럴">
+                                                <img src="cloth_color_neutral_1786282265966.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="무채색">
+                                                <img src="cloth_color_mono_1786282373249.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">재질 (촉감)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="뻣뻣한">
+                                                <img src="cloth_mat_stiff_1786282385072.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="부드러운">
+                                                <img src="cloth_mat_soft_1786282395544.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="얇은">
+                                                <img src="cloth_mat_thin_1786282406556.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="두꺼운">
+                                                <img src="cloth_mat_thick_1786282421305.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">무늬 (패턴)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="작은무늬">
+                                                <img src="cloth_pat_small_1786282434396.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="큰무늬">
+                                                <img src="item_jacket_large.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="체크무늬">
+                                                <div style="width: 100%; height: 100%; min-height: 40px; background: repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px), #fff; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border-radius: 4px; color: #333;">체크</div>
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="무늬없음">
+                                                <img src="cloth_line_n_1786282235174.png" style="width: 100%; height: auto; mix-blend-mode: multiply; filter: hue-rotate(180deg);">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 가운데: 아바타 모델 (드롭존) - 크기 100% 유지(상대적 축소) -->
+                                <div id="avatar-dropzone" class="avatar-section" style="width: 220px; height: 400px; background-image: url('avatar_base.png'); background-size: cover; background-position: center; border-radius: 12px; border: 3px dashed #8b5a2b; position: relative; box-shadow: 0 8px 15px rgba(0,0,0,0.2); overflow: hidden;">
+                                    <div style="position: absolute; bottom: -5px; width: 100%; text-align: center; z-index: 20;">
+                                        <div style="background: rgba(255,255,255,0.9); padding: 0.3rem 0.8rem; display: inline-block; border-radius: 15px; border: 2px solid #8b5a2b; color: #5a3a1b; font-size: 0.8rem; font-weight: bold;">오지수 모델 핏</div>
+                                    </div>
+                                    <div class="dropzone-hint" style="position: absolute; top: 10px; width: 100%; text-align: center; color: rgba(139,90,43,0.7); font-size: 0.75rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0.2rem; border-radius: 8px; z-index: 20;">이곳이나 우측 슬롯에 드롭!</div>
+                                </div>
+                                
+                                <!-- 오른쪽: 장착된 아이템 표시 패널 (아바타 높이에 맞춤) -->
+                                <div class="equipped-panel" style="width: 110px; height: 400px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 2px solid #c7a477;">
+                                    <div style="text-align: center; font-size: 0.75rem; font-weight: bold; color: #5a3a1b;">장착 슬롯</div>
+                                    <div class="avatar-slot" id="slot-line" data-accept="선" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-color" data-accept="색" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-material" data-accept="재질" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-pattern" data-accept="무늬" style="flex: 1;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 1.5rem;">
+                                <button id="btn-submit-stage3" class="btn-primary" style="width: 100%; max-width: 400px;" disabled>스타일링 확정 및 런칭쇼 준비!</button>
+                                <p id="manager-error-msg-stage3" class="error-text hidden" style="margin-top: 1rem;">오답입니다! 팀원들이 알아낸 4가지 요소가 정확히 선택되었는지 확인하세요!</p>
+                            </div>
+                            </div> <!-- End stage3-manager-step2 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- 4단계 스토리 모달 -->
+            <div id="stage4-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.7); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">런칭쇼 대기실 진입 🔓</h2>
+                    <div id="stage4-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS에서 채움 -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage4-missions" class="btn-primary">런칭쇼 기획 시작</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4단계 방 (Screen 5) -->
+            <section id="screen-5" class="screen hidden" style="background-image: url('stage4_waiting_room_1786350311651.png'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>4단계: 런칭쇼 대기실 (T.P.O) 🎉</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">현재 역할: <span id="display-current-role-stage4"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">역할 변경(로그아웃)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage4-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.6); max-width: 600px; margin: 0 auto; text-align: center;">
+                            <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage4-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem; margin-bottom: 1.5rem;"></p>
+                            
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="text" id="stage4-answer-input" placeholder="정답 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
+                            </div>
+                            
+                            <button id="btn-stage4-submit" class="btn-primary" style="width: 80%;">기획안 제출 (+환경 점수)</button>
+                            <p id="stage4-employee-feedback" class="error-text hidden" style="margin-top: 1rem;"></p>
+                        </div>
+                    </div>
+
+                    <div id="stage4-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; border: 2px solid var(--accent-gold); padding: 2rem;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem; font-size: 1.8rem;">🌍 환경 점수 현황판</h3>
+                            <p style="font-size: 1rem; color: #ccc; margin-bottom: 2rem; text-align: center;">팀원들이 T.P.O에 맞는 올바른 친환경 기획안을 제출하면 점수가 오릅니다.</p>
+                            <!-- 부장 기획 1: TPO 종합 -->
+                            <div id="stage4-manager-step1" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 id="stage4-manager-step1-title" style="color: #c7a477; margin-bottom: 1rem;"></h4>
+                                <p id="stage4-manager-step1-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
+                                <input type="text" id="stage4-manager-step1-input" placeholder="정답 텍스트 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 60%; margin-bottom: 1rem;">
+                                <br>
+                                <button id="btn-stage4-manager-step1" class="btn-primary" style="width: 60%;">단서 전송</button>
+                            </div>
+                            
+                            <!-- 5R 드래그 앤 드롭 퍼즐 영역 -->
+                            <div id="stage4-5r-puzzle" class="hidden" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: #c7a477; margin-bottom: 1rem;">1. 5R 순서 조립</h4>
+                                <div id="5r-options" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    <div class="item-5r" draggable="true" data-val="줄이기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">줄이기</div>
+                                    <div class="item-5r" draggable="true" data-val="재활용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재활용</div>
+                                    <div class="item-5r" draggable="true" data-val="거절하기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">거절하기</div>
+                                    <div class="item-5r" draggable="true" data-val="썩히기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">썩히기</div>
+                                    <div class="item-5r" draggable="true" data-val="재사용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재사용</div>
+                                </div>
+                                <div id="5r-slots" style="display: flex; gap: 10px; justify-content: center;">
+                                    <div class="slot-5r" data-index="0" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">1순위</div>
+                                    <div class="slot-5r" data-index="1" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">2순위</div>
+                                    <div class="slot-5r" data-index="2" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">3순위</div>
+                                    <div class="slot-5r" data-index="3" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">4순위</div>
+                                    <div class="slot-5r" data-index="4" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">5순위</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: #c7a477; margin-bottom: 1rem;">2. 환경 점수 합산</h4>
+                                <input type="number" id="stage4-manager-score-input" placeholder="총합 점수 입력" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
+                            </div>
+
+                            <!-- 게이지 바 -->
+                            <div style="width: 100%; background: #333; border-radius: 20px; height: 40px; border: 2px solid var(--accent-gold); position: relative; overflow: hidden; margin-bottom: 1rem;">
+                                <div id="eco-score-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                                <div id="eco-score-text" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: white; text-shadow: 1px 1px 2px black;">0 / 100 점</div>
+                            </div>
+                            
+                            <div id="team-status-board-stage4" style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage4-인턴" style="background: rgba(0,0,0,0.5);">인턴: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage4-사원" style="background: rgba(0,0,0,0.5);">사원: <span class="status-icon">❌</span></div>
+                                <div class="status-item" id="status-stage4-차장" style="background: rgba(0,0,0,0.5);">차장: <span class="status-icon">❌</span></div>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <button id="btn-launch-show" class="btn-primary" style="width: 100%; max-width: 400px; padding: 1.2rem; font-size: 1.3rem; background: #555; color: #888; border: none; cursor: not-allowed; transition: all 0.3s;" disabled>100점 달성 시 런칭쇼 가동!</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 최종 엔딩 스크린 -->
+            <section id="screen-ending" class="screen hidden" style="background: #000; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <!-- 폭죽 캔버스 -->
+                <canvas id="confetti-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 101;"></canvas>
+                
+                <div id="certificate-container" style="background: white; width: 80%; max-width: 600px; padding: 2rem; border: 15px solid #d4af37; border-style: double; box-shadow: 0 0 30px rgba(212,175,55,0.5); text-align: center; color: black; font-family: 'Playfair Display', serif; z-index: 102;">
+                    <img src="https://images.unsplash.com/photo-1598284617181-4203da3b45a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="seal" style="width: 80px; height: 80px; margin: 0 auto 1rem auto; border-radius: 50%;">
+                    <h1 style="color: #8b5a2b; font-size: 2.5rem; margin-bottom: 1rem; border-bottom: 2px solid #8b5a2b; padding-bottom: 0.5rem; display: inline-block;">수석 에코 디자이너 임명장</h1>
+                    
+                    <h2 style="font-size: 1.8rem; margin: 1.5rem 0; color: #333;">소속: <span id="certificate-dept-name" style="text-decoration: underline; color: #000;"></span></h2>
+                    
+                    <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; font-family: 'Noto Sans KR', sans-serif;">
+                        위 부서는 강태오 대표의 패스트 패션 계획을 훌륭히 저지하고,<br>
+                        지속 가능한 패션 브랜드 <b>RE:BRAND</b>의 진정한 가치를 세상에 알리는 데<br>
+                        지대한 공헌을 하였으므로 이 임명장을 수여합니다.
+                    </p>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3rem; padding: 0 2rem;">
+                        <div style="text-align: left; font-family: 'Noto Sans KR', sans-serif;">
+                            <p style="margin-bottom: 0.5rem;">날짜: 2026년 8월 9일</p>
+                            <p>발급자: 수석 디자이너 한서연</p>
+                        </div>
+                        <div style="font-size: 2rem; font-family: 'Great Vibes', cursive; color: #8b5a2b;">Han Seo-yeon</div>
+                    </div>
+                </div>
+                
+                <button class="btn-primary btn-logout-role" style="position: absolute; bottom: 5%; z-index: 103; padding: 1rem 2rem; font-size: 1.2rem;">메인 화면으로 돌아가기</button>
+            </section>
+            
+            <!-- 에필로그 모달 -->
+            <div id="epilogue-modal" class="modal hidden" style="z-index: 1000;">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem; text-align: center;">에필로그: 런칭쇼 그 후... 🌿</h2>
+                    <video src="엔딩 영상.mp4" controls style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
+                    <p style="line-height: 1.8; margin-bottom: 1rem; font-size: 1.1rem; color: #eee;">
+                        여러분의 활약으로 RE:BRAND의 친환경 컬렉션 런칭쇼는 대성공을 거두었습니다!<br><br>
+                        소비자들은 단순한 화려함을 넘어, <b>옷에 담긴 지구를 향한 배려와 5R의 가치</b>에 열광했습니다. 매출은 폭발적으로 증가했고, 언론은 '윤리적 패션의 승리'라며 찬사를 보냈습니다.<br><br>
+                        자신의 고집이 틀렸음을 깨달은 <b>강태오 대표</b>는 깊이 반성하며 패스트 패션 생산 라인을 전면 폐기하고, 여러분과 한서연 디자이너의 비전에 적극 동참하기로 약속했습니다.<br><br>
+                        위기에 빠진 브랜드를 구해주셔서 감사합니다!
+                    </p>
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button id="btn-close-epilogue" class="btn-primary">임명장 수여식으로 이동</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1단계 스토리 모달 -->
+            <div id="stage1-story-modal" class="modal hidden">
+                <div class="modal-content" style="background: rgba(10, 10, 10, 0.95); border: 2px solid var(--accent-gold); max-width: 600px;">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">디자인요소실 진입</h2>
+                    <p style="line-height: 1.6; margin-bottom: 1rem; font-size: 1.1rem; text-align: left;">
+                        비밀번호가 풀리며 문이 열립니다. 이곳은 <strong>디자인요소실</strong>입니다.<br><br>
+                        한서연 디자이너가 진짜 컬렉션 원단을 숨겨둔 첫 번째 방입니다.<br>
+                        하지만 강태오 대표가 고용한 사람들이 이미 방을 헤집어 놓았습니다.<br><br>
+                        다행히 바닥에 찢어진 목격자 진술서 조각들과, 5개의 보조 원단 후보들이 떨어져 있습니다.<br>
+                        팀원들과 단서를 모아 진짜 원단이 무엇인지 알아내세요!
+                    </p>
+                    <button id="btn-start-stage1-missions" class="btn-primary" style="width: 100%;">단서 확인하기 🔍</button>
+                </div>
+            </div>
+
+            <!-- 실천적 추론 (키워드 자물쇠) 모달 -->
+            <div id="reasoning-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 800px; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 id="reasoning-title" style="color: var(--accent-gold); margin-bottom: 1rem;">실천적 추론</h2>
+                    <div id="reasoning-intro" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem; text-align: left;"></div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                        <!-- 왼쪽: 키워드 풀 -->
+                        <div style="flex: 1; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                            <h4 style="color: #c7a477; margin-bottom: 1rem;">흩어진 단어 조각 (드래그)</h4>
+                            <div id="reasoning-keywords" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                                <!-- JS에서 동적 생성 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 오른쪽: 자물쇠 문장 -->
+                        <div style="flex: 1.5; border: 1px solid var(--accent-gold); padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.5);">
+                            <h4 style="color: #c7a477; margin-bottom: 1rem;">최종 결정문 조립 (부장 전용)</h4>
+                            <div id="reasoning-sentence" style="line-height: 2; font-size: 1.1rem; text-align: left;">
+                                <!-- JS에서 동적 생성 (빈칸 포함) -->
+                            </div>
+                            <div style="margin-top: 1.5rem; text-align: center;">
+                                <button id="btn-submit-reasoning" class="btn-primary" style="display: none;">자물쇠 풀기</button>
+                                <p id="reasoning-error" class="error-text hidden" style="margin-top: 0.5rem;">논리에 맞지 않는 단어가 있습니다. 다시 의논하세요!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3단계 완료 및 암호 발급 모달 -->
+            <div id="stage3-success-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 500px; text-align: center; border: 2px solid #4caf50;">
+                    <h2 style="color: #4caf50; margin-bottom: 1rem;">🎉 3단계 미션 완료!</h2>
+                    <p style="font-size: 1.1rem; margin-bottom: 1rem;">모든 미션을 완벽하게 수행했습니다.</p>
+                    <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <p style="color: var(--accent-gold); font-size: 1.2rem; margin-bottom: 0.5rem;">우리 부서의 숨겨진 원단 조각을 찾으세요!</p>
+                    </div>
+                    <p id="stage3-guide-text" style="color: #ccc; line-height: 1.6; margin-bottom: 1.5rem;">
+                        교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>
+                        원단을 찾은 뒤, 원단에 붙어 있는 <strong>QR 코드</strong>를 휴대폰 카메라로 스캔하여 <strong>'숨겨진 메시지'</strong>를 알아내야 합니다.
+                    </p>
+                    <button id="btn-close-stage3-success" class="btn-primary" style="width: 100%;">암호 확인 완료 (직접 스캔 시도)</button>
+                    <p id="stage3-waiting-msg" class="hidden" style="color: var(--accent-gold); font-weight: bold; margin-top: 1rem; font-size: 1.1rem; animation: pulse 2s infinite;">부장님이 조각을 스캔하고 암호를 입력할 때까지 기다려주세요...</p>
+                </div>
+            </div>
+
+            <!-- Screen QR: QR 조각 찾기 화면 -->
+            <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 500px; text-align: center;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">🔎 조각 찾기 미션!</h2>
+                        <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
+                            교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>스캔 후 나타나는 <strong>'숨겨진 메시지'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
+                        </p>
+                        <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 입력 (띄어쓰기 포함)" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;">
+                        <div>
+                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">잠금 해제</button>
+                        </div>
+                        <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.1rem;">이건 우리 조각이 아니에요! 다른 조각을 찾아보세요.</p>
+                        
+                        <div id="qr-success-panel" class="hidden" style="margin-top: 2rem;">
+                            <h3 style="color: #4caf50; margin-bottom: 1rem;">🎉 우리 부서 조각을 찾았습니다!</h3>
+                            <button id="btn-go-to-personal" class="btn-secondary" style="border-color: var(--accent-gold); color: var(--accent-gold);">다음 미션으로 이동</button>
+                            <button id="btn-view-dashboard" class="btn-text" style="display: block; margin: 1rem auto 0 auto;">학급 전체 진행 상황 보기</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen Dashboard: 교사용 대시보드 (학급 전체 현황) -->
+            <section id="screen-dashboard" class="screen hidden" style="background-color: #0f1115; min-height: 100vh; overflow: hidden; position: relative;">
+                <button id="btn-close-dashboard" class="btn-text" style="position: absolute; top: 1rem; left: 1rem; z-index: 100;">← 돌아가기</button>
+                <div style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+                    <h1 style="color: var(--accent-gold); margin-bottom: 2rem; font-family: 'Playfair Display', serif; font-size: 2.5rem;">RE:BRAND 컬렉션 완성도</h1>
+                    
+                    <div id="fabric-puzzle-container" style="display: flex; width: 80%; max-width: 1000px; height: 500px; background: rgba(255,255,255,0.05); border: 4px solid #333; border-radius: 8px; overflow: hidden; position: relative; transition: transform 1s ease;">
+                        <!-- JS에서 부서 수만큼 6등분 슬롯 자동 생성 -->
+                    </div>
+
+                    <div id="dashboard-final-message" class="hidden" style="margin-top: 2rem; background: rgba(0,0,0,0.8); border: 2px solid var(--accent-gold); padding: 2rem; border-radius: 8px; max-width: 800px; text-align: center; animation: fadeIn 2s;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">수석 디자이너 한서연</h2>
+                        <p id="dashboard-final-text" style="font-size: 1.2rem; line-height: 1.6; color: #fff;"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 6: 개인 디자인 및 5R 제출 -->
+            <section id="screen-6" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1513364776144-60967b0f800f'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>개인 미션: 나에게 어울리는 디자인 🎨</h2>
+                        <div class="badge">현재 역할: <span id="display-current-role-stage6"></span></div>
+                    </header>
+
+                    <div class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; text-align: left;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">1. 직접 디자인 그리기 / 파일 업로드</h3>
+                            <p style="color: #ccc; margin-bottom: 1rem; font-size: 0.95rem;">나에게 어울리는 옷차림을 아래 캔버스에 직접 그리거나, 이미 그린 사진을 업로드해주세요.</p>
+                            
+                            <!-- 캔버스 드로잉 영역 -->
+                            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 5px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="btn-tool" id="btn-tool-pen" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">🖊️ 볼펜</button>
+                                    <button class="btn-tool" id="btn-tool-pencil" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">✏️ 연필</button>
+                                    <button class="btn-tool" id="btn-tool-brush" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">🖌️ 붓</button>
+                                    <button class="btn-tool" id="btn-tool-eraser" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">지우개</button>
+                                    <button class="btn-tool" id="btn-tool-clear" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">전체 지우기</button>
+                                </div>
+                                <div id="canvas-colors" style="display: flex; gap: 5px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="color-btn" data-color="#000000" style="background: #000000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#808080" style="background: #808080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#8B4513" style="background: #8B4513; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FF0000" style="background: #FF0000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFA500" style="background: #FFA500; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFFF00" style="background: #FFFF00; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#008000" style="background: #008000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#87CEEB" style="background: #87CEEB; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#0000FF" style="background: #0000FF; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#000080" style="background: #000080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#800080" style="background: #800080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFC0CB" style="background: #FFC0CB; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                </div>
+                                <div style="display: flex; justify-content: center;">
+                                    <canvas id="design-canvas" width="400" height="400" style="background: white; border-radius: 8px; cursor: crosshair; touch-action: none; max-width: 100%;"></canvas>
+                                </div>
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <button id="btn-analyze-canvas" class="btn-primary" style="padding: 0.5rem 1rem;">🎨 내 그림 AI 분석하기</button>
+                                </div>
+                            </div>
+                            
+                            <p style="color: #ccc; margin-bottom: 0.5rem; font-size: 0.9rem; text-align: center;">또는 파일 업로드하기:</p>
+                            <input type="file" id="design-upload" accept="image/*" style="margin-bottom: 1rem; color: white; display: block; margin-left: auto; margin-right: auto;">
+                            
+                            <div id="ai-feedback-panel" class="hidden" style="margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid #4caf50;">
+                                <h4 style="color: #4caf50; margin-bottom: 0.5rem;">🤖 AI 디자인 분석 피드백</h4>
+                                <p id="ai-feedback-text" style="font-size: 0.95rem; line-height: 1.5;">분석 중...</p>
+                                <p style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">* AI의 분석은 참고용이며, 최종 판단은 학생 자신이 내립니다.</p>
+                            </div>
+
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">2. 디자인 요소 및 T.P.O 선택</h3>
+                            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">선 (착시효과)</label>
+                                    <select id="personal-line" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="세로선">세로선</option>
+                                        <option value="가로선">가로선</option>
+                                        <option value="사선">사선</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">색 온도</label>
+                                    <select id="personal-temp" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="난색">난색</option>
+                                        <option value="한색">한색</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">재질</label>
+                                    <select id="personal-material" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="부드러운">부드러운 재질</option>
+                                        <option value="뻣뻣한">뻣뻣한 재질</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">무늬 크기</label>
+                                    <select id="personal-pattern" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="큰무늬">큰 무늬</option>
+                                        <option value="작은무늬">작은 무늬</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">T.P.O (상황)</label>
+                                    <select id="personal-tpo" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">선택</option>
+                                        <option value="평상복">평상복 (집, 근처)</option>
+                                        <option value="외출복">외출복 (쇼핑, 모임)</option>
+                                        <option value="운동복">운동복 (스포츠)</option>
+                                        <option value="예복">예복 (결혼식, 행사)</option>
+                                        <option value="작업복">작업복</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">지속가능성 요소 (5R)</label>
+                                    <select id="personal-5r" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">가장 먼저 실천할 1가지 선택</option>
+                                        <option value="거절하기">거절하기(Refuse)</option>
+                                        <option value="줄이기">줄이기(Reduce)</option>
+                                        <option value="재사용">재사용(Reuse)</option>
+                                        <option value="재활용">재활용(Recycle)</option>
+                                        <option value="썩히기">썩히기(Rot)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">3. 선택 이유</h3>
+                            <textarea id="personal-reason" placeholder="이 디자인 조합이 나에게 왜 어울린다고 생각하는지, T.P.O와 지속가능성을 어떻게 고려했는지 1~2문장으로 자유롭게 적어주세요." style="width: 100%; height: 100px; padding: 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--accent-gold); border-radius: 4px; resize: vertical; margin-bottom: 2rem;"></textarea>
+                            
+                            <div style="text-align: center;">
+                                <button id="btn-submit-personal-design" class="btn-primary" style="width: 100%; max-width: 300px;">디자인 제출 및 평가 가기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 7: 활동 소감 -->
+            <section id="screen-7" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 600px; margin: 0 auto; text-align: left;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 2rem; text-align: center;">오늘의 미션 소감 📝</h2>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: white; margin-bottom: 0.5rem; display: block; font-size: 1.1rem;">Q1. 오늘 미션 중 가장 기억에 남는 순간은?</label>
+                            <textarea id="reflection-q1" placeholder="인상 깊었던 장면을 적어주세요." style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <label style="color: white; margin-bottom: 0.5rem; display: block; font-size: 1.1rem;">Q2. 오늘 배운 것 중 나의 삶에서 실천해보고 싶은 한 가지는?</label>
+                            <textarea id="reflection-q2" placeholder="구체적인 실천 다짐을 적어주세요." style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <button id="btn-submit-reflections" class="btn-primary" style="width: 100%; max-width: 300px; font-size: 1.2rem;">최종 제출 완료 🎉</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 관리자 모달 -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-btn" id="close-admin-modal">×</button>
+            <h2>관리자 설정</h2>
+            <div id="pin-entry-section">
+                <p>PIN 번호를 입력하세요</p>
+                <input type="password" id="admin-pin-input" maxlength="4" placeholder="****">
+                <button id="btn-verify-pin" class="btn-primary">확인</button>
+                <p id="pin-error-msg" class="error-text hidden">비밀번호가 틀렸습니다.</p>
+            </div>
+            
+            <div id="admin-dashboard-section" class="hidden">
+                <h3>부서 관리</h3>
+                <div class="admin-controls">
+                    <input type="text" id="admin-new-dept" placeholder="새 부서명 (예: 디자인기획부)">
+                    <button id="btn-add-dept" class="btn-primary">부서 추가</button>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <button id="btn-open-dashboard" class="btn-primary" style="background: #4caf50; color: white; width: 100%; margin-bottom: 1rem;">학급 전체 현황판(대시보드) 열기</button>
+                    <button id="btn-reset-depts" class="btn-danger">모든 부서 데이터 초기화 ⚠️</button>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <h4 style="margin-bottom: 0.5rem;">페이지 강제 이동 (스킵)</h4>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn-primary btn-skip" data-target="0" style="background: var(--accent-gold); color: black;">오프닝(0단계)</button>
+                        <button class="btn-primary btn-skip" data-target="1" style="background: var(--accent-gold); color: black;">1단계(요소실)</button>
+                        <button class="btn-primary btn-skip" data-target="2" style="background: var(--accent-gold); color: black;">2단계(패턴/봉제실)</button>
+                        <button class="btn-primary btn-skip" data-target="3" style="background: var(--accent-gold); color: black;">3단계(스타일링실)</button>
+                        <button class="btn-primary btn-skip" data-target="4" style="background: var(--accent-gold); color: black;">4단계(런칭쇼/TPO)</button>
+                    </div>
+                </div>
+                <button id="btn-close-admin" class="btn-primary" style="margin-top: 2rem;">닫기</button>
+                <div id="admin-dept-list" class="admin-list">
+                    <!-- JS 렌더링 -->
+                </div>
+                <div class="admin-actions">
+                    <button id="btn-reset-firebase" class="btn-text danger">모든 게임 데이터 초기화 (주의)</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script type="module" src="app.js?v=1.1"></script>
+</body>
+</html>

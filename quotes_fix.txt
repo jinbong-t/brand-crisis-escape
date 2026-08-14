@@ -1,0 +1,3 @@
+449=                    alert(`${targetStage} error!`);
+506=        introVideo.play().catch(e => console.log("video play error", e));
+1462=            scoreText.textContent = `${simulatedScore} / 100`;
