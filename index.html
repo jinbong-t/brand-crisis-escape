@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="style.css?v=2.0">
 </head>
 <body>
     <div id="app-container">
@@ -255,7 +255,10 @@
                                         <option value="I">원단 I</option>
                                     </select>
                                 </div>
-                                <button id="btn-submit-stage1" class="btn-primary" style="width: 100%; max-width: 400px;" disabled>최종 정답 제출</button>
+                                <div style="position: relative; display: inline-block; width: 100%; max-width: 400px;">
+                                    <button id="btn-submit-stage1" class="btn-primary" style="width: 100%;" disabled>최종 정답 제출</button>
+                                    <div id="secret-skip-stage1" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10; opacity: 0;" title="강제 패스"></div>
+                                </div>
                             </div>
                             <p id="manager-error-msg" class="error-text hidden" style="text-align: center; margin-top: 1rem;">오답입니다! 팀원들의 단서를 다시 확인해보세요.</p>
                         </div>
@@ -664,7 +667,10 @@
                                 <!-- JS에서 동적 생성 (빈칸 포함) -->
                             </div>
                             <div style="margin-top: 1.5rem; text-align: center;">
-                                <button id="btn-submit-reasoning" class="btn-primary" style="display: none;">자물쇠 풀기</button>
+                                <div style="position: relative; display: inline-block;">
+                                    <button id="btn-submit-reasoning" class="btn-primary">합의 완료</button>
+                                    <div id="secret-skip-reasoning" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10; opacity: 0;" title="강제 패스"></div>
+                                </div>
                                 <p id="reasoning-error" class="error-text hidden" style="margin-top: 0.5rem;">논리에 맞지 않는 단어가 있습니다. 다시 의논하세요!</p>
                             </div>
                         </div>
@@ -698,8 +704,9 @@
                             교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>스캔 후 나타나는 <strong>'숨겨진 메시지'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
                         </p>
                         <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 입력 (띄어쓰기 포함)" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;">
-                        <div>
-                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">잠금 해제</button>
+                        <div style="position: relative; display: inline-block; width: 80%;">
+                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">잠금 해제</button>
+                            <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
                         </div>
                         <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.1rem;">이건 우리 조각이 아니에요! 다른 조각을 찾아보세요.</p>
                         
@@ -844,8 +851,9 @@
                             <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">3. 선택 이유</h3>
                             <textarea id="personal-reason" placeholder="이 디자인 조합이 나에게 왜 어울린다고 생각하는지, T.P.O와 지속가능성을 어떻게 고려했는지 1~2문장으로 자유롭게 적어주세요." style="width: 100%; height: 100px; padding: 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--accent-gold); border-radius: 4px; resize: vertical; margin-bottom: 2rem;"></textarea>
                             
-                            <div style="text-align: center;">
+                            <div style="text-align: center; position: relative;">
                                 <button id="btn-submit-personal-design" class="btn-primary" style="width: 100%; max-width: 300px;">디자인 제출 및 평가 가기</button>
+                                <div id="secret-skip-personal" style="position: absolute; right: 0; top: 0; width: 50px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
                             </div>
                         </div>
                     </div>
@@ -868,8 +876,9 @@
                             <textarea id="reflection-q2" placeholder="구체적인 실천 다짐을 적어주세요." style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; border-radius: 4px; resize: vertical;"></textarea>
                         </div>
                         
-                        <div style="text-align: center;">
+                        <div style="text-align: center; position: relative;">
                             <button id="btn-submit-reflections" class="btn-primary" style="width: 100%; max-width: 300px; font-size: 1.2rem;">최종 제출 완료 🎉</button>
+                            <div id="secret-skip-reflection" style="position: absolute; right: 0; top: 0; width: 50px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
                         </div>
                     </div>
                 </div>
@@ -920,6 +929,6 @@
         </div>
 
     </div>
-    <script type="module" src="app.js?v=5.0"></script>
+    <script type="module" src="app.js?v=6.0"></script>
 </body>
 </html>
