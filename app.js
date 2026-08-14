@@ -928,22 +928,26 @@ function startScreen2(deptData) {
 
                     alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 승인하면 자동으로 넘어갑니다.');
                     textarea.disabled = true;
+                    btnConfirmAll.disabled = true;
+                    btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
 
-                    // 버튼을 강제 이동 버튼으로 변신시킴 (타이머 스로틀링 완벽 회피)
-                    btnConfirmAll.disabled = false;
-                    btnConfirmAll.style.backgroundColor = '#cc0000';
-                    btnConfirmAll.style.color = 'white';
-                    btnConfirmAll.textContent = '오류로 화면이 안 넘어가면 여기를 눌러 강제 이동';
-                    
-                    btnConfirmAll.onclick = () => {
-                        if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 2단계로 넘어갈까요?')) {
-                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                            const s3 = document.getElementById('screen-3');
-                            if (s3) s3.classList.remove('hidden');
-                            try { startScreen3(); } catch (err) { console.error(err); }
-                        }
-                    };
+                    // 10초 후 빨간색 강제 이동 버튼으로 변신
+                    setTimeout(() => {
+                        btnConfirmAll.disabled = false;
+                        btnConfirmAll.style.backgroundColor = '#cc0000';
+                        btnConfirmAll.style.color = 'white';
+                        btnConfirmAll.textContent = '오류로 화면이 안 넘어가면 여기를 눌러 강제 이동';
+                        
+                        btnConfirmAll.onclick = () => {
+                            if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 2단계로 넘어갈까요?')) {
+                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                                const s3 = document.getElementById('screen-3');
+                                if (s3) s3.classList.remove('hidden');
+                                try { startScreen3(); } catch (err) { console.error(err); }
+                            }
+                        };
+                    }, 10000);
 
                 } catch(e) {
                     console.error(e);
@@ -1073,19 +1077,25 @@ function startScreen3() {
                     stage2Answer: puzzleData.answer
                 }, { merge: true }).catch(e=>console.error(e));
 
-                btnSubmit.disabled = false;
-                btnSubmit.style.backgroundColor = '#cc0000';
-                btnSubmit.style.color = 'white';
-                btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
-                btnSubmit.onclick = () => {
-                    if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 3단계로 넘어갈까요?')) {
-                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                        const s4 = document.getElementById('screen-4');
-                        if (s4) s4.classList.remove('hidden');
-                        try { startScreen4(); } catch (err) { console.error(err); }
-                    }
-                };
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = '부장 승인 대기 중...';
+
+                // 10초 후 빨간 버튼으로 변신
+                setTimeout(() => {
+                    btnSubmit.disabled = false;
+                    btnSubmit.style.backgroundColor = '#cc0000';
+                    btnSubmit.style.color = 'white';
+                    btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
+                    btnSubmit.onclick = () => {
+                        if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 3단계로 넘어갈까요?')) {
+                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                            const s4 = document.getElementById('screen-4');
+                            if (s4) s4.classList.remove('hidden');
+                            try { startScreen4(); } catch (err) { console.error(err); }
+                        }
+                    };
+                }, 10000);
             } else {
                 alert("비밀번호가 틀렸습니다. 힌트를 다시 읽어보세요!");
             }
@@ -1276,19 +1286,24 @@ function startScreen4() {
                         stage3Confirmed: true
                     }, { merge: true }).catch(e=>console.error(e));
 
-                    btnSubmit.disabled = false;
-                    btnSubmit.style.backgroundColor = '#cc0000';
-                    btnSubmit.style.color = 'white';
-                    btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
-                    btnSubmit.onclick = () => {
-                        if (confirm('네트워크 오류로 다음 단계 진행이 안 되고 있습니다. 강제로 4단계로 넘어갈까요?')) {
-                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                            const s5 = document.getElementById('screen-5');
-                            if (s5) s5.classList.remove('hidden');
-                            try { startScreen5(); } catch (err) { console.error(err); }
-                        }
-                    };
+                    btnSubmit.disabled = true;
+                    btnSubmit.textContent = '부장 승인 대기 중...';
+
+                    setTimeout(() => {
+                        btnSubmit.disabled = false;
+                        btnSubmit.style.backgroundColor = '#cc0000';
+                        btnSubmit.style.color = 'white';
+                        btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
+                        btnSubmit.onclick = () => {
+                            if (confirm('네트워크 오류로 다음 단계 진행이 안 되고 있습니다. 강제로 4단계로 넘어갈까요?')) {
+                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                                const s5 = document.getElementById('screen-5');
+                                if (s5) s5.classList.remove('hidden');
+                                try { startScreen5(); } catch (err) { console.error(err); }
+                            }
+                        };
+                    }, 10000);
                 } else {
                     alert("오답입니다. 다시 생각해보세요!");
                 }
@@ -1680,15 +1695,20 @@ function startScreen5() {
                         stage4Confirmed: true
                     }, { merge: true }).catch(e=>console.error(e));
 
-                    btnSubmit.disabled = false;
-                    btnSubmit.style.backgroundColor = '#cc0000';
-                    btnSubmit.style.color = 'white';
-                    btnSubmit.textContent = '강제 다음 단계 (QR 스캔)';
-                    btnSubmit.onclick = () => {
-                        if (confirm('네트워크 오류로 런칭쇼가 시작되지 않습니다. 강제로 QR 스캔 단계로 넘어갈까요?')) {
-                            document.getElementById('stage3-success-modal').classList.remove('hidden');
-                        }
-                    };
+                    btnSubmit.disabled = true;
+                    btnSubmit.textContent = '부장 승인 대기 중...';
+
+                    setTimeout(() => {
+                        btnSubmit.disabled = false;
+                        btnSubmit.style.backgroundColor = '#cc0000';
+                        btnSubmit.style.color = 'white';
+                        btnSubmit.textContent = '강제 다음 단계 (QR 스캔)';
+                        btnSubmit.onclick = () => {
+                            if (confirm('네트워크 오류로 런칭쇼가 시작되지 않습니다. 강제로 QR 스캔 단계로 넘어갈까요?')) {
+                                document.getElementById('stage3-success-modal').classList.remove('hidden');
+                            }
+                        };
+                    }, 10000);
                 }
             } else {
                 feedback.textContent = "잘못된 정답입니다! 다시 생각해보세요.";
