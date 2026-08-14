@@ -922,26 +922,29 @@ function startScreen2(deptData) {
                 }
                 
                 try {
+                    // 서버 업데이트 시도 (실패해도 진행)
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
-                    await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
+                    updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value }).catch(e=>console.error(e));
 
-                    alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.');
-                    btnConfirmAll.disabled = true;
-                    btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
+                    alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 승인하면 자동으로 넘어갑니다.');
                     textarea.disabled = true;
 
-                    // ULTIMATE FALLBACK: 15초 후 무조건 강제 로컬 전환 (파이어베이스 완전 무시)
-                    setTimeout(() => {
-                        if (!document.getElementById('screen-2').classList.contains('hidden')) {
-                            if (confirm('부장님의 결재가 완료되었거나 대기 시간이 초과되었습니다. 다음 단계(패턴/봉제실)로 이동하시겠습니까?')) {
-                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                                const s3 = document.getElementById('screen-3');
-                                if (s3) s3.classList.remove('hidden');
-                                try { startScreen3(); } catch (err) { console.error(err); }
-                            }
+                    // 버튼을 강제 이동 버튼으로 변신시킴 (타이머 스로틀링 완벽 회피)
+                    btnConfirmAll.disabled = false;
+                    btnConfirmAll.style.backgroundColor = '#cc0000';
+                    btnConfirmAll.style.color = 'white';
+                    btnConfirmAll.textContent = '오류로 화면이 안 넘어가면 여기를 눌러 강제 이동';
+                    
+                    btnConfirmAll.onclick = () => {
+                        if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 2단계로 넘어갈까요?')) {
+                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                            const s3 = document.getElementById('screen-3');
+                            if (s3) s3.classList.remove('hidden');
+                            try { startScreen3(); } catch (err) { console.error(err); }
                         }
-                    }, 15000);
+                    };
+
                 } catch(e) {
                     console.error(e);
                     alert('기안 상신 중 오류가 발생했습니다.');
