@@ -1065,20 +1065,27 @@ function startScreen3() {
         btnSubmit.onclick = async () => {
             if (input.value === puzzleData.answer) {
                 alert(`정답입니다! 당신이 찾은 숫자는 [ ${puzzleData.answer} ] 입니다.\n부장님에게 이 숫자를 순서대로 알려주세요!`);
-                btnSubmit.disabled = true;
-                btnSubmit.textContent = "해독 완료 (대기 중)";
                 input.disabled = true;
                 
-                // Firebase 업데이트
-                try {
-                    await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
-                        stage2Confirmed: true,
-                        stage2Answer: puzzleData.answer
-                    }, { merge: true });
-                } catch(e) {
-                    console.error(e);
-                }
-                
+                // 서버 업데이트 시도
+                setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                    stage2Confirmed: true,
+                    stage2Answer: puzzleData.answer
+                }, { merge: true }).catch(e=>console.error(e));
+
+                btnSubmit.disabled = false;
+                btnSubmit.style.backgroundColor = '#cc0000';
+                btnSubmit.style.color = 'white';
+                btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
+                btnSubmit.onclick = () => {
+                    if (confirm('네트워크 오류로 부장님의 승인이 반영되지 않고 있습니다. 강제로 3단계로 넘어갈까요?')) {
+                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                        const s4 = document.getElementById('screen-4');
+                        if (s4) s4.classList.remove('hidden');
+                        try { startScreen4(); } catch (err) { console.error(err); }
+                    }
+                };
             } else {
                 alert("비밀번호가 틀렸습니다. 힌트를 다시 읽어보세요!");
             }
@@ -1263,17 +1270,25 @@ function startScreen4() {
             } else if (currentStep === 2) {
                 if (input.value.replace(/\s+/g, '') === bodyTypeData.answer) {
                     alert(`모든 단서를 찾았습니다! 부장님에게 알려주세요!`);
-                    btnSubmit.disabled = true;
-                    btnSubmit.textContent = "전송 완료 (대기 중)";
                     input.disabled = true;
                     
-                    try {
-                        await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
-                            stage3Confirmed: true
-                        }, { merge: true });
-                    } catch(e) {
-                        console.error(e);
-                    }
+                    setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                        stage3Confirmed: true
+                    }, { merge: true }).catch(e=>console.error(e));
+
+                    btnSubmit.disabled = false;
+                    btnSubmit.style.backgroundColor = '#cc0000';
+                    btnSubmit.style.color = 'white';
+                    btnSubmit.textContent = '오류로 안 넘어가면 강제 이동';
+                    btnSubmit.onclick = () => {
+                        if (confirm('네트워크 오류로 다음 단계 진행이 안 되고 있습니다. 강제로 4단계로 넘어갈까요?')) {
+                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                            const s5 = document.getElementById('screen-5');
+                            if (s5) s5.classList.remove('hidden');
+                            try { startScreen5(); } catch (err) { console.error(err); }
+                        }
+                    };
                 } else {
                     alert("오답입니다. 다시 생각해보세요!");
                 }
@@ -1659,17 +1674,21 @@ function startScreen5() {
                     input.value = '';
                 } else {
                     alert(`모든 기획안 검토가 완료되었습니다! 부장님 현황판에 반영되었습니다.`);
-                    btnSubmit.disabled = true;
-                    btnSubmit.textContent = "기획안 확정 완료";
                     input.disabled = true;
                     
-                    try {
-                        await setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
-                            stage4Confirmed: true
-                        }, { merge: true });
-                    } catch(e) {
-                        console.error(e);
-                    }
+                    setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                        stage4Confirmed: true
+                    }, { merge: true }).catch(e=>console.error(e));
+
+                    btnSubmit.disabled = false;
+                    btnSubmit.style.backgroundColor = '#cc0000';
+                    btnSubmit.style.color = 'white';
+                    btnSubmit.textContent = '강제 다음 단계 (QR 스캔)';
+                    btnSubmit.onclick = () => {
+                        if (confirm('네트워크 오류로 런칭쇼가 시작되지 않습니다. 강제로 QR 스캔 단계로 넘어갈까요?')) {
+                            document.getElementById('stage3-success-modal').classList.remove('hidden');
+                        }
+                    };
                 }
             } else {
                 feedback.textContent = "잘못된 정답입니다! 다시 생각해보세요.";
