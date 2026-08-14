@@ -850,6 +850,15 @@ function startScreen2(deptData) {
                             showStage1Reasoning: false
                         });
                         alert('강제 패스 성공!');
+                        
+                        // 로컬 강제 전환
+                        const s3 = document.getElementById('screen-3');
+                        if (s3) {
+                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                            s3.classList.remove('hidden');
+                            try { startScreen3(); } catch(err) {}
+                        }
                     } catch (e) {
                         alert('강제 패스 중 오류 발생: ' + e);
                     }
@@ -878,6 +887,15 @@ function startScreen2(deptData) {
                     });
                     
                     alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n2단계로 이동합니다!');
+                    
+                    // 로컬에서 강제로 화면 전환 보장
+                    const s3 = document.getElementById('screen-3');
+                    if (s3) {
+                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                        s3.classList.remove('hidden');
+                        try { startScreen3(); } catch(err) { console.error(err); }
+                    }
                 } catch(e) {
                     console.error("Stage 1 DB 업데이트 실패:", e);
                     alert('오류 발생: ' + e.message);
@@ -996,6 +1014,15 @@ function startScreen3() {
                     }, { merge: true });
                     
                     alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이동합니다.)");
+                    
+                    // 로컬에서 강제로 화면 전환 보장
+                    const s4 = document.getElementById('screen-4');
+                    if (s4) {
+                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                        s4.classList.remove('hidden');
+                        try { startScreen4(); } catch(err) { console.error(err); }
+                    }
                 } catch(e) {
                     console.error("Stage 2 DB 업데이트 실패:", e);
                     alert("오류: " + e.message);
