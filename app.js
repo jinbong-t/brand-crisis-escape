@@ -1,5 +1,5 @@
 import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
-import { PUZZLE_DATA } from './puzzle-data.js';
+import { PUZZLE_DATA } from './puzzle-data.js?v=4.0';
 
 sessionStorage.clear();
 
@@ -840,6 +840,22 @@ function startScreen2(deptData) {
         
         // 부장 전용 최종 제출 버튼
         const btnSubmitStage1 = document.getElementById('btn-submit-stage1');
+        const secretSkipStage1 = document.getElementById('secret-skip-stage1');
+        if (secretSkipStage1) {
+            secretSkipStage1.onclick = async () => {
+                if (confirm('강제로 2단계로 넘어갈까요? (부장 전용 패스)')) {
+                    try {
+                        await updateDoc(doc(db, 'departments', currentDeptId), {
+                            currentStage: 2,
+                            showStage1Reasoning: false
+                        });
+                        alert('강제 패스 성공!');
+                    } catch (e) {
+                        alert('강제 패스 중 오류 발생: ' + e);
+                    }
+                }
+            };
+        }
         btnSubmitStage1.onclick = async () => {
             const finalAnswer1 = document.getElementById('manager-final-answer-1').value;
             const finalAnswer2 = document.getElementById('manager-final-answer-2').value;
@@ -853,16 +869,18 @@ function startScreen2(deptData) {
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
                 btnSubmitStage1.disabled = true;
-                btnSubmitStage1.textContent = '최종 승인 완료 (실천적 추론 진행중)';
+                btnSubmitStage1.textContent = '최종 승인 완료 (2단계 이동 중...)';
                 
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
-                        showStage1Reasoning: true
+                        currentStage: 2,
+                        showStage1Reasoning: false
                     });
-                    alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n이제 팝업되는 \'실천적 추론\' 문제를 부서원들과 토론하여 해결하세요!');
-                    showReasoningModal(PUZZLE_DATA.stage1, 2);
+                    
+                    alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n2단계로 이동합니다!');
                 } catch(e) {
                     console.error(e);
+                    alert('오류 발생: ' + e.message);
                 }
                 
             } else {
@@ -970,6 +988,7 @@ function startScreen3() {
                     alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이동합니다.)");
                 } catch(e) {
                     console.error(e);
+                    alert("오류: " + e.message);
                 }
             } else {
                 document.getElementById('manager-error-msg-stage2').classList.remove('hidden');
@@ -1798,9 +1817,28 @@ function showReasoningModal(stageData, targetStageNum) {
             <textarea id="reasoning-summary" rows="4" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent-gold); color: white; border-radius: 5px; margin-bottom: 1rem; box-sizing: border-box; font-family: inherit;" placeholder="팀의 최종 합의 내용을 이곳에 자유롭게 정리하세요..."></textarea>
         `;
     }
-    
-    const btnSubmit = document.getElementById('btn-submit-reasoning');
-    btnSubmit.classList.remove('hidden');
+        const btnSubmit = document.getElementById('btn-submit-reasoning');
+      
+      const secretSkipReasoning = document.getElementById('secret-skip-reasoning');
+      if (secretSkipReasoning) {
+          secretSkipReasoning.onclick = async () => {
+              if (confirm('실천적 추론을 강제로 넘길까요?')) {
+                  try {
+                      await updateDoc(doc(db, 'departments', currentDeptId), {
+                          currentStage: targetStageNum,
+                          showStage1Reasoning: false,
+                          showStage3Reasoning: false
+                      });
+                      document.getElementById('reasoning-modal').classList.add('hidden');
+                      alert('강제 패스 성공!');
+                  } catch (e) {
+                      alert('오류: ' + e);
+                  }
+              }
+          };
+      }
+      
+      btnSubmit.classList.remove('hidden');
     btnSubmit.style.display = 'inline-block';
     btnSubmit.textContent = rData.keywordLock ? '자물쇠 풀기' : '합의 완료';
     btnSubmit.onclick = async () => {
@@ -1837,14 +1875,27 @@ function showReasoningModal(stageData, targetStageNum) {
             modal.classList.add('hidden');
             
             try {
-                await updateDoc(doc(db, 'departments', currentDeptId), {
+                // UI 전환을 멈추지 않도록 비동기 처리
+                updateDoc(doc(db, 'departments', currentDeptId), {
                     currentStage: targetStageNum,
                     showStage1Reasoning: false,
                     showStage3Reasoning: false
+                }).then(() => {
+                    console.log('DB Updated successfully to stage', targetStageNum);
+                }).catch(e => {
+                    console.error("DB 업데이트 실패:", e);
                 });
+                
+                // 로컬에서 강제로 화면 전환 (DB 업데이트 지연 시 대비)
+                const s3 = document.getElementById('screen-3');
+                if (s3 && targetStageNum === 2) {
+                    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                    s3.classList.remove('hidden');
+                    try { startScreen3(); } catch(err) {}
+                }
             } catch(e) {
-                console.error("DB 업데이트 실패:", e);
-                alert('서버와 연결에 문제가 있습니다. 잠시 후 다시 시도해주세요.');
+                console.error("화면 전환 오류:", e);
             }
         } else {
             alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
@@ -1886,10 +1937,10 @@ async function initApp() {
                         return;
                     }
 
-                    if (stage === 0) {
+                    if (stage == 0) {
                         screen1.classList.remove('hidden');
                         startScreen1();
-                    } else if (stage === 1) {
+                    } else if (stage == 1) {
                         const s2 = document.getElementById('screen-2');
                         if (s2) {
                             s2.classList.remove('hidden');
@@ -1898,13 +1949,18 @@ async function initApp() {
                                 showReasoningModal(PUZZLE_DATA.stage1, 2);
                             }
                         }
-                    } else if (stage === 2) {
+                    } else if (stage == 2) {
                         const s3 = document.getElementById('screen-3');
                         if (s3) {
                             s3.classList.remove('hidden');
-                            startScreen3();
+                            try {
+                                startScreen3();
+                            } catch (err) {
+                                console.error('startScreen3 error:', err);
+                                alert('2단계 로드 중 오류가 발생했습니다: ' + err.message);
+                            }
                         }
-                    } else if (stage === 3) {
+                    } else if (stage == 3) {
                         const s4 = document.getElementById('screen-4');
                         if (s4) {
                             s4.classList.remove('hidden');
