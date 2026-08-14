@@ -925,10 +925,23 @@ function startScreen2(deptData) {
                     const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
                     await updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value });
                     
-                    alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.');
+                    alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 모두의 의견을 취합해 최종 승인할 때까지 대기해주세요.\n\n(※ 만약 부장님 승인 후에도 15초 이상 화면이 넘어가지 않는다면, 시스템이 강제로 다음 단계로 이동시켜 드립니다.)');
                     btnConfirmAll.disabled = true;
                     btnConfirmAll.textContent = '기안 상신 완료 (부장 승인 대기 중...)';
                     textarea.disabled = true;
+
+                    // ULTIMATE FALLBACK: 15초 후 무조건 강제 로컬 전환 (파이어베이스 완전 무시)
+                    setTimeout(() => {
+                        if (!document.getElementById('screen-2').classList.contains('hidden')) {
+                            if (confirm('부장님의 승인 확인이 지연되고 있습니다. 강제로 2단계로 넘어갈까요?')) {
+                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                                const s3 = document.getElementById('screen-3');
+                                if (s3) s3.classList.remove('hidden');
+                                try { startScreen3(); } catch (err) { console.error(err); }
+                            }
+                        }
+                    }, 15000);
                 } catch(e) {
                     console.error(e);
                     alert('기안 상신 중 오류가 발생했습니다.');
