@@ -1128,6 +1128,7 @@ function startScreen4() {
         
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             const roles = ['인턴', '사원', '차장'];
+            let stage3CompletedCount = 0;
             roles.forEach(role => {
                 const statusEl = document.getElementById(`status-stage3-${role}`);
                 if (!statusEl) return;
@@ -1139,12 +1140,25 @@ function startScreen4() {
                     statusEl.classList.add('done');
                     statusEl.querySelector('.status-icon').textContent = '✅';
                     statusEl.style.background = 'rgba(0,100,0,0.5)';
+                    stage3CompletedCount++;
                 } else {
                     statusEl.classList.remove('done');
                     statusEl.querySelector('.status-icon').textContent = '❌';
                     statusEl.style.background = 'rgba(0,0,0,0.5)';
                 }
             });
+            
+            const btnStage3Mgr = document.getElementById('btn-stage3-manager-submit');
+            const inputStage3Mgr = document.getElementById('stage3-manager-answer-input');
+            if (stage3CompletedCount === 3) {
+                btnStage3Mgr.disabled = false;
+                btnStage3Mgr.textContent = '단서 전송';
+                inputStage3Mgr.disabled = false;
+            } else {
+                btnStage3Mgr.disabled = true;
+                btnStage3Mgr.textContent = '팀원 완료 대기 중...';
+                inputStage3Mgr.disabled = true;
+            }
         });
         
         document.getElementById('stage3-manager-title').textContent = "단서 1: 퍼스널 컬러 종합";
@@ -1229,7 +1243,7 @@ function startScreen4() {
             }
         });
         
-        btnSubmit.onclick = async () => {
+        btnSubmit.onclick = () => {
             if (selectedItems['line'] === '가로선' && 
                 selectedItems['color'] === '한색' && 
                 selectedItems['material'] === '뻣뻣한' &&
@@ -1239,14 +1253,11 @@ function startScreen4() {
                 alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
-                try {
-                    await updateDoc(doc(db, 'departments', currentDeptId), {
-                        showStage3Reasoning: true
-                    });
-                    showReasoningModal(PUZZLE_DATA.stage3, 4);
-                } catch(e) {
-                    console.error(e);
-                }
+                updateDoc(doc(db, 'departments', currentDeptId), {
+                    showStage3Reasoning: true
+                }).catch(e => console.error(e));
+                
+                showReasoningModal(PUZZLE_DATA.stage3, 4);
                 
             } else {
                 errorMsg.classList.remove('hidden');
