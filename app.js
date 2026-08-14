@@ -1982,20 +1982,37 @@ function showReasoningModal(stageData, targetStageNum) {
             btnSubmit.disabled = true;
             btnSubmit.textContent = '제출 중...';
             
-            try {
-                await updateDoc(doc(db, 'departments', currentDeptId), {
-                    currentStage: targetStageNum,
-                    showStage1Reasoning: false,
-                    showStage3Reasoning: false
-                });
+            updateDoc(doc(db, 'departments', currentDeptId), {
+                currentStage: targetStageNum,
+                showStage1Reasoning: false,
+                showStage3Reasoning: false
+            }).catch(e => console.error("DB 업데이트 실패:", e));
+            
+            // 실무자 전결 강제 패스 타이머 (10초)
+            let isTransitioned = false;
+            
+            const doTransition = () => {
+                if (isTransitioned) return;
+                isTransitioned = true;
                 alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
                 modal.classList.add('hidden');
-            } catch(e) {
-                console.error("DB 업데이트 실패:", e);
-                alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-                btnSubmit.disabled = false;
-                btnSubmit.textContent = rData.keywordLock ? '자물쇠 풀기' : '합의 완료';
-            }
+                
+                // 화면 수동 전환
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                if (targetStageNum === 2) {
+                    const s = document.getElementById('screen-2');
+                    if (s) s.classList.remove('hidden');
+                    try { startScreen2(); } catch(err) {}
+                } else if (targetStageNum === 4) {
+                    const s = document.getElementById('screen-4');
+                    if (s) s.classList.remove('hidden');
+                    try { startScreen4(); } catch(err) {}
+                }
+            };
+            
+            // 즉시 전환 시도
+            doTransition();
         } else {
             alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
         }
