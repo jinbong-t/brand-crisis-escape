@@ -1028,22 +1028,30 @@ function startScreen3() {
                 btnSubmitStage2.disabled = true;
                 btnSubmitStage2.textContent = '가동 중...';
                 
-                try {
-                    await setDoc(doc(db, 'departments', currentDeptId), {
-                        currentStage: 3
-                    }, { merge: true });
-                    
-                    alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(3단계 스타일링실로 이동합니다.)");
-                    
-                    // 로컬에서 강제로 화면 전환 보장
-                    const s4 = document.getElementById('screen-4');
-                    if (s4) {
-                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                        s4.classList.remove('hidden');
-                        try { startScreen4(); } catch(err) { console.error(err); }
-                    }
-                } catch(e) {
+                setDoc(doc(db, 'departments', currentDeptId), {
+                    currentStage: 3
+                }, { merge: true }).catch(e => console.error("Stage 2 DB 업데이트 실패:", e));
+                
+                alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(10초 대기 후 강제 이동 버튼이 나타납니다.)");
+                
+                setTimeout(() => {
+                    const btn = document.getElementById('btn-submit-stage2');
+                    btn.disabled = false;
+                    btn.style.backgroundColor = '#cc0000';
+                    btn.style.color = 'white';
+                    btn.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                    btn.onclick = () => {
+                        if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(3단계)를 강행하시겠습니까?')) {
+                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                            const s4 = document.getElementById('screen-4');
+                            if (s4) {
+                                s4.classList.remove('hidden');
+                                try { startScreen4(); } catch(err) { console.error(err); }
+                            }
+                        }
+                    };
+                }, 10000);
                     console.error("Stage 2 DB 업데이트 실패:", e);
                     alert("오류: " + e.message);
                     btnSubmitStage2.disabled = false;
@@ -1250,14 +1258,24 @@ function startScreen4() {
                 selectedItems['pattern'] === '작은무늬') {
                 
                 errorMsg.classList.add('hidden');
-                alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
+                alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!\n\n(10초 대기 후 강제 이동 버튼이 나타납니다.)");
                 btnSubmit.disabled = true;
                 
                 updateDoc(doc(db, 'departments', currentDeptId), {
                     showStage3Reasoning: true
                 }).catch(e => console.error(e));
                 
-                showReasoningModal(PUZZLE_DATA.stage3, 4);
+                setTimeout(() => {
+                    btnSubmit.disabled = false;
+                    btnSubmit.style.backgroundColor = '#cc0000';
+                    btnSubmit.style.color = 'white';
+                    btnSubmit.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                    btnSubmit.onclick = () => {
+                        if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 실천적 추론(팝업)을 강행하시겠습니까?')) {
+                            showReasoningModal(PUZZLE_DATA.stage3, 4);
+                        }
+                    };
+                }, 10000);
                 
             } else {
                 errorMsg.classList.remove('hidden');
@@ -1595,24 +1613,36 @@ function startScreen5() {
         
         // 런칭 버튼 클릭 (3단계 완료) - 이제 DB를 업데이트하여 모두에게 런칭을 알림
         btnLaunch.onclick = () => {
+            btnLaunch.disabled = true;
+            btnLaunch.textContent = '런칭 준비 중...';
+            
             updateDoc(doc(db, 'departments', currentDeptId), {
                 currentStage: 5
             }).catch(e => console.error("런칭쇼 가동 실패:", e));
             
-            // 로컬에서 즉시 모달 표시
-            const successModal = document.getElementById('stage3-success-modal');
-            const guideText = document.getElementById('stage3-guide-text');
-            const closeBtn = document.getElementById('btn-close-stage3-success');
-            const waitingMsg = document.getElementById('stage3-waiting-msg');
-            
-            if (successModal) {
-                if (guideText) {
-                    guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
-                }
-                if (closeBtn) closeBtn.classList.remove('hidden');
-                if (waitingMsg) waitingMsg.classList.add('hidden');
-                successModal.classList.remove('hidden');
-            }
+            setTimeout(() => {
+                btnLaunch.disabled = false;
+                btnLaunch.style.backgroundColor = '#cc0000';
+                btnLaunch.style.color = 'white';
+                btnLaunch.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                btnLaunch.onclick = () => {
+                    if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무(QR 스캔)를 강행하시겠습니까?')) {
+                        const successModal = document.getElementById('stage3-success-modal');
+                        const guideText = document.getElementById('stage3-guide-text');
+                        const closeBtn = document.getElementById('btn-close-stage3-success');
+                        const waitingMsg = document.getElementById('stage3-waiting-msg');
+                        
+                        if (successModal) {
+                            if (guideText) {
+                                guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
+                            }
+                            if (closeBtn) closeBtn.classList.remove('hidden');
+                            if (waitingMsg) waitingMsg.classList.add('hidden');
+                            successModal.classList.remove('hidden');
+                        }
+                    }
+                };
+            }, 10000);
         };
         
         const btnSubmitPersonal = document.getElementById('btn-submit-personal-design');
@@ -1988,31 +2018,29 @@ function showReasoningModal(stageData, targetStageNum) {
                 showStage3Reasoning: false
             }).catch(e => console.error("DB 업데이트 실패:", e));
             
-            // 실무자 전결 강제 패스 타이머 (10초)
-            let isTransitioned = false;
-            
-            const doTransition = () => {
-                if (isTransitioned) return;
-                isTransitioned = true;
-                alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
-                modal.classList.add('hidden');
-                
-                // 화면 수동 전환
-                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                if (targetStageNum === 2) {
-                    const s = document.getElementById('screen-2');
-                    if (s) s.classList.remove('hidden');
-                    try { startScreen2(); } catch(err) {}
-                } else if (targetStageNum === 4) {
-                    const s = document.getElementById('screen-4');
-                    if (s) s.classList.remove('hidden');
-                    try { startScreen4(); } catch(err) {}
-                }
-            };
-            
-            // 즉시 전환 시도
-            doTransition();
+            setTimeout(() => {
+                btnSubmit.disabled = false;
+                btnSubmit.style.backgroundColor = '#cc0000';
+                btnSubmit.style.color = 'white';
+                btnSubmit.textContent = '부장님 결재 지연 (실무자 전결로 강행)';
+                btnSubmit.onclick = () => {
+                    if (confirm('부장님의 결재가 지연되고 있습니다. 긴급 상황이므로 선조치 후보고(실무자 전결) 처리하고 다음 업무를 강행하시겠습니까?')) {
+                        alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
+                        modal.classList.add('hidden');
+                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                        if (targetStageNum === 2) {
+                            const s = document.getElementById('screen-2');
+                            if (s) s.classList.remove('hidden');
+                            try { startScreen2(); } catch(err) {}
+                        } else if (targetStageNum === 4) {
+                            const s = document.getElementById('screen-4');
+                            if (s) s.classList.remove('hidden');
+                            try { startScreen4(); } catch(err) {}
+                        }
+                    }
+                };
+            }, 10000);
         } else {
             alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
         }
