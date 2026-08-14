@@ -955,6 +955,11 @@ function startScreen3() {
         document.getElementById('stage2-employee-panel').classList.add('hidden');
         document.getElementById('stage2-manager-panel').classList.remove('hidden');
         
+        // 부장 퍼즐 내용 세팅
+        document.getElementById('manager-stage2-puzzle-title').textContent = puzzleData.title;
+        document.getElementById('manager-stage2-puzzle-text').textContent = puzzleData.text;
+        document.getElementById('manager-stage2-puzzle-hint').textContent = `힌트: ${puzzleData.hint}`;
+        
         // 부장 현황판 리스너
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
             const roles = ['인턴', '사원', '차장'];
