@@ -2032,14 +2032,39 @@ async function initApp() {
                 }
             });
             
-            // 방화벽 대비 3초 간격 폴링 (오프라인 캐시 무시하고 강제로 서버에서 가져옴)
+            // 방화벽 대비 3초 간격 폴링 (Firebase SDK + REST API 이중 폴링)
             setInterval(async () => {
                 try {
-                    const snap = await getDocFromServer(doc(db, 'departments', currentDeptId));
+                    // 1. Firebase SDK 폴링 시도
+                    const snap = await getDoc(doc(db, 'departments', currentDeptId));
                     if (snap.exists()) {
                         handleStageUpdate(snap.data());
                     }
-                } catch(e) {}
+                } catch(e) { console.error('SDK Poll Error:', e); }
+
+                try {
+                    // 2. 무조건 성공하는 REST API 폴링 (최후의 보루, SDK 캐시 무시)
+                    const res = await fetch(`https://firestore.googleapis.com/v1/projects/brand-crisis-escape/databases/(default)/documents/departments/${currentDeptId}?_t=${Date.now()}`);
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json && json.fields) {
+                            const getVal = (field) => {
+                                if (!field) return null;
+                                if (field.integerValue !== undefined) return parseInt(field.integerValue);
+                                if (field.stringValue !== undefined) return field.stringValue;
+                                if (field.booleanValue !== undefined) return field.booleanValue;
+                                return null;
+                            };
+                            
+                            const d = {
+                                currentStage: getVal(json.fields.currentStage) || 0,
+                                showStage1Reasoning: !!getVal(json.fields.showStage1Reasoning),
+                                showStage3Reasoning: !!getVal(json.fields.showStage3Reasoning)
+                            };
+                            handleStageUpdate(d);
+                        }
+                    }
+                } catch(e) { console.error('REST Poll Error:', e); }
             }, 3000);
             
         } catch(e) { 
