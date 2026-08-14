@@ -779,19 +779,13 @@ function startScreen2(deptData) {
         if (isCorrect) {
             alert(currentRole === '부장' ? '정답입니다! 완벽한 원단을 골라 최종 승인하셨습니다!' : '정답입니다! 부장님께 기안을 무사히 상신했습니다!');
             document.getElementById('btn-submit-mission-1-2').disabled = true;
-            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 승인 완료' : '기안 상신 완료 (부장 승인 대기 중...)';
+            document.getElementById('btn-submit-mission-1-2').textContent = currentRole === '부장' ? '최종 승인 완료' : '결재 요청 완료 (기안 상신)';
             document.querySelectorAll('.fabric-btn').forEach(b => b.disabled = true);
             
             const m3 = document.getElementById('mission-1-3');
             if (m3) {
-                m3.classList.add('hidden'); // 실천적 추론 숨김
-            }
-            
-            if (currentRole !== '부장') {
-                // 부장 승인 대기 안내 메시지
-                const waitMsg = document.createElement('div');
-                waitMsg.innerHTML = '<h3 style="color:var(--accent-gold); margin-top:2rem; text-align:center;">부장님의 최종 승인을 대기 중입니다...</h3><p style="text-align:center; color:#ccc;">부장님이 정답을 취합하여 승인하면 자동으로 2단계로 이동합니다. 오프라인으로 소통하세요!</p>';
-                document.getElementById('mission-1-2').appendChild(waitMsg);
+                m3.classList.remove('hidden');
+                m3.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } else {
             alert('틀렸습니다. 성분표와 조건을 다시 한번 꼼꼼히 확인하세요.');
@@ -804,12 +798,12 @@ function startScreen2(deptData) {
     document.getElementById('reasoning-role-label').textContent = reasoningData.roleLabels[currentRole];
 
     if (currentRole === '부장') {
-        const m3 = document.getElementById('mission-1-3');
-        if (m3) m3.classList.add('hidden'); // 부장 화면에서 실천적 추론 숨김
-        
         document.getElementById('manager-montage-panel').classList.remove('hidden');
         document.getElementById('manager-submit-panel').classList.remove('hidden');
         document.getElementById('btn-stage1-confirm-all').style.display = 'none'; // 부장은 전체 제출 창 이용
+        document.getElementById('reasoning-textarea').style.display = 'none'; // 부장은 모달에서 입력
+        document.getElementById('reasoning-role-label').textContent = "부장님은 팀원들이 모두 단서와 의견을 제출할 때까지 기다려 주세요. 하단의 '최종 정답 제출'을 완료하면 토론 창이 열립니다.";
+        document.getElementById('reasoning-role-label').style.color = '#ff9f43';
         
         // 부장 전용 실시간 팀원 현황 모니터링
         onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
