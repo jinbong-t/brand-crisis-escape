@@ -1,5 +1,5 @@
 import { db, collection, doc, setDoc, getDoc, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
-import { PUZZLE_DATA } from './puzzle-data.js?v=4.0';
+import { PUZZLE_DATA } from './puzzle-data.js?v=5.0';
 
 sessionStorage.clear();
 
