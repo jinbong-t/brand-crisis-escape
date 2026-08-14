@@ -872,12 +872,22 @@ function startScreen2(deptData) {
                 btnSubmitStage1.textContent = '최종 승인 완료 (2단계 이동 중...)';
                 
                 try {
-                    await updateDoc(doc(db, 'departments', currentDeptId), {
+                    // 서버 응답 대기로 인한 UI 멈춤 현상 방지를 위해 await 제거
+                    updateDoc(doc(db, 'departments', currentDeptId), {
                         currentStage: 2,
                         showStage1Reasoning: false
-                    });
+                    }).catch(e => console.error("Stage 1 DB 업데이트 지연/실패:", e));
                     
                     alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n2단계로 이동합니다!');
+                    
+                    // 로컬에서 강제로 화면 전환
+                    const s3 = document.getElementById('screen-3');
+                    if (s3) {
+                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                        s3.classList.remove('hidden');
+                        try { startScreen3(); } catch(err) {}
+                    }
                 } catch(e) {
                     console.error(e);
                     alert('오류 발생: ' + e.message);
