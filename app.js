@@ -869,14 +869,15 @@ function startScreen2(deptData) {
             if (finalAnswer1 === 'B' && finalAnswer2 === 'H') {
                 errorMsg.classList.add('hidden');
                 btnSubmitStage1.disabled = true;
-                btnSubmitStage1.textContent = '토론 준비 중...';
+                btnSubmitStage1.textContent = '최종 승인 완료 (2단계 이동 중...)';
                 
                 try {
                     await updateDoc(doc(db, 'departments', currentDeptId), {
-                        showStage1Reasoning: true
+                        currentStage: 2,
+                        showStage1Reasoning: false
                     });
-                    alert("🎉 완벽합니다! 팀원들의 의견을 종합하여 친환경 의류 도안과 원단을 찾았습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
-                    showReasoningModal(PUZZLE_DATA.stage1, 2);
+                    
+                    alert('🎉 모든 팀원의 의견을 종합하여 진짜 도안과 원단을 찾았습니다!\n\n2단계로 이동합니다!');
                 } catch(e) {
                     console.error("Stage 1 DB 업데이트 실패:", e);
                     alert('오류 발생: ' + e.message);
