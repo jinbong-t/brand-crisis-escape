@@ -1018,9 +1018,17 @@ function startScreen3() {
             document.getElementById('btn-submit-stage2').disabled = false;
         });
         
+        // 부장 금고 가동 버튼 엔터키 지원
+        const pwInput = document.getElementById('manager-vault-pw');
+        pwInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('btn-submit-stage2').click();
+            }
+        });
+        
         // 부장 금고 가동 버튼
         document.getElementById('btn-submit-stage2').onclick = async () => {
-            const pw = document.getElementById('manager-vault-pw').value;
+            const pw = pwInput.value;
             if (pw === PUZZLE_DATA.stage2.puzzles['부장'].answer) {
                 document.getElementById('manager-error-msg-stage2').classList.add('hidden');
                 
@@ -1032,26 +1040,16 @@ function startScreen3() {
                     currentStage: 3
                 }, { merge: true }).catch(e => console.error("Stage 2 DB 업데이트 실패:", e));
                 
-                alert("🎉 공장 가동 완료! 2단계 탈출 성공!\n\n(10초 대기 후 강제 이동 버튼이 나타납니다.)");
+                alert("🎉 공장 가동 완료! 2단계 탈출 성공!");
                 
-                setTimeout(() => {
-                    const btn = document.getElementById('btn-submit-stage2');
-                    btn.disabled = false;
-                    btn.style.backgroundColor = '#cc0000';
-                    btn.style.color = 'white';
-                    btn.textContent = '통신 장애 (긴급 직권 승인)';
-                    btn.onclick = () => {
-                        if (confirm('서버 통신 지연으로 화면이 넘어가지 않고 있습니다. 관리자 직권으로 즉시 다음 단계(3단계)를 승인하고 진행하시겠습니까?')) {
-                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                            const s4 = document.getElementById('screen-4');
-                            if (s4) {
-                                s4.classList.remove('hidden');
-                                try { startScreen4(); } catch(err) { console.error(err); }
-                            }
-                        }
-                    };
-                }, 10000);
+                // 즉시 다음 단계(3단계)로 강제 이동 (로컬 화면 전환)
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                const s4 = document.getElementById('screen-4');
+                if (s4) {
+                    s4.classList.remove('hidden');
+                    try { startScreen4(); } catch(err) { console.error(err); }
+                }
             } else {
                 document.getElementById('manager-error-msg-stage2').classList.remove('hidden');
             }
@@ -1068,6 +1066,12 @@ function startScreen3() {
         
         const btnSubmit = document.getElementById('btn-stage2-submit');
         const input = document.getElementById('stage2-answer-input');
+        
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                btnSubmit.click();
+            }
+        });
         
         btnSubmit.onclick = async () => {
             if (input.value === puzzleData.answer) {
@@ -1894,35 +1898,21 @@ function showReasoningModal(stageData, targetStageNum) {
                 showStage3Reasoning: false
             }).catch(e => console.error("DB 업데이트 실패:", e));
             
-            setTimeout(() => {
-                btnSubmit.disabled = false;
-                btnSubmit.style.backgroundColor = '#555555';
-                btnSubmit.style.color = 'white';
-                btnSubmit.textContent = '서버 동기화 (재시도)';
-                btnSubmit.onclick = () => {
-                    if (confirm('서버 통신 지연이 발생했습니다. 직권으로 동기화를 진행하시겠습니까?')) {
-                        updateDoc(doc(db, 'departments', currentDeptId), {
-                            currentStage: targetStageNum,
-                            showStage1Reasoning: false,
-                            showStage3Reasoning: false
-                        }).catch(e => console.error("DB 업데이트 실패:", e));
-                        
-                        alert('🎉 합의가 완료되었습니다! 다음 단계로 이동합니다.');
-                        modal.classList.add('hidden');
-                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                        if (targetStageNum === 2) {
-                            const s = document.getElementById('screen-2');
-                            if (s) s.classList.remove('hidden');
-                            try { startScreen2(); } catch(err) {}
-                        } else if (targetStageNum === 4) {
-                            const s = document.getElementById('screen-5');
-                            if (s) s.classList.remove('hidden');
-                            try { startScreen5(); } catch(err) {}
-                        }
-                    }
-                };
-            }, 10000);
+            alert('🎉 합의가 완료되었습니다! 다음 단계로 이동합니다.');
+            
+            // 즉시 로컬 화면 전환
+            modal.classList.add('hidden');
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+            if (targetStageNum === 2) {
+                const s = document.getElementById('screen-2');
+                if (s) s.classList.remove('hidden');
+                try { startScreen2(); } catch(err) {}
+            } else if (targetStageNum === 4) {
+                const s = document.getElementById('screen-5');
+                if (s) s.classList.remove('hidden');
+                try { startScreen5(); } catch(err) {}
+            }
         } else {
             alert('틀렸습니다! 문맥을 다시 파악하여 올바른 키워드를 채워보세요.');
         }
