@@ -2403,10 +2403,11 @@ initApp();
 const btnFloatingReset = document.getElementById('btn-secret-reset');
 if (btnFloatingReset) {
     btnFloatingReset.addEventListener('click', () => {
-        if (confirm('모든 기기의 세션을 초기화하고 처음 화면으로 돌아가시겠습니까?')) {
-            sessionStorage.clear();
-            location.href = location.pathname;
-        }
+        document.getElementById('admin-modal').classList.remove('hidden');
+        document.getElementById('pin-entry-section').classList.remove('hidden');
+        document.getElementById('admin-dashboard-section').classList.add('hidden');
+        document.getElementById('admin-pin-input').value = '';
+        document.getElementById('pin-error-msg').classList.add('hidden');
     });
 }
 
