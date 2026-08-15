@@ -2742,3 +2742,21 @@ document.getElementById('btn-verify-pin')?.addEventListener('click', () => {
         }
     }
 });
+
+
+
+// 추가: 첫 화면 스플래시 타이틀에도 관리자 토글 연결
+const _splashTitle = document.querySelector('.splash-title');
+if (_splashTitle) _splashTitle.addEventListener('click', () => {
+    adminClickCount++;
+    if (adminClickCount >= 5) {
+        document.getElementById('admin-modal').classList.remove('hidden');
+        document.getElementById('pin-entry-section').classList.remove('hidden');
+        document.getElementById('admin-dashboard-section').classList.add('hidden');
+        document.getElementById('admin-pin-input').value = '';
+        document.getElementById('pin-error-msg').classList.add('hidden');
+        adminClickCount = 0;
+    }
+    clearTimeout(adminClickTimer);
+    adminClickTimer = setTimeout(() => { adminClickCount = 0; }, 2000);
+});
