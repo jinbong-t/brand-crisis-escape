@@ -1568,11 +1568,7 @@ function startScreen5() {
                 if (endingScreen) endingScreen.classList.remove('hidden');
                 
                 // 부서명 설정
-                let deptName = '우리 부서';
-                if (PUZZLE_DATA.departments) {
-                    const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
-                    if (found) deptName = found.name;
-                }
+                const deptName = currentDeptName || '우리 부서';
                 const certDeptName = document.getElementById('certificate-dept-name');
                 if (certDeptName) certDeptName.textContent = deptName;
                 
