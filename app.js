@@ -1509,72 +1509,6 @@ function startScreen5() {
             }, 10000);
         };
         
-        const btnSubmitPersonal = document.getElementById('btn-submit-personal-design');
-        if (btnSubmitPersonal) {
-            btnSubmitPersonal.onclick = () => {
-                const reason = document.getElementById('personal-reason').value;
-                const r5 = document.getElementById('personal-5r').value;
-                if (!reason || !r5) {
-                    alert('필수 선택 요소(5R)와 이유를 적어주세요.');
-                    return;
-                }
-                document.getElementById('screen-6').classList.add('hidden');
-                
-                // 폭죽 팡팡 터뜨리며 에필로그 등장!
-                triggerConfetti();
-                
-                // 에필로그 모달 표시
-                const epilogueModal = document.getElementById('epilogue-modal');
-                if (epilogueModal) epilogueModal.classList.remove('hidden');
-            };
-        }
-        
-        // 에필로그 닫고 -> 반전 팝업 띄우기
-        const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
-        if (btnCloseEpilogue) {
-            btnCloseEpilogue.onclick = () => {
-                const epilogueModal = document.getElementById('epilogue-modal');
-                if (epilogueModal) epilogueModal.classList.add('hidden');
-                
-                const twistModal = document.getElementById('twist-modal');
-                if (twistModal) twistModal.classList.remove('hidden');
-            };
-        }
-        
-        // 반전 팝업에서 "마지막 찐 미션" 누르면 소감 창으로!
-        const btnTwistNext = document.getElementById('btn-twist-next');
-        if (btnTwistNext) {
-            btnTwistNext.onclick = () => {
-                const twistModal = document.getElementById('twist-modal');
-                if (twistModal) twistModal.classList.add('hidden');
-                document.getElementById('screen-7').classList.remove('hidden');
-            };
-        }
-
-        const btnSubmitReflections = document.getElementById('btn-submit-reflections');
-        if (btnSubmitReflections) {
-            btnSubmitReflections.onclick = () => {
-                const q1 = document.getElementById('reflection-q1').value;
-                const q2 = document.getElementById('reflection-q2').value;
-                if (!q1 || !q2) {
-                    alert('모든 질문에 답해주세요.');
-                    return;
-                }
-                alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
-                document.getElementById('screen-7').classList.add('hidden');
-                
-                // 드디어 임명장 화면으로
-                const endingScreen = document.getElementById('screen-ending');
-                if (endingScreen) endingScreen.classList.remove('hidden');
-                
-                // 부서명 설정
-                const deptName = currentDeptName || '우리 부서';
-                const certDeptName = document.getElementById('certificate-dept-name');
-                if (certDeptName) certDeptName.textContent = deptName;
-                
-                triggerConfetti();
-            };
-        }
         // ------------------------------------
         
     } else {
@@ -1687,6 +1621,69 @@ function startScreen5() {
         };
     }
 }
+
+// --- Stage 6, 7 전역 이벤트 리스너 ---
+const btnSubmitPersonal = document.getElementById('btn-submit-personal-design');
+if (btnSubmitPersonal) {
+    btnSubmitPersonal.onclick = () => {
+        const reason = document.getElementById('personal-reason').value;
+        const r5 = document.getElementById('personal-5r').value;
+        if (!reason || !r5) {
+            alert('필수 선택 요소(5R)와 이유를 적어주세요.');
+            return;
+        }
+        document.getElementById('screen-6').classList.add('hidden');
+        
+        triggerConfetti();
+        
+        const epilogueModal = document.getElementById('epilogue-modal');
+        if (epilogueModal) epilogueModal.classList.remove('hidden');
+    };
+}
+
+const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
+if (btnCloseEpilogue) {
+    btnCloseEpilogue.onclick = () => {
+        const epilogueModal = document.getElementById('epilogue-modal');
+        if (epilogueModal) epilogueModal.classList.add('hidden');
+        
+        const twistModal = document.getElementById('twist-modal');
+        if (twistModal) twistModal.classList.remove('hidden');
+    };
+}
+
+const btnTwistNext = document.getElementById('btn-twist-next');
+if (btnTwistNext) {
+    btnTwistNext.onclick = () => {
+        const twistModal = document.getElementById('twist-modal');
+        if (twistModal) twistModal.classList.add('hidden');
+        document.getElementById('screen-7').classList.remove('hidden');
+    };
+}
+
+const btnSubmitReflections = document.getElementById('btn-submit-reflections');
+if (btnSubmitReflections) {
+    btnSubmitReflections.onclick = () => {
+        const q1 = document.getElementById('reflection-q1').value;
+        const q2 = document.getElementById('reflection-q2').value;
+        if (!q1 || !q2) {
+            alert('모든 질문에 답해주세요.');
+            return;
+        }
+        alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
+        document.getElementById('screen-7').classList.add('hidden');
+        
+        const endingScreen = document.getElementById('screen-ending');
+        if (endingScreen) endingScreen.classList.remove('hidden');
+        
+        const deptName = currentDeptName || '우리 부서';
+        const certDeptName = document.getElementById('certificate-dept-name');
+        if (certDeptName) certDeptName.textContent = deptName;
+        
+        triggerConfetti();
+    };
+}
+// ------------------------------------
 
 // 폭죽 (Confetti) 애니메이션 함수
 function triggerConfetti() {
