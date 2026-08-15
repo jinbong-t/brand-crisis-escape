@@ -1392,153 +1392,7 @@ function startScreen5() {
         });
         
         // ------------------------------------
-        // --- 캔버스 스케치북 로직 ---
-        const canvas = document.getElementById('design-canvas');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.lineWidth = 5;
-            ctx.strokeStyle = 'black';
-            
-            let isDrawing = false;
-            let lastX = 0;
-            let lastY = 0;
-
-            function startDrawing(e) {
-                isDrawing = true;
-                const rect = canvas.getBoundingClientRect();
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                lastX = (clientX - rect.left) * scaleX;
-                lastY = (clientY - rect.top) * scaleY;
-            }
-
-            function draw(e) {
-                if (!isDrawing) return;
-                e.preventDefault(); // 스크롤 방지
-                const rect = canvas.getBoundingClientRect();
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                const x = (clientX - rect.left) * scaleX;
-                const y = (clientY - rect.top) * scaleY;
-
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                lastX = x;
-                lastY = y;
-            }
-
-            function stopDrawing() {
-                isDrawing = false;
-            }
-
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-
-            canvas.addEventListener('touchstart', startDrawing, {passive: false});
-            canvas.addEventListener('touchmove', draw, {passive: false});
-            canvas.addEventListener('touchend', stopDrawing);
-
-            let currentTool = 'pen'; // 'pen', 'pencil', 'brush', 'eraser'
-            
-            // 색상 버튼 이벤트
-            document.querySelectorAll('.color-btn').forEach(btn => {
-                btn.onclick = () => {
-                    document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
-                    btn.style.borderColor = 'white';
-                    ctx.strokeStyle = btn.getAttribute('data-color');
-                };
-            });
-            
-            // 도구 버튼 공통 처리 함수
-            const setToolActive = (activeId) => {
-                document.querySelectorAll('.btn-tool').forEach(b => b.style.borderColor = 'transparent');
-                document.getElementById(activeId).style.borderColor = 'white';
-            };
-
-            // 도구 버튼 이벤트
-            document.getElementById('btn-tool-pen').onclick = () => {
-                currentTool = 'pen';
-                setToolActive('btn-tool-pen');
-                ctx.lineWidth = 5;
-                ctx.globalAlpha = 1.0;
-                // 현재 선택된 색상 유지
-                const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
-                if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
-                else ctx.strokeStyle = '#000000';
-            };
-            
-            document.getElementById('btn-tool-pencil').onclick = () => {
-                currentTool = 'pencil';
-                setToolActive('btn-tool-pencil');
-                ctx.lineWidth = 2;
-                ctx.globalAlpha = 0.5;
-                const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
-                if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
-                else ctx.strokeStyle = '#000000';
-            };
-            
-            document.getElementById('btn-tool-brush').onclick = () => {
-                currentTool = 'brush';
-                setToolActive('btn-tool-brush');
-                ctx.lineWidth = 15;
-                ctx.globalAlpha = 0.8;
-                const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
-                if (activeColor) ctx.strokeStyle = activeColor.getAttribute('data-color');
-                else ctx.strokeStyle = '#000000';
-            };
-
-            document.getElementById('btn-tool-eraser').onclick = () => {
-                currentTool = 'eraser';
-                setToolActive('btn-tool-eraser');
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 20;
-                ctx.globalAlpha = 1.0;
-            };
-
-            document.getElementById('btn-tool-clear').onclick = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            };
-        }
-        
-        // 캔버스 AI 분석 버튼
-        const btnAnalyzeCanvas = document.getElementById('btn-analyze-canvas');
-        if (btnAnalyzeCanvas) {
-            btnAnalyzeCanvas.onclick = () => {
-                aiFeedback.classList.remove('hidden');
-                aiFeedbackText.textContent = "캔버스 이미지를 분석 중입니다...";
-                setTimeout(() => {
-                    aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
-                }, 2500);
-            };
-        }
-        
-        // 파일 업로드 시 AI 분석 호출 임시 로직
-        const fileUpload = document.getElementById('design-upload');
-        const aiFeedback = document.getElementById('ai-feedback-panel');
-        const aiFeedbackText = document.getElementById('ai-feedback-text');
-        
-        if (fileUpload) {
-            fileUpload.addEventListener('change', () => {
-                if(fileUpload.files && fileUpload.files[0]) {
-                    aiFeedback.classList.remove('hidden');
-                    aiFeedbackText.textContent = "이미지를 분석 중입니다...";
-                    // 임시 분석 지연 시간
-                    setTimeout(() => {
-                        aiFeedbackText.innerHTML = "<b>[Claude Vision API 분석 결과]</b><br>의류의 질감이 잘 표현되었으며, 선의 흐름이 모델의 체형을 보완할 수 있도록 스케치되었습니다. 5R 중 '재사용' 요소를 적용하기 좋은 디자인 형태입니다.";
-                    }, 2500);
-                }
-            });
-        }
+        // (기존 캔버스 로직은 initCanvas 함수로 분리되어 전역에서 호출됨)
         
         const btnLaunch = document.getElementById('btn-launch-show');
         const scoreInput = document.getElementById('stage4-manager-score-input');
@@ -1660,12 +1514,39 @@ function startScreen5() {
                     alert('필수 선택 요소(5R)와 이유를 적어주세요.');
                     return;
                 }
-                alert('개인 디자인 제출이 완료되었습니다! 활동 소감 페이지로 넘어갑니다.');
                 document.getElementById('screen-6').classList.add('hidden');
-                document.getElementById('screen-7').classList.remove('hidden');
+                
+                // 폭죽 팡팡 터뜨리며 에필로그 등장!
+                triggerConfetti();
+                
+                // 에필로그 모달 표시
+                const epilogueModal = document.getElementById('epilogue-modal');
+                if (epilogueModal) epilogueModal.classList.remove('hidden');
             };
         }
         
+        // 에필로그 닫고 -> 반전 팝업 띄우기
+        const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
+        if (btnCloseEpilogue) {
+            btnCloseEpilogue.onclick = () => {
+                const epilogueModal = document.getElementById('epilogue-modal');
+                if (epilogueModal) epilogueModal.classList.add('hidden');
+                
+                const twistModal = document.getElementById('twist-modal');
+                if (twistModal) twistModal.classList.remove('hidden');
+            };
+        }
+        
+        // 반전 팝업에서 "마지막 찐 미션" 누르면 소감 창으로!
+        const btnTwistNext = document.getElementById('btn-twist-next');
+        if (btnTwistNext) {
+            btnTwistNext.onclick = () => {
+                const twistModal = document.getElementById('twist-modal');
+                if (twistModal) twistModal.classList.add('hidden');
+                document.getElementById('screen-7').classList.remove('hidden');
+            };
+        }
+
         const btnSubmitReflections = document.getElementById('btn-submit-reflections');
         if (btnSubmitReflections) {
             btnSubmitReflections.onclick = () => {
@@ -1678,30 +1559,20 @@ function startScreen5() {
                 alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
                 document.getElementById('screen-7').classList.add('hidden');
                 
-                // 에필로그 모달 표시
-                const epilogueModal = document.getElementById('epilogue-modal');
-                if (epilogueModal) epilogueModal.classList.remove('hidden');
+                // 드디어 임명장 화면으로
+                const endingScreen = document.getElementById('screen-ending');
+                if (endingScreen) endingScreen.classList.remove('hidden');
                 
-                // 에필로그 닫고 임명장 화면으로
-                const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
-                if (btnCloseEpilogue) {
-                    btnCloseEpilogue.onclick = () => {
-                        epilogueModal.classList.add('hidden');
-                        const endingScreen = document.getElementById('screen-ending');
-                        if (endingScreen) endingScreen.classList.remove('hidden');
-                        
-                        // 부서명 설정
-                        let deptName = '우리 부서';
-                        if (PUZZLE_DATA.departments) {
-                            const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
-                            if (found) deptName = found.name;
-                        }
-                        const certDeptName = document.getElementById('certificate-dept-name');
-                        if (certDeptName) certDeptName.textContent = deptName;
-                        
-                        triggerConfetti();
-                    };
+                // 부서명 설정
+                let deptName = '우리 부서';
+                if (PUZZLE_DATA.departments) {
+                    const found = PUZZLE_DATA.departments.find(d => d.id === currentDeptId);
+                    if (found) deptName = found.name;
                 }
+                const certDeptName = document.getElementById('certificate-dept-name');
+                if (certDeptName) certDeptName.textContent = deptName;
+                
+                triggerConfetti();
             };
         }
         // ------------------------------------
@@ -2305,10 +2176,141 @@ if (btnSubmitQr) {
 if (btnGoToPersonal) {
     btnGoToPersonal.addEventListener('click', () => {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
         document.getElementById('screen-6').classList.remove('hidden');
         document.getElementById('display-current-role-stage6').textContent = currentRole;
+        
+        // 캔버스 초기화 호출 (직급 무관하게 모두 그릴 수 있음)
+        initCanvas();
     });
+}
+
+function initCanvas() {
+    const canvas = document.getElementById('design-canvas');
+    if (!canvas || canvas.dataset.initialized) return;
+    canvas.dataset.initialized = 'true';
+    
+    const ctx = canvas.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'black';
+    
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        lastX = (clientX - rect.left) * scaleX;
+        lastY = (clientY - rect.top) * scaleY;
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault(); 
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        const x = (clientX - rect.left) * scaleX;
+        const y = (clientY - rect.top) * scaleY;
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        lastX = x;
+        lastY = y;
+    }
+
+    function stopDrawing() { isDrawing = false; }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    canvas.addEventListener('touchstart', startDrawing, {passive: false});
+    canvas.addEventListener('touchmove', draw, {passive: false});
+    canvas.addEventListener('touchend', stopDrawing);
+
+    let currentTool = 'pen';
+    const setToolActive = (activeId) => {
+        document.querySelectorAll('.btn-tool').forEach(b => b.style.borderColor = 'transparent');
+        document.getElementById(activeId).style.borderColor = 'white';
+    };
+
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
+            btn.style.borderColor = 'white';
+            ctx.strokeStyle = btn.getAttribute('data-color');
+        };
+    });
+
+    document.getElementById('btn-tool-pen').onclick = () => {
+        currentTool = 'pen'; setToolActive('btn-tool-pen');
+        ctx.lineWidth = 5; ctx.globalAlpha = 1.0;
+        const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
+        ctx.strokeStyle = activeColor ? activeColor.getAttribute('data-color') : '#000000';
+    };
+    
+    document.getElementById('btn-tool-pencil').onclick = () => {
+        currentTool = 'pencil'; setToolActive('btn-tool-pencil');
+        ctx.lineWidth = 2; ctx.globalAlpha = 0.5;
+        const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
+        ctx.strokeStyle = activeColor ? activeColor.getAttribute('data-color') : '#000000';
+    };
+    
+    document.getElementById('btn-tool-brush').onclick = () => {
+        currentTool = 'brush'; setToolActive('btn-tool-brush');
+        ctx.lineWidth = 15; ctx.globalAlpha = 0.8;
+        const activeColor = document.querySelector('.color-btn[style*="border-color: white"]');
+        ctx.strokeStyle = activeColor ? activeColor.getAttribute('data-color') : '#000000';
+    };
+
+    document.getElementById('btn-tool-eraser').onclick = () => {
+        currentTool = 'eraser'; setToolActive('btn-tool-eraser');
+        ctx.strokeStyle = 'white'; ctx.lineWidth = 20; ctx.globalAlpha = 1.0;
+    };
+
+    document.getElementById('btn-tool-clear').onclick = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    const aiFeedback = document.getElementById('ai-feedback-panel');
+    const aiFeedbackText = document.getElementById('ai-feedback-text');
+    const compliments = [
+        "색상의 조화가 뛰어나고, 모델의 분위기를 한껏 돋보이게 하는 멋진 스케치입니다. 5R 요소를 훌륭히 담아냈습니다.",
+        "선의 흐름과 디테일이 살아있습니다! 독창적인 패턴 배치가 돋보이는 훌륭한 친환경 디자인입니다.",
+        "재질의 느낌과 색 온도가 완벽하게 어우러집니다. 지속 가능한 패션의 미래를 보여주는 멋진 작품이네요!",
+        "과감하면서도 세련된 터치입니다. 모델의 체형 장점을 극대화하면서도 환경 보호의 메시지를 잘 담아냈습니다."
+    ];
+    
+    const showRandomFeedback = () => {
+        aiFeedback.classList.remove('hidden');
+        aiFeedbackText.textContent = "캔버스 이미지를 분석 중입니다...";
+        setTimeout(() => {
+            const randomMent = compliments[Math.floor(Math.random() * compliments.length)];
+            aiFeedbackText.innerHTML = `<b>[Claude Vision API 분석 결과]</b><br>${randomMent}`;
+        }, 2500);
+    };
+
+    const btnAnalyzeCanvas = document.getElementById('btn-analyze-canvas');
+    if (btnAnalyzeCanvas) btnAnalyzeCanvas.onclick = showRandomFeedback;
+    
+    const fileUpload = document.getElementById('design-upload');
+    if (fileUpload) {
+        fileUpload.addEventListener('change', () => {
+            if(fileUpload.files && fileUpload.files[0]) showRandomFeedback();
+        });
+    }
 }
 
 // --- 대시보드 로직 ---
