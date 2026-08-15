@@ -1,7 +1,33 @@
 import { db, collection, doc, setDoc, getDoc, getDocFromServer, runTransaction, updateDoc, onSnapshot } from './firebase-config.js';
 import { PUZZLE_DATA } from './puzzle-data.js?v=5.0';
 
+// 글로벌 학급 설정 (기본값)
+let activeClass = '3-1';
+
+// Firebase Document Reference 래퍼 함수 (학급 격리)
+function getDeptDocRef(deptId) {
+    return doc(db, `classes/${activeClass}/departments`, deptId);
+}
+function getRoleDocRef(deptId, role) {
+    return doc(db, `classes/${activeClass}/departments/${deptId}/roles`, role);
+}
+function getRolesColRef(deptId) {
+    return collection(db, `classes/${activeClass}/departments/${deptId}/roles`);
+}
+function getPieceDocRef(deptId) {
+    return doc(db, `classes/${activeClass}/pieces`, deptId);
+}
+function getPiecesColRef() {
+    return collection(db, `classes/${activeClass}/pieces`);
+}
+function getReasoningDocRef(deptId, stageStr) {
+    return doc(db, `classes/${activeClass}/departments/${deptId}/reasoning`, stageStr);
+}
+
 sessionStorage.clear();
+
+// 화면에 현재 반 희미하게 표시
+document.getElementById('active-class-watermark').textContent = `Class: ${activeClass}`;
 
 // DOM 요소
 const deptGrid = document.getElementById('dept-grid');
@@ -143,7 +169,7 @@ async function selectDepartment(dept) {
     roleSelection.classList.remove('hidden');
 
     // Firestore에서 부서 문서가 없으면 생성
-    const deptRef = doc(db, 'departments', currentDeptId);
+    const deptRef = getDeptDocRef(currentDeptId);
     const snap = await getDoc(deptRef);
     if (!snap.exists()) {
         await setDoc(deptRef, {
@@ -161,7 +187,7 @@ async function selectDepartment(dept) {
 async function checkRoleAvailability() {
     roleCards.forEach(async (card) => {
         const role = card.getAttribute('data-role');
-        const roleRef = doc(db, `departments/${currentDeptId}/roles`, role);
+        const roleRef = getRoleDocRef(currentDeptId, role);
         const snap = await getDoc(roleRef);
         
         if (snap.exists() && snap.data().taken) {
@@ -190,7 +216,7 @@ roleCards.forEach(card => {
         const role = card.getAttribute('data-role');
         
         try {
-            const roleRef = doc(db, `departments/${currentDeptId}/roles`, role);
+            const roleRef = getRoleDocRef(currentDeptId, role);
             await runTransaction(db, async (transaction) => {
                 const docSnap = await transaction.get(roleRef);
                 if (docSnap.exists() && docSnap.data().taken) {
@@ -295,7 +321,7 @@ btnResetDepts.addEventListener('click', async () => {
         for (const dept of depts) {
             try {
                 // 부서 기본 정보 및 스테이지 초기화
-                await setDoc(doc(db, 'departments', dept.id), {
+                await setDoc(getDeptDocRef(dept.id), {
                     name: dept.name,
                     currentStage: 0,
                     managerFinalAnswer1: "",
@@ -306,13 +332,13 @@ btnResetDepts.addEventListener('click', async () => {
                 });
                 
                 // QR 피스 상태 초기화
-                await setDoc(doc(db, 'pieces', dept.id), {
+                await setDoc(getPieceDocRef(dept.id), {
                     unlocked: false
                 });
 
                 // 직급 상태 초기화
                 for (const role of roles) {
-                    await setDoc(doc(db, `departments/${dept.id}/roles`, role), { 
+                    await setDoc(getRoleDocRef(dept.id, role), { 
                         taken: false,
                         stage1Confirmed: false,
                         stage4Confirmed: false,
@@ -343,7 +369,7 @@ if (btnEasyReset) {
             // 모든 부서의 권한 반환 및 스테이지 0으로 되돌리기 (완전 초기화)
             for (const dept of depts) {
                 try {
-                    await setDoc(doc(db, 'departments', dept.id), {
+                    await setDoc(getDeptDocRef(dept.id), {
                         name: dept.name,
                         currentStage: 0,
                         managerFinalAnswer1: "",
@@ -352,12 +378,12 @@ if (btnEasyReset) {
                         reasoningWords: [],
                         qrScanned: false
                     });
-                    await setDoc(doc(db, 'pieces', dept.id), { unlocked: false });
+                    await setDoc(getPieceDocRef(dept.id), { unlocked: false });
                 } catch(e) { console.error(e); }
 
                 for (const role of roles) {
                     try {
-                        await setDoc(doc(db, `departments/${dept.id}/roles`, role), { 
+                        await setDoc(getRoleDocRef(dept.id, role), { 
                             taken: false,
                             stage1Confirmed: false,
                             stage4Confirmed: false,
@@ -389,7 +415,7 @@ debugRoleBtns.forEach(btn => {
         
         // 부서 문서 강제 생성 (updateDoc 오류 방지)
         try {
-            await setDoc(doc(db, 'departments', currentDeptId), {
+            await setDoc(getDeptDocRef(currentDeptId), {
                 name: '테스트부서',
                 currentStage: 1
             }, { merge: true });
@@ -400,7 +426,6 @@ debugRoleBtns.forEach(btn => {
         // 정식 앱 초기화 (이 과정에서 onSnapshot이 제대로 묶이고 화면 1이 정상 셋팅됨)
         initApp();
         
-        setTimeout(() => showReasoningModal(PUZZLE_DATA.stage1, 2), 800);
     });
 });
 
@@ -425,7 +450,7 @@ skipButtons.forEach(btn => {
         if (confirm(`${targetStage}단계로 강제 이동하시겠습니까?`)) {
             try {
                 // 부서 문서가 없으면 임시 생성
-                await setDoc(doc(db, 'departments', currentDeptId), {
+                await setDoc(getDeptDocRef(currentDeptId), {
                     name: currentDeptName,
                     currentStage: targetStage,
                     startTime: Date.now()
@@ -677,7 +702,7 @@ btnSubmitOpening.addEventListener('click', async () => {
         
         // 상태 업데이트
         try {
-            await updateDoc(doc(db, 'departments', currentDeptId), {
+            await updateDoc(getDeptDocRef(currentDeptId), {
                 currentStage: 1
             });
         } catch(e) { console.error(e); }
@@ -806,7 +831,7 @@ function startScreen2(deptData) {
         document.getElementById('reasoning-role-label').style.color = '#ff9f43';
         
         // 부장 전용 실시간 팀원 현황 모니터링
-        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+        onSnapshot(getRolesColRef(currentDeptId), (snapshot) => {
             let allConfirmed = true;
             const requiredRoles = ['인턴', '사원', '차장'];
             
@@ -845,7 +870,7 @@ function startScreen2(deptData) {
             secretSkipStage1.onclick = async () => {
                 if (confirm('강제로 2단계로 넘어갈까요? (부장 전용 패스)')) {
                     try {
-                        await updateDoc(doc(db, 'departments', currentDeptId), {
+                        await updateDoc(getDeptDocRef(currentDeptId), {
                             currentStage: 2,
                             showStage1Reasoning: false
                         });
@@ -881,7 +906,7 @@ function startScreen2(deptData) {
                 btnSubmitStage1.textContent = '최종 승인 완료 (2단계 이동 중...)';
                 
                 try {
-                    await updateDoc(doc(db, 'departments', currentDeptId), {
+                    await updateDoc(getDeptDocRef(currentDeptId), {
                         currentStage: 2,
                         showStage1Reasoning: false
                     });
@@ -923,7 +948,7 @@ function startScreen2(deptData) {
                 
                 try {
                     // 서버 업데이트 시도 (실패해도 진행)
-                    const roleRef = doc(db, `departments/${currentDeptId}/roles`, currentRole);
+                    const roleRef = getRoleDocRef(currentDeptId, currentRole);
                     updateDoc(roleRef, { stage1Confirmed: true, reasoning: textarea.value }).catch(e=>console.error(e));
 
                     alert('부장님께 최종 기안(결재 요청)을 무사히 넘겼습니다! 부장님이 승인하면 자동으로 넘어갑니다.');
@@ -991,7 +1016,7 @@ function startScreen3() {
         document.getElementById('manager-stage2-puzzle-hint').textContent = `힌트: ${puzzleData.hint}`;
         
         // 부장 현황판 리스너
-        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+        onSnapshot(getRolesColRef(currentDeptId), (snapshot) => {
             const roles = ['인턴', '사원', '차장'];
             let allConfirmed = true;
             
@@ -1036,7 +1061,7 @@ function startScreen3() {
                 btnSubmitStage2.disabled = true;
                 btnSubmitStage2.textContent = '가동 중...';
                 
-                setDoc(doc(db, 'departments', currentDeptId), {
+                setDoc(getDeptDocRef(currentDeptId), {
                     currentStage: 3
                 }, { merge: true }).catch(e => console.error("Stage 2 DB 업데이트 실패:", e));
                 
@@ -1079,7 +1104,7 @@ function startScreen3() {
                 input.disabled = true;
                 
                 // 서버 업데이트 시도
-                setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                setDoc(getRoleDocRef(currentDeptId, currentRole), {
                     stage2Confirmed: true,
                     stage2Answer: puzzleData.answer
                 }, { merge: true }).catch(e=>console.error(e));
@@ -1133,7 +1158,7 @@ function startScreen4() {
         document.getElementById('stage3-employee-panel').classList.add('hidden');
         document.getElementById('stage3-manager-panel').classList.remove('hidden');
         
-        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+        onSnapshot(getRolesColRef(currentDeptId), (snapshot) => {
             const roles = ['인턴', '사원', '차장'];
             let stage3CompletedCount = 0;
             roles.forEach(role => {
@@ -1260,7 +1285,7 @@ function startScreen4() {
                 alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
-                updateDoc(doc(db, 'departments', currentDeptId), {
+                updateDoc(getDeptDocRef(currentDeptId), {
                     showStage3Reasoning: true
                 }).catch(e => console.error(e));
                 
@@ -1271,10 +1296,9 @@ function startScreen4() {
                     btnSubmit.textContent = '서버 동기화 (재시도)';
                     btnSubmit.onclick = () => {
                         if (confirm('서버 통신 지연이 발생했습니다. 직권으로 동기화를 진행하시겠습니까?')) {
-                            updateDoc(doc(db, 'departments', currentDeptId), {
+                            updateDoc(getDeptDocRef(currentDeptId), {
                                 showStage3Reasoning: true
                             }).catch(e => console.error(e));
-                            showReasoningModal(PUZZLE_DATA.stage3, 4);
                         }
                     };
                 }, 10000);
@@ -1313,7 +1337,7 @@ function startScreen4() {
                     alert(`모든 단서를 찾았습니다! 부장님에게 알려주세요!`);
                     input.disabled = true;
                     
-                    setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                    setDoc(getRoleDocRef(currentDeptId, currentRole), {
                         stage3Confirmed: true
                     }, { merge: true }).catch(e=>console.error(e));
 
@@ -1446,7 +1470,7 @@ function startScreen5() {
         scoreInput.addEventListener('input', checkManagerStage4Complete);
         
         // 팀원들의 정답 현황 실시간 감시
-        onSnapshot(collection(db, `departments/${currentDeptId}/roles`), (snapshot) => {
+        onSnapshot(getRolesColRef(currentDeptId), (snapshot) => {
             let correctCount = 0;
             
             snapshot.forEach(docSnap => {
@@ -1480,7 +1504,7 @@ function startScreen5() {
             btnLaunch.disabled = true;
             btnLaunch.textContent = '런칭 준비 중...';
             
-            updateDoc(doc(db, 'departments', currentDeptId), {
+            updateDoc(getDeptDocRef(currentDeptId), {
                 currentStage: 5
             }).catch(e => console.error("런칭쇼 가동 실패:", e));
             
@@ -1546,7 +1570,7 @@ function startScreen5() {
                     alert(`모든 기획안 검토가 완료되었습니다! 부장님 현황판에 반영되었습니다.`);
                     input.disabled = true;
                     
-                    setDoc(doc(db, `departments/${currentDeptId}/roles`, currentRole), {
+                    setDoc(getRoleDocRef(currentDeptId, currentRole), {
                         stage4Confirmed: true
                     }, { merge: true }).catch(e=>console.error(e));
 
@@ -1573,7 +1597,7 @@ function startScreen5() {
     }
     
     // 부장 및 팀원 모두에게 적용되는 전역 리스너 (Stage 5 / QR 스캔 단계 진입)
-    onSnapshot(doc(db, 'departments', currentDeptId), (docSnap) => {
+    onSnapshot(getDeptDocRef(currentDeptId), (docSnap) => {
         const d = docSnap.data();
         if (d && d.currentStage === 5) {
             const successModal = document.getElementById('stage3-success-modal');
@@ -1594,7 +1618,7 @@ function startScreen5() {
                 successModal.classList.remove('hidden');
 
                 // 누군가 QR을 찍어 조각을 획득하면 모두가 6단계로 넘어감
-                const unsub = onSnapshot(doc(db, 'pieces', currentDeptId), (pieceSnap) => {
+                const unsub = onSnapshot(getPieceDocRef(currentDeptId), (pieceSnap) => {
                     if (pieceSnap.exists() && pieceSnap.data().unlocked) {
                         unsub();
                         document.getElementById('stage3-success-modal').classList.add('hidden');
@@ -1837,7 +1861,7 @@ function showReasoningModal(stageData, targetStageNum) {
           secretSkipReasoning.onclick = async () => {
               if (confirm('시스템 동기화를 진행하시겠습니까?')) {
                   try {
-                      await updateDoc(doc(db, 'departments', currentDeptId), {
+                      await updateDoc(getDeptDocRef(currentDeptId), {
                           currentStage: targetStageNum,
                           showStage1Reasoning: false,
                           showStage3Reasoning: false
@@ -1876,7 +1900,7 @@ function showReasoningModal(stageData, targetStageNum) {
             const summaryEl = document.getElementById('reasoning-summary');
             if (summaryEl && summaryEl.value.trim() !== '') {
                 try {
-                    await setDoc(doc(db, `departments/${currentDeptId}/reasoning`, `stage${targetStageNum-1}`), {
+                    await setDoc(getReasoningDocRef(currentDeptId, `stage${targetStageNum-1}`), {
                         roleGroup: currentRole,
                         summary: summaryEl.value.trim()
                     }, { merge: true });
@@ -1886,7 +1910,7 @@ function showReasoningModal(stageData, targetStageNum) {
             btnSubmit.disabled = true;
             btnSubmit.textContent = '제출 중...';
             
-            updateDoc(doc(db, 'departments', currentDeptId), {
+            updateDoc(getDeptDocRef(currentDeptId), {
                 currentStage: targetStageNum,
                 showStage1Reasoning: false,
                 showStage3Reasoning: false
@@ -2007,7 +2031,7 @@ async function initApp() {
             }
 
             // 부서의 currentStage 변경을 실시간으로 감지하여 화면 자동 전환
-            onSnapshot(doc(db, 'departments', currentDeptId), (snap) => {
+            onSnapshot(getDeptDocRef(currentDeptId), (snap) => {
                 if (snap.exists()) {
                     handleStageUpdate(snap.data());
                 } else {
@@ -2023,7 +2047,7 @@ async function initApp() {
             setInterval(async () => {
                 try {
                     // 1. Firebase SDK 폴링 시도
-                    const snap = await getDoc(doc(db, 'departments', currentDeptId));
+                    const snap = await getDoc(getDeptDocRef(currentDeptId));
                     if (snap.exists()) {
                         handleStageUpdate(snap.data());
                     }
@@ -2142,7 +2166,7 @@ if (btnSubmitQr) {
             
             // pieces 컬렉션 업데이트
             try {
-                await setDoc(doc(db, 'pieces', currentDeptId), { 
+                await setDoc(getPieceDocRef(currentDeptId), { 
                     unlocked: true, 
                     unlockedAt: new Date().toISOString()
                 }, { merge: true });
@@ -2323,7 +2347,7 @@ function openDashboard() {
     renderDashboardSlots();
     
     // Firestore pieces 컬렉션 실시간 구독
-    dashboardUnsubscribe = onSnapshot(collection(db, 'pieces'), (snapshot) => {
+    dashboardUnsubscribe = onSnapshot(getPiecesColRef(), (snapshot) => {
         let unlockedCount = 0;
         const totalDepts = JSON.parse(localStorage.getItem('rebrand_departments') || '[]').length;
         
@@ -2392,12 +2416,12 @@ if (btnSecretSkip) {
     btnSecretSkip.addEventListener('click', async () => {
         if (!currentDeptId) return;
         try {
-            const snap = await getDoc(doc(db, 'departments', currentDeptId));
+            const snap = await getDoc(getDeptDocRef(currentDeptId));
             if (snap.exists()) {
                 const stage = snap.data().currentStage || 0;
                 let nextStage = stage + 1;
                 if (nextStage > 5) nextStage = 5;
-                await updateDoc(doc(db, 'departments', currentDeptId), {
+                await updateDoc(getDeptDocRef(currentDeptId), {
                     currentStage: nextStage
                 });
             }
@@ -2406,3 +2430,315 @@ if (btnSecretSkip) {
 }
 
 
+
+
+// =========================================================================
+// [추가 구현] 교사 대시보드 및 개인 미션(5R/소감문) 저장 로직
+// =========================================================================
+
+// --- 1. 개인 미션(Screen 6) 및 소감문(Screen 7) 로직 ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Canvas Setup
+    const canvas = document.getElementById('design-canvas');
+    let ctx, isDrawing = false;
+    
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        let currentColor = '#000000';
+        let currentLineWidth = 3;
+        
+        function startPosition(e) {
+            isDrawing = true;
+            draw(e);
+        }
+        
+        function endPosition() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            
+            ctx.lineWidth = currentLineWidth;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = currentColor;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPosition(e); }, { passive: false });
+        canvas.addEventListener('touchend', endPosition);
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false });
+        
+        // Tools
+        document.getElementById('btn-tool-pen')?.addEventListener('click', () => { currentColor = '#000000'; currentLineWidth = 2; });
+        document.getElementById('btn-tool-pencil')?.addEventListener('click', () => { currentColor = '#555555'; currentLineWidth = 1; });
+        document.getElementById('btn-tool-brush')?.addEventListener('click', () => { currentColor = '#000000'; currentLineWidth = 8; });
+        document.getElementById('btn-tool-eraser')?.addEventListener('click', () => { currentColor = '#ffffff'; currentLineWidth = 20; });
+        document.getElementById('btn-tool-clear')?.addEventListener('click', () => { ctx.fillStyle = "white"; ctx.fillRect(0, 0, canvas.width, canvas.height); });
+        
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentColor = e.target.getAttribute('data-color');
+            });
+        });
+
+        // Image Upload
+        document.getElementById('design-upload')?.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.fillStyle = "white";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // 6단계 제출 (캔버스 이미지 변환 후 저장)
+    document.getElementById('btn-submit-personal-design')?.addEventListener('click', async () => {
+        if (!currentDeptId || !currentRole) return;
+        
+        const line = document.getElementById('personal-line').value;
+        const temp = document.getElementById('personal-temp').value;
+        const material = document.getElementById('personal-material').value;
+        const pattern = document.getElementById('personal-pattern').value;
+        const tpo = document.getElementById('personal-tpo').value;
+        const r5 = document.getElementById('personal-5r').value;
+        const reason = document.getElementById('personal-reason').value;
+        
+        if (!line || !temp || !material || !pattern || !tpo || !r5 || !reason) {
+            alert('모든 항목을 선택하고 이유를 적어주세요!');
+            return;
+        }
+
+        const btn = document.getElementById('btn-submit-personal-design');
+        btn.disabled = true;
+        btn.textContent = "저장 중...";
+        
+        try {
+            // html2canvas로 영역 캡처 (선택형 캔버스)
+            let canvasDataUrl = "";
+            if (canvas) {
+                canvasDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            }
+
+            const personalData = {
+                designImage: canvasDataUrl,
+                tpo: tpo,
+                r5: r5,
+                choices: { line, temp, material, pattern },
+                reason: reason,
+                timestamp: Date.now()
+            };
+
+            await updateDoc(getRoleDocRef(currentDeptId, currentRole), {
+                stage6Completed: true,
+                personalDesign: personalData
+            });
+            
+            alert('디자인이 성공적으로 저장되었습니다! 다음 단계로 이동합니다.');
+            document.getElementById('screen-6').classList.add('hidden');
+            document.getElementById('screen-7').classList.remove('hidden');
+            
+        } catch(e) {
+            console.error("Personal Design Save Error:", e);
+            alert("저장에 실패했습니다. 다시 시도해주세요.");
+            btn.disabled = false;
+            btn.textContent = "디자인 제출 및 평가 가기";
+        }
+    });
+    
+    // 6단계 스킵
+    document.getElementById('secret-skip-personal')?.addEventListener('click', () => {
+        document.getElementById('screen-6').classList.add('hidden');
+        document.getElementById('screen-7').classList.remove('hidden');
+    });
+
+    // 7단계 소감문 제출
+    document.getElementById('btn-submit-reflections')?.addEventListener('click', async () => {
+        const q1 = document.getElementById('reflection-q1').value;
+        const q2 = document.getElementById('reflection-q2').value;
+        
+        if (!q1 || !q2) {
+            alert("모든 소감을 작성해주세요!");
+            return;
+        }
+        
+        const btn = document.getElementById('btn-submit-reflections');
+        btn.disabled = true;
+        
+        try {
+            await updateDoc(getRoleDocRef(currentDeptId, currentRole), {
+                stage7Completed: true,
+                reflection: { q1, q2 },
+                completedAt: Date.now()
+            });
+            
+            document.getElementById('screen-7').classList.add('hidden');
+            document.getElementById('screen-ending').classList.remove('hidden');
+            document.getElementById('certificate-dept-name').textContent = currentDeptName || '우리 부서';
+            
+            setTimeout(() => {
+                document.getElementById('epilogue-modal').classList.remove('hidden');
+                const video = document.querySelector('#epilogue-modal video');
+                if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
+            }, 3000);
+            
+        } catch(e) {
+            console.error(e);
+            alert("소감문 저장 실패");
+            btn.disabled = false;
+        }
+    });
+
+});
+
+// --- 2. 교사 대시보드 (Teacher Dashboard) 로직 ---
+
+function initTeacherDashboard() {
+    const tdScreen = document.getElementById('screen-teacher-dashboard');
+    if (!tdScreen) return;
+
+    // PIN 번호가 1234일 때만 대시보드 렌더링
+    // 이 로직은 admin PIN 확인 창에서 처리되도록 연결해야 함 (아래 참조)
+
+    // 반 설정
+    const classInput = document.getElementById('td-active-class-input');
+    const setClassBtn = document.getElementById('btn-td-set-class');
+    
+    classInput.value = activeClass;
+    
+    setClassBtn.addEventListener('click', () => {
+        const newClass = classInput.value.trim();
+        if (newClass) {
+            activeClass = newClass;
+            alert(`현재 학급이 [${activeClass}]로 설정되었습니다. 다시 로그인하면 적용됩니다.`);
+            sessionStorage.clear();
+            location.reload();
+        }
+    });
+
+    // 탭 전환 로직
+    const tabs = document.querySelectorAll('.td-menu-item');
+    const contents = document.querySelectorAll('.td-tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.style.borderLeftColor = 'transparent';
+                t.style.backgroundColor = 'transparent';
+            });
+            contents.forEach(c => c.classList.add('hidden'));
+            
+            tab.classList.add('active');
+            tab.style.borderLeftColor = 'var(--accent-gold)';
+            tab.style.backgroundColor = 'rgba(255,215,0,0.1)';
+            
+            const targetId = tab.getAttribute('data-tab');
+            document.getElementById(targetId).classList.remove('hidden');
+            
+            if (targetId === 'tab-roster') loadRoster();
+            if (targetId === 'tab-progress') loadProgress();
+            if (targetId === 'tab-results') loadResults();
+        });
+    });
+
+    // 닫기
+    document.getElementById('btn-td-exit').addEventListener('click', () => {
+        tdScreen.classList.add('hidden');
+        document.getElementById('screen-0').classList.remove('hidden');
+    });
+
+    // 추천 기능 이벤트
+    document.getElementById('btn-td-freeze')?.addEventListener('click', () => {
+        alert("학생들의 화면이 정지되었습니다. (실제 연동을 위해선 Firestore에 상태 기록 필요)");
+    });
+    document.getElementById('btn-td-force-pass')?.addEventListener('click', () => {
+        const target = document.getElementById('td-force-pass-stage').value;
+        alert(`${target}단계로 강제 이동 신호를 보냈습니다.`);
+    });
+    document.getElementById('btn-td-send-notice')?.addEventListener('click', () => {
+        const notice = document.getElementById('td-notice-input').value;
+        if(notice) alert(`[${notice}] 공지가 전송되었습니다.`);
+    });
+    
+    // 전체 초기화
+    document.getElementById('btn-td-reset-class')?.addEventListener('click', () => {
+        if (confirm(`정말 [${activeClass}] 반의 모든 데이터를 삭제하시겠습니까? 복구할 수 없습니다.`)) {
+            alert('초기화 되었습니다.'); // 실제 Firebase 삭제 함수 연결 필요
+        }
+    });
+
+    // 명단, 진행상황, 결과물 로드 함수 (Mock up)
+    function loadRoster() {
+        const container = document.getElementById('td-roster-container');
+        if (!container) return;
+        
+        let depts = JSON.parse(localStorage.getItem('departments')) || [];
+        container.innerHTML = '';
+        depts.forEach(dept => {
+            container.innerHTML += `
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid #444;">
+                    <h4 style="color: var(--accent-gold); margin-bottom: 10px;">${dept.name}</h4>
+                    <div style="display: flex; gap: 10px; flex-direction: column;">
+                        <input type="text" placeholder="부장 이름/학번" style="padding: 5px; background: #222; color: white; border: 1px solid #555;">
+                        <input type="text" placeholder="차장 이름/학번" style="padding: 5px; background: #222; color: white; border: 1px solid #555;">
+                        <input type="text" placeholder="사원 이름/학번" style="padding: 5px; background: #222; color: white; border: 1px solid #555;">
+                        <input type="text" placeholder="인턴 이름/학번" style="padding: 5px; background: #222; color: white; border: 1px solid #555;">
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function loadProgress() {
+        // Firebase 데이터를 읽어와 표시하는 로직이 들어갈 자리
+        const tbody = document.getElementById('td-progress-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = `<tr><td colspan="8" style="padding: 20px; color: #888;">데이터를 불러오는 중입니다...</td></tr>`;
+    }
+
+    function loadResults() {
+        const container = document.getElementById('td-results-container');
+        if (!container) return;
+        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: #888;">학생들이 개인 미션을 완료하면 여기에 결과물이 표시됩니다.</div>`;
+    }
+}
+
+// PIN 인증 훅 (1234 입력 시 대시보드 진입)
+document.getElementById('btn-verify-pin')?.addEventListener('click', () => {
+    const pin = document.getElementById('admin-pin-input').value;
+    if (pin === '1234') {
+        document.getElementById('admin-modal').classList.add('hidden');
+        document.getElementById('screen-0').classList.add('hidden');
+        const tdScreen = document.getElementById('screen-teacher-dashboard');
+        if (tdScreen) {
+            tdScreen.classList.remove('hidden');
+            initTeacherDashboard();
+        }
+    }
+});

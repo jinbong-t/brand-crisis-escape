@@ -1,0 +1,1096 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>釉뚮옖???꾧린 ?덉텧</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2.0">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- ?꾩옱 ?숆툒 ?뚰꽣留덊겕 (援먯궗 ?뺤씤?? -->
+    <div id="active-class-watermark" style="position: fixed; top: 5px; right: 5px; color: rgba(255, 255, 255, 0.2); font-size: 0.8rem; pointer-events: none; z-index: 9999;"></div>
+    <div id="version-display" style="position:fixed; top:10px; right:10px; z-index:9999; background:red; color:white; padding:5px 10px; font-weight:bold; border-radius:5px;">v29.0</div>
+    <div id="app-container">
+        <!-- ?곷떒 怨좎젙 ?ㅻ뜑 -->
+        <header id="main-header" class="hidden">
+            <div class="header-left">
+                <span id="btn-secret-skip" class="brand-logo" style="cursor: pointer;">RE:BRAND</span>
+                <span id="current-team-display" class="team-badge"></span>
+            </div>
+            <div class="header-right">
+                <div id="inventory-bar" class="inventory">
+                    <div class="slot" data-index="0"></div>
+                    <div class="slot" data-index="1"></div>
+                    <div class="slot" data-index="2"></div>
+                </div>
+            </div>
+        </header>
+
+        <main id="screen-container">
+            <!-- Splash Screen (寃뚯엫 吏꾩엯 ?? -->
+            <section id="screen-splash" class="screen active">
+                <div class="splash-bg"></div>
+                <div class="splash-content">
+                    <h1 class="splash-title">釉뚮옖???꾧린 ?덉텧</h1>
+                    <p class="splash-subtitle">?꾧린??鍮좎쭊 釉뚮옖?쒕? 援ъ텧?섎씪</p>
+                    <button id="btn-enter-game" class="btn-genius pulse-glow">寃뚯엫 ?낆옣</button>
+                    <!-- ?좎깮???꾩슜 鍮꾨? 由ъ뀑 踰꾪듉 (?щ챸) -->
+                    <div id="btn-secret-reset" style="position: absolute; top: 0; left: 0; width: 80px; height: 80px; cursor: pointer; z-index: 100;"></div>
+                </div>
+            </section>
+
+            <!-- ??吏?덉뼱???ㅽ???吏덈Ц ?앹뾽 -->
+            <div id="genius-modal" class="modal hidden">
+                <div class="modal-content genius-content">
+                    <h2 class="genius-text glow-text">"?뱀떊??遺?쒕뒗 臾댁뾿?낅땲源?"</h2>
+                </div>
+            </div>
+
+            <!-- Screen 0: 遺??吏곴툒 ?좏깮 -->
+            <section id="screen-0" class="screen hidden">
+                <div class="admin-toggle-area" id="admin-toggle-btn"></div> <!-- ?④꺼吏?踰꾪듉 ?곸뿭 -->
+                
+                <div id="department-selection" class="selection-panel">
+                    <h2 class="genius-header">遺???좏깮</h2>
+                    <div id="dept-grid" class="grid-container">
+                        <!-- JS?먯꽌 ?숈쟻 ?뚮뜑留?-->
+                    </div>
+                </div>
+
+                <div id="role-selection" class="selection-panel hidden">
+                    <button id="btn-back-to-dept" class="btn-text">??遺???ㅼ떆 ?좏깮</button>
+                    <h2><span id="selected-dept-name"></span> 吏곴툒 ?좏깮</h2>
+                    <p class="guide-text">蹂몄씤????븷???좏깮?섏꽭?? ??踰??좏깮?섎㈃ ?섎룎由????놁뒿?덈떎.</p>
+                    <div id="role-grid" class="grid-container">
+                        <button class="role-card" data-role="?명꽩">
+                            <h3>?명꽩</h3>
+                            <p>吏곸젒?곸씤 ?⑥꽌 ?먯깋</p>
+                        </button>
+                        <button class="role-card" data-role="?ъ썝">
+                            <h3>?ъ썝</h3>
+                            <p>?먮즺 ?댁꽍 諛?遺꾩꽍</p>
+                        </button>
+                        <button class="role-card" data-role="李⑥옣">
+                            <h3>李⑥옣</h3>
+                            <p>?듭떖 媛쒕뀗 ?꾩텧</p>
+                        </button>
+                        <button class="role-card" data-role="遺??>
+                            <h3>遺??/h3>
+                            <p>醫낇빀 ?먮떒 諛??쒖텧</p>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 1: ?ㅽ봽??-->
+            <section id="screen-1" class="screen hidden" style="background-image: url('stage1_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <h2>?ш굔???쒖옉: ?좉릿 ?ㅼ씠?대━</h2>
+                <p class="guide-text">議곗궗 移대뱶 4?μ쓣 ?ㅼ쭛???⑥꽌瑜??뺤씤?섍퀬, ?щ컮瑜??쒖꽌濡??뺣젹?섏뿬 ?좉툑???댁젣?섏꽭??</p>
+                
+                <div id="intro-modal" class="modal hidden">
+                    <div class="modal-content" style="max-width: 600px; position: relative; padding-bottom: 4rem;">
+                        <h3 style="margin-bottom: 1rem; text-align: center;">?ш굔???쒖옉</h3>
+                        <video id="intro-video" controls width="100%" class="intro-video-player" style="margin-bottom: 1rem; border-radius: 8px;">
+                            <source src="intro_video.mp4" type="video/mp4">
+                            釉뚮씪?곗?媛 鍮꾨뵒???쒓렇瑜?吏?먰븯吏 ?딆뒿?덈떎.
+                        </video>
+                        <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 1rem; padding-right: 10px;">
+                            <!-- JS?먯꽌 臾몃떒蹂꾨줈 ?뚮뜑留?-->
+                        </div>
+                        <button id="btn-intro-next" class="btn-primary" style="position: absolute; bottom: 1.5rem; right: 1.5rem;">?ㅼ쓬 ??/button>
+                        <button id="close-intro-modal" class="btn-primary hidden" style="position: absolute; bottom: 1.5rem; right: 1.5rem; width: auto;">?⑥꽌 李얘린 ?쒖옉!</button>
+                    </div>
+                </div>
+
+                <div id="opening-cards" class="card-container sortable-container">
+                    <!-- JS ?뚮뜑留?-->
+                </div>
+                
+                <div class="action-area">
+                    <button id="btn-unlock" class="btn-primary">?좉툑 ?댁젣</button>
+                </div>
+
+                <!-- ?ㅼ씠?대━ 紐⑤떖 -->
+                <div id="diary-modal" class="modal hidden">
+                    <div class="modal-content diary-content">
+                        <h3>?쒖꽌?곗쓽 硫붾え</h3>
+                        <p id="diary-text"></p>
+                        
+                        <div class="question-box">
+                            <p><strong>???먮쫫(?앹궛 ???ъ슜 ???먭린)? ?대뼡 援ъ“?멸???</strong></p>
+                            <div class="radio-group">
+                                <label><input type="radio" name="flow-type" value="?좏삎"> ?좏삎 援ъ“</label>
+                                <label><input type="radio" name="flow-type" value="?쒗솚"> ?쒗솚 援ъ“</label>
+                            </div>
+                            <button id="btn-submit-opening" class="btn-primary">?쒖텧</button>
+                            <p id="opening-error-msg" class="error-text hidden">??몄뒿?덈떎. 遺?λ떂怨??곸쓽?대낫?몄슂.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 2 (1?④퀎: ?붿옄?몄슂?뚯떎) -->
+            <section id="screen-2" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e'); background-size: cover; background-position: center; min-height: 100vh;">
+                <style>.glass-overlay::-webkit-scrollbar { display: none; }</style>
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>1?④퀎: ?붿옄?몄슂?뚯떎 ?뵇</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div id="role-badge" class="badge">?꾩옱 ??븷: <span id="display-current-role">?명꽩</span></div>
+                            <button id="btn-logout-role" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">??븷 蹂寃?濡쒓렇?꾩썐)</button>
+                        </div>
+                    </header>
+
+                    <!-- 誘몄뀡 而⑦뀒?대꼫 -->
+                    <div class="mission-container">
+                        <!-- 1-1. 紐쏀?二?異붾━ (吏곴툒蹂?鍮꾨?移??⑥꽌) -->
+                        <div class="mission-card" id="mission-1-1">
+                            <h3>[誘몄뀡 1] 紐⑷꺽?먯쓽 紐쏀?二?議곌컖</h3>
+                            <div class="clue-box">
+                                <p id="montage-clue-text" style="font-size: 1.1rem; margin-bottom: 1rem; font-style: italic;">"?⑥꽌 ?띿뒪?멸? ?ш린???쒖떆?⑸땲??"</p>
+                                <div id="montage-options" class="options-group">
+                                    <!-- JS ?뚮뜑留?-->
+                                </div>
+                                
+                                <!-- 遺???꾩슜 -->
+                                <div id="manager-montage-panel" class="hidden manager-panel" style="margin-top: 1rem;">
+                                    <h4 style="margin-bottom: 0.5rem; color: var(--accent-gold);">?꾩껜 ?먮떒 ?議고몴 (遺???꾩슜)</h4>
+                                    <table class="clue-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                                        <tr style="background: rgba(0,0,0,0.3);"><th>?먮떒</th><th>??/th><th>??/th><th>?ъ쭏</th><th>臾대뒳</th></tr>
+                                        <tr><td>A</td><td>?몃줈??/td><td>?쒖깋</td><td>遺?쒕윭??/td><td>?곕Т??/td></tr>
+                                        <tr><td>B</td><td>媛濡쒖꽑</td><td>?쒖깋</td><td>六ｋ빰??/td><td>?묒?臾대뒳</td></tr>
+                                        <tr><td>C</td><td>媛濡쒖꽑</td><td>?쒖깋</td><td>六ｋ빰??/td><td>?곕Т??/td></tr>
+                                        <tr><td>D</td><td>媛濡쒖꽑</td><td>?쒖깋</td><td>遺?쒕윭??/td><td>?묒?臾대뒳</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1-2. ?먮떒 ?좊퀎 (吏곴툒蹂?鍮꾨?移??⑥꽌) -->
+                        <div class="mission-card hidden" id="mission-1-2">
+                            <h3>[誘몄뀡 2] 吏꾩쭨 ?먮떒??媛?ㅻ궡??/h3>
+                            <div class="clue-box">
+                                <h4 id="fabric-clue-title" style="margin-bottom: 0.5rem; color: var(--accent-gold);">臾??ъ슜??湲곗?</h4>
+                                <p id="fabric-clue-text" style="font-size: 1rem; margin-bottom: 1rem; white-space: pre-line;">"?⑥꽌 ?띿뒪?멸? ?ш린???쒖떆?⑸땲??"</p>
+                                
+                                <!-- ?숈깮?ㅼ뿉寃??쒓났?섎뒗 怨듯넻 ?곗씠?곕쿋?댁뒪 ??-->
+                                <div style="margin-bottom: 1rem; background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px;">
+                                    <h4 style="margin-bottom: 0.5rem; color: #a4b0be;">[李멸퀬 ?먮즺: ?먮떒 ?섍꼍 ?깅텇??</h4>
+                                    <table class="clue-table" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem;">
+                                        <tr style="background: rgba(255,255,255,0.1);"><th>?먮떒紐?/th><th>臾??ъ슜??/th><th>?ы솢???щ?</th><th>?좏빐臾쇱쭏 諛곗텧</th></tr>
+                                        <tr><td>?먮떒 E</td><td>??쓬</td><td>媛??/td><td>?덉쓬</td></tr>
+                                        <tr><td>?먮떒 F</td><td>?믪쓬</td><td>媛??/td><td>?놁쓬</td></tr>
+                                        <tr><td>?먮떒 G</td><td>??쓬</td><td>遺덇???/td><td>?놁쓬</td></tr>
+                                        <tr><td>?먮떒 H</td><td>??쓬</td><td>媛??/td><td>?놁쓬</td></tr>
+                                        <tr><td>?먮떒 I</td><td>?믪쓬</td><td>遺덇???/td><td>?덉쓬</td></tr>
+                                    </table>
+                                </div>
+
+                                <div class="options-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    <button class="btn-secondary fabric-btn" data-val="E">?먮떒 E</button>
+                                    <button class="btn-secondary fabric-btn" data-val="F">?먮떒 F</button>
+                                    <button class="btn-secondary fabric-btn" data-val="G">?먮떒 G</button>
+                                    <button class="btn-secondary fabric-btn" data-val="H">?먮떒 H</button>
+                                    <button class="btn-secondary fabric-btn" data-val="I">?먮떒 I</button>
+                                </div>
+                                
+                                <div style="margin-top: 1rem; text-align: center;">
+                                    <button id="btn-submit-mission-1-2" class="btn-primary">?좏깮 ?꾨즺 諛??쒖텧</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1-3. ?ㅼ쿇??異붾줎 -->
+                        <div class="mission-card hidden" id="mission-1-3">
+                            <h3>[誘몄뀡 3] ?ㅼ쿇??異붾줎 - ??쒖쓽 履쎌?</h3>
+                            <div class="clue-box">
+                                <div id="reasoning-context" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; line-height: 1.6;">
+                                </div>
+                                <h4 id="reasoning-role-label" style="color: var(--accent-gold); margin-bottom: 0.5rem;">?낆옣 ?뺣━</h4>
+                                <textarea id="reasoning-textarea" placeholder="?닿납???섍껄???먯쑀濡?쾶 ?쒖닠??二쇱꽭?? (理쒖냼 15???댁긽, '?섍꼍' ??愿???ㅼ썙???ы븿)" style="width: 100%; height: 100px; padding: 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border-color); border-radius: 4px; resize: vertical;"></textarea>
+                            </div>
+                        </div>
+
+                        <button id="btn-stage1-confirm-all" class="btn-primary" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem; width: 100%;">???붾㈃???⑥꽌 ?뺤씤 ?꾨즺 (遺?μ뿉寃??꾨떖)</button>
+
+                        <!-- 遺???꾩슜 ????뺤씤 ?꾪솴??諛?理쒖쥌 ?쒖텧 -->
+                        <div id="manager-submit-panel" class="hidden mission-card" style="border: 2px solid var(--accent-gold); background: rgba(15, 15, 15, 0.95);">
+                            <h3>?몣 ????뺤씤 ?꾪솴 諛?理쒖쥌 ?쒖텧</h3>
+                            <div id="team-status-board" style="display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-?명꽩" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>?명꽩: <span class="status-icon">??/span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                                <div class="status-item" id="status-?ъ썝" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>?ъ썝: <span class="status-icon">??/span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                                <div class="status-item" id="status-李⑥옣" style="display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5);">
+                                    <span>李⑥옣: <span class="status-icon">??/span></span>
+                                    <div class="reasoning-display" style="font-size: 0.8rem; color: #bbb; margin-top: 0.5rem; max-width: 150px; word-break: keep-all; display: none;"></div>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 0.5rem; text-align: center;">紐⑤뱺 ??먯씠 ?⑥꽌 ?뺤씤???꾨즺?댁빞 理쒖쥌 ?쒖텧??媛?ν빀?덈떎.</p>
+                            <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">?뿣截?遺?λ떂? ??먮뱾怨쇱쓽 ?뚯쓽(???瑜??듯빐 ?뚯븘??誘몄뀡 1怨?2???뺣떟???꾨옒???좏깮?댁＜?몄슂!</p>
+                            <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+                                <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%; justify-content: space-between; max-width: 400px;">
+                                    <span style="color: var(--accent-gold);">誘몄뀡 1 紐쏀?二?寃곌낵:</span>
+                                    <select id="manager-final-answer-1" class="manager-select" style="padding: 0.5rem; background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--accent-gold); border-radius: 4px;">
+                                        <option value="">?붿옄???붿냼 ?먮떒 ?좏깮</option>
+                                        <option value="A">?먮떒 A</option>
+                                        <option value="B">?먮떒 B</option>
+                                        <option value="C">?먮떒 C</option>
+                                        <option value="D">?먮떒 D</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%; justify-content: space-between; max-width: 400px;">
+                                    <span style="color: var(--accent-gold);">誘몄뀡 2 移쒗솚寃??먮떒 寃곌낵:</span>
+                                    <select id="manager-final-answer-2" class="manager-select" style="padding: 0.5rem; background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--accent-gold); border-radius: 4px;">
+                                        <option value="">吏꾩쭨 ?먮떒 ?좏깮</option>
+                                        <option value="E">?먮떒 E</option>
+                                        <option value="F">?먮떒 F</option>
+                                        <option value="G">?먮떒 G</option>
+                                        <option value="H">?먮떒 H</option>
+                                        <option value="I">?먮떒 I</option>
+                                    </select>
+                                </div>
+                                <div style="position: relative; display: inline-block; width: 100%; max-width: 400px;">
+                                    <button id="btn-submit-stage1" class="btn-primary" style="width: 100%;" disabled>理쒖쥌 ?뺣떟 ?쒖텧</button>
+                                    <div id="secret-skip-stage1" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10; opacity: 0;" title="媛뺤젣 ?⑥뒪"></div>
+                                </div>
+                            </div>
+                            <p id="manager-error-msg" class="error-text hidden" style="text-align: center; margin-top: 1rem;">?ㅻ떟?낅땲?? ??먮뱾???⑥꽌瑜??ㅼ떆 ?뺤씤?대낫?몄슂.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2?④퀎 ?ㅽ넗由?紐⑤떖 -->
+            <div id="stage2-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">?⑦꽩/遊됱젣??吏꾩엯 ?뵑</h2>
+                    <div id="stage2-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS?먯꽌 梨꾩? -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage2-missions" class="btn-primary">?뷀샇 ?대룆 ?쒖옉</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2?④퀎 諛?(Screen 3) -->
+            <section id="screen-3" class="screen hidden" style="background-image: url('stage3_backstage.png'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>2?④퀎: ?⑦꽩/遊됱젣???㏊</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">?꾩옱 ??븷: <span id="display-current-role-stage2"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">??븷 蹂寃?濡쒓렇?꾩썐)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage2-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 600px; margin: 0 auto;">
+                            <h3 id="stage2-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage2-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem;"></p>
+                            <p id="stage2-puzzle-hint" style="color: #aaa; font-size: 0.9rem; text-align: left; margin-top: 1rem;"></p>
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="number" id="stage2-answer-input" placeholder="?뺣떟 ?レ옄 ?낅젰" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 200px;">
+                                <button id="btn-stage2-submit" class="btn-primary">?뷀샇 ?대룆 ?꾨즺</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stage2-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 600px; margin: 0 auto; border: 2px solid var(--accent-gold);">
+                            <div id="manager-stage2-puzzle" style="margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: left;">
+                                <h4 id="manager-stage2-puzzle-title" style="color: var(--accent-gold); margin-bottom: 0.5rem;">吏?쒖꽌 議곌컖 4</h4>
+                                <p id="manager-stage2-puzzle-text" style="line-height: 1.6;"></p>
+                                <p id="manager-stage2-puzzle-hint" style="color: #888; font-size: 0.9rem; margin-top: 1rem;"></p>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">?뿣截?遺?λ떂? 蹂몄씤??臾몄젣瑜??怨? ??먮뱾???대룆???レ옄 3媛쒕? 紐⑥븘 湲덇퀬 鍮꾨?踰덊샇(4?먮━)瑜??꾩꽦?섏꽭??</p>
+                            <h3 style="color: var(--accent-gold);">?몣 理쒖쥌 ?앹궛 怨듭옣 ?쒖뼱??/h3>
+                            <div id="team-status-board-stage2" style="display: flex; gap: 1rem; margin: 1.5rem 0; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage2-?명꽩" style="background: rgba(0,0,0,0.5);">?명꽩: <span class="status-icon">??/span></div>
+                                <div class="status-item" id="status-stage2-?ъ썝" style="background: rgba(0,0,0,0.5);">?ъ썝: <span class="status-icon">??/span></div>
+                                <div class="status-item" id="status-stage2-李⑥옣" style="background: rgba(0,0,0,0.5);">李⑥옣: <span class="status-icon">??/span></div>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">?뿣截?遺?λ떂? ??먮뱾???대룆???レ옄 3媛쒕? 紐⑥븘 湲덇퀬 鍮꾨?踰덊샇(4?먮━)瑜??꾩꽦?섏꽭??</p>
+                            
+                            <div class="factory-machine-container" style="position: relative; width: 100%; max-width: 600px; aspect-ratio: 3/2; margin: 0 auto; background-image: url('factory_panel.png'); background-size: cover; background-position: center; border-radius: 12px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+                                <!-- ?붾㈃ ?곸뿭??湲곕낯 蹂?4媛쒕? 媛由ш린 ?꾪븳 諛곌꼍(寃??됱뿉 媛源뚯슫 吏숈? ?뱀깋) ??컻 諛??낅젰李?-->
+                                <input type="password" id="manager-vault-pw" placeholder="****" maxlength="4" style="position: absolute; top: 35%; left: 30%; width: 40%; height: 25%; background: #071007; border: none; color: #0f0; font-size: 4.5rem; text-align: center; letter-spacing: 20px; text-shadow: 0 0 15px #0f0; outline: none; z-index: 10;">
+                                <!-- 媛??踰꾪듉 ?곸뿭???щ챸 踰꾪듉 ??뼱?뚯슦湲?-->
+                                <button id="btn-submit-stage2" style="position: absolute; top: 62%; left: 37%; width: 26%; height: 28%; background: transparent; border: none; cursor: pointer; z-index: 10; border-radius: 50%;" disabled></button>
+                            </div>
+                            
+                            <p id="manager-error-msg-stage2" class="error-text hidden" style="text-align: center; margin-top: 1rem;">鍮꾨?踰덊샇媛 ??몄뒿?덈떎. ?쒖꽌(?명꽩-?ъ썝-李⑥옣)媛 留욌뒗吏 ?뺤씤?섏꽭??</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3?④퀎 ?ㅽ넗由?紐⑤떖 -->
+            <div id="stage3-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">?ㅽ??쇰쭅??吏꾩엯 ?뵑</h2>
+                    <div id="stage3-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS?먯꽌 梨꾩? -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage3-missions" class="btn-primary">?ㅽ??쇰쭅 ?⑥꽌 ?섏쭛 ?쒖옉</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3?④퀎 諛?(Screen 4) -->
+            <section id="screen-4" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1567113463300-102a7eb3cb26'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>3?④퀎: ?ㅽ??쇰쭅???몭</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">?꾩옱 ??븷: <span id="display-current-role-stage3"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">??븷 蹂寃?濡쒓렇?꾩썐)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage3-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 600px; margin: 0 auto;">
+                            <h3 id="stage3-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage3-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem;"></p>
+                            <p id="stage3-puzzle-hint" style="color: #aaa; font-size: 0.9rem; text-align: left; margin-top: 1rem;"></p>
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="text" id="stage3-answer-input" placeholder="?뺣떟 ?띿뒪???낅젰" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
+                                <button id="btn-stage3-submit" class="btn-primary">?⑥꽌 ?꾩넚</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stage3-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 900px; margin: 0 auto; border: 2px solid var(--accent-gold); padding: 1rem;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem;">?몣 ?꾨━誘몄뾼 遺?고겕 ?ㅽ??쇰쭅 猷?/h3>
+                            
+                            <div id="team-status-board-stage3" style="display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage3-?명꽩" style="background: rgba(0,0,0,0.5);">?명꽩: <span class="status-icon">??/span></div>
+                                <div class="status-item" id="status-stage3-?ъ썝" style="background: rgba(0,0,0,0.5);">?ъ썝: <span class="status-icon">??/span></div>
+                                <div class="status-item" id="status-stage3-李⑥옣" style="background: rgba(0,0,0,0.5);">李⑥옣: <span class="status-icon">??/span></div>
+                            </div>
+                            
+                            <!-- 遺???⑥꽌 1 (?쇱뒪??而щ윭) -->
+                            <div id="stage3-manager-step1" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 id="stage3-manager-title" style="color: #c7a477; margin-bottom: 1rem;"></h4>
+                                <p id="stage3-manager-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
+                                <input type="text" id="stage3-manager-answer-input" placeholder="?뺣떟 ?띿뒪???낅젰" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 60%; margin-bottom: 1rem;">
+                                <br>
+                                <button id="btn-stage3-manager-submit" class="btn-primary" style="width: 60%;">?⑥꽌 ?꾩넚</button>
+                            </div>
+
+                            <!-- 遺???⑥꽌 2 (醫낆씠?명삎) -->
+                            <div id="stage3-manager-step2" class="hidden">
+                                <p style="font-size: 0.95rem; color: var(--accent-gold); margin-bottom: 1.5rem; text-align: center; font-weight: bold;">?뿣截???먮뱾???뚯븘??4媛吏 ?붿냼(而щ윭/???⑤룄/臾대뒳)???뺥솗??留욌뒗 ?룹쓣 ?쇱そ ?룹옣?먯꽌 怨⑤씪 ?꾨컮????곗륫 ?щ’???낇엳?몄슂!</p>
+                                
+                                <div class="paperdoll-studio-container" style="display: flex; gap: 1rem; align-items: flex-start; justify-content: center; margin-top: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                                <!-- ?쇱そ: ?룹옣 (?몃깽?좊━) - ?섏쨷????醫낅쪟媛 ?섏뼱??寃껋뿉 ?鍮꾪빐 珥덉냼???⑤뵫 ?곸슜 -->
+                                <div class="closet-section" style="flex: 1; background: #e6cfa3; border: 3px solid #8b5a2b; border-radius: 10px; padding: 0.5rem; box-shadow: inset 0 0 10px rgba(139,90,43,0.3);">
+                                    <h4 style="text-align: center; color: #5a3a1b; margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 0.9rem;">?몭 ?⑥뀡??諛깆뒪?뚯씠吏 (Showroom)</h4>
+                                    
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">??(李⑹떆?④낵)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="?몃줈??>
+                                                <img src="cloth_line_v_1786282011681.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="媛濡쒖꽑">
+                                                <img src="cloth_line_h_1786282021678.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="?ъ꽑">
+                                                <img src="cloth_line_d_1786282163630.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="line" data-val="臾댁?">
+                                                <img src="cloth_line_n_1786282235174.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">??(?⑤룄)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="?쒖깋">
+                                                <img src="cloth_color_cool_1786282244609.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="?쒖깋">
+                                                <img src="cloth_color_warm_1786282255619.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="?댄듃??>
+                                                <img src="cloth_color_neutral_1786282265966.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="color" data-val="臾댁콈??>
+                                                <img src="cloth_color_mono_1786282373249.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">?ъ쭏 (珥됯컧)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="六ｋ빰??>
+                                                <img src="cloth_mat_stiff_1786282385072.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="遺?쒕윭??>
+                                                <img src="cloth_mat_soft_1786282395544.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="?뉗?">
+                                                <img src="cloth_mat_thin_1786282406556.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="material" data-val="?먭볼??>
+                                                <img src="cloth_mat_thick_1786282421305.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="closet-shelf" style="padding: 0.3rem; margin-bottom: 0.3rem;">
+                                        <div class="closet-label" style="font-size: 0.7rem;">臾대뒳 (?⑦꽩)</div>
+                                        <div class="shelf-items">
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="?묒?臾대뒳">
+                                                <img src="cloth_pat_small_1786282434396.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="?곕Т??>
+                                                <img src="item_jacket_large.png" style="width: 100%; height: auto; mix-blend-mode: multiply;">
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="泥댄겕臾대뒳">
+                                                <div style="width: 100%; height: 100%; min-height: 40px; background: repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px), #fff; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border-radius: 4px; color: #333;">泥댄겕</div>
+                                            </div>
+                                            <div class="paperdoll-item" draggable="true" data-category="pattern" data-val="臾대뒳?놁쓬">
+                                                <img src="cloth_line_n_1786282235174.png" style="width: 100%; height: auto; mix-blend-mode: multiply; filter: hue-rotate(180deg);">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 媛?대뜲: ?꾨컮? 紐⑤뜽 (?쒕∼議? - ?ш린 100% ?좎?(?곷???異뺤냼) -->
+                                <div id="avatar-dropzone" class="avatar-section" style="width: 220px; height: 400px; background-image: url('avatar_base.png'); background-size: cover; background-position: center; border-radius: 12px; border: 3px dashed #8b5a2b; position: relative; box-shadow: 0 8px 15px rgba(0,0,0,0.2); overflow: hidden;">
+                                    <div style="position: absolute; bottom: -5px; width: 100%; text-align: center; z-index: 20;">
+                                        <div style="background: rgba(255,255,255,0.9); padding: 0.3rem 0.8rem; display: inline-block; border-radius: 15px; border: 2px solid #8b5a2b; color: #5a3a1b; font-size: 0.8rem; font-weight: bold;">?ㅼ???紐⑤뜽 ??/div>
+                                    </div>
+                                    <div class="dropzone-hint" style="position: absolute; top: 10px; width: 100%; text-align: center; color: rgba(139,90,43,0.7); font-size: 0.75rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0.2rem; border-radius: 8px; z-index: 20;">?닿납?대굹 ?곗륫 ?щ’???쒕∼!</div>
+                                </div>
+                                
+                                <!-- ?ㅻⅨ履? ?μ갑???꾩씠???쒖떆 ?⑤꼸 (?꾨컮? ?믪씠??留욎땄) -->
+                                <div class="equipped-panel" style="width: 110px; height: 400px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 2px solid #c7a477;">
+                                    <div style="text-align: center; font-size: 0.75rem; font-weight: bold; color: #5a3a1b;">?μ갑 ?щ’</div>
+                                    <div class="avatar-slot" id="slot-line" data-accept="?? style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-color" data-accept="?? style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-material" data-accept="?ъ쭏" style="flex: 1;"></div>
+                                    <div class="avatar-slot" id="slot-pattern" data-accept="臾대뒳" style="flex: 1;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 1.5rem;">
+                                <button id="btn-submit-stage3" class="btn-primary" style="width: 100%; max-width: 400px;" disabled>?ㅽ??쇰쭅 ?뺤젙 諛??곗묶??以鍮?</button>
+                                <p id="manager-error-msg-stage3" class="error-text hidden" style="margin-top: 1rem;">?ㅻ떟?낅땲?? ??먮뱾???뚯븘??4媛吏 ?붿냼媛 ?뺥솗???좏깮?섏뿀?붿? ?뺤씤?섏꽭??</p>
+                            </div>
+                            </div> <!-- End stage3-manager-step2 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- 4?④퀎 ?ㅽ넗由?紐⑤떖 -->
+            <div id="stage4-story-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.7); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">?곗묶???湲곗떎 吏꾩엯 ?뵑</h2>
+                    <div id="stage4-intro-text" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem;">
+                        <!-- JS?먯꽌 梨꾩? -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="btn-start-stage4-missions" class="btn-primary">?곗묶??湲고쉷 ?쒖옉</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4?④퀎 諛?(Screen 5) -->
+            <section id="screen-5" class="screen hidden" style="background-image: url('stage3_backstage.png'); background-size: cover; background-position: center; position: relative;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>4?④퀎: ?곗묶???湲곗떎 (T.P.O) ?럦</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="badge">?꾩옱 ??븷: <span id="display-current-role-stage4"></span></div>
+                            <button class="btn-secondary btn-logout-role" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">??븷 蹂寃?濡쒓렇?꾩썐)</button>
+                        </div>
+                    </header>
+
+                    <div id="stage4-employee-panel" class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.6); max-width: 600px; margin: 0 auto; text-align: center;">
+                            <h3 id="stage4-puzzle-title" style="color: var(--accent-gold); margin-bottom: 1rem;"></h3>
+                            <p id="stage4-puzzle-text" style="line-height: 1.6; text-align: left; font-size: 1.1rem; margin-bottom: 1.5rem;"></p>
+                            
+                            <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <input type="text" id="stage4-answer-input" placeholder="?뺣떟 ?낅젰" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
+                            </div>
+                            
+                            <button id="btn-stage4-submit" class="btn-primary" style="width: 80%;">湲고쉷???쒖텧 (+?섍꼍 ?먯닔)</button>
+                            <p id="stage4-employee-feedback" class="error-text hidden" style="margin-top: 1rem;"></p>
+                        </div>
+                    </div>
+
+                    <div id="stage4-manager-panel" class="mission-container hidden">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; border: 2px solid var(--accent-gold); padding: 2rem;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem; font-size: 1.8rem;">?뙇 ?섍꼍 ?먯닔 ?꾪솴??/h3>
+                            <p style="font-size: 1rem; color: #ccc; margin-bottom: 2rem; text-align: center;">??먮뱾??T.P.O??留욌뒗 ?щ컮瑜?移쒗솚寃?湲고쉷?덉쓣 ?쒖텧?섎㈃ ?먯닔媛 ?ㅻ쫭?덈떎.</p>
+                            <!-- 遺??湲고쉷 1: TPO 醫낇빀 -->
+                            <div id="stage4-manager-step1" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 id="stage4-manager-step1-title" style="color: #c7a477; margin-bottom: 1rem;"></h4>
+                                <p id="stage4-manager-step1-text" style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem; line-height: 1.6;"></p>
+                                <input type="text" id="stage4-manager-step1-input" placeholder="?뺣떟 ?띿뒪???낅젰" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 60%; margin-bottom: 1rem;">
+                                <br>
+                                <button id="btn-stage4-manager-step1" class="btn-primary" style="width: 60%;">?⑥꽌 ?꾩넚</button>
+                            </div>
+                            
+                            <!-- 5R ?쒕옒洹????쒕∼ ?쇱쫹 ?곸뿭 -->
+                            <div id="stage4-5r-puzzle" class="hidden" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: #c7a477; margin-bottom: 1rem;">1. 5R ?쒖꽌 議곕┰</h4>
+                                <div id="5r-options" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    <div class="item-5r" draggable="true" data-val="以꾩씠湲? style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">以꾩씠湲?/div>
+                                    <div class="item-5r" draggable="true" data-val="?ы솢?? style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">?ы솢??/div>
+                                    <div class="item-5r" draggable="true" data-val="嫄곗젅?섍린" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">嫄곗젅?섍린</div>
+                                    <div class="item-5r" draggable="true" data-val="?⑺엳湲? style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">?⑺엳湲?/div>
+                                    <div class="item-5r" draggable="true" data-val="?ъ궗?? style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">?ъ궗??/div>
+                                </div>
+                                <div id="5r-slots" style="display: flex; gap: 10px; justify-content: center;">
+                                    <div class="slot-5r" data-index="0" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">1?쒖쐞</div>
+                                    <div class="slot-5r" data-index="1" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">2?쒖쐞</div>
+                                    <div class="slot-5r" data-index="2" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">3?쒖쐞</div>
+                                    <div class="slot-5r" data-index="3" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">4?쒖쐞</div>
+                                    <div class="slot-5r" data-index="4" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">5?쒖쐞</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: #c7a477; margin-bottom: 1rem;">2. ?섍꼍 ?먯닔 ?⑹궛</h4>
+                                <input type="number" id="stage4-manager-score-input" placeholder="珥앺빀 ?먯닔 ?낅젰" style="padding: 0.8rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 80%;">
+                            </div>
+
+                            <!-- 寃뚯씠吏 諛?-->
+                            <div style="width: 100%; background: #333; border-radius: 20px; height: 40px; border: 2px solid var(--accent-gold); position: relative; overflow: hidden; margin-bottom: 1rem;">
+                                <div id="eco-score-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                                <div id="eco-score-text" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: white; text-shadow: 1px 1px 2px black;">0 / 100 ??/div>
+                            </div>
+                            
+                            <div id="team-status-board-stage4" style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; flex-wrap: wrap;">
+                                <div class="status-item" id="status-stage4-?명꽩" style="background: rgba(0,0,0,0.5);">?명꽩: <span class="status-icon">??/span></div>
+                                <div class="status-item" id="status-stage4-?ъ썝" style="background: rgba(0,0,0,0.5);">?ъ썝: <span class="status-icon">??/span></div>
+                                <div class="status-item" id="status-stage4-李⑥옣" style="background: rgba(0,0,0,0.5);">李⑥옣: <span class="status-icon">??/span></div>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <button id="btn-launch-show" class="btn-primary" style="width: 100%; max-width: 400px; padding: 1.2rem; font-size: 1.3rem; background: #555; color: #888; border: none; cursor: not-allowed; transition: all 0.3s;" disabled>100???ъ꽦 ???곗묶??媛??</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 理쒖쥌 ?붾뵫 ?ㅽ겕由?-->
+            <section id="screen-ending" class="screen hidden" style="background: #000; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <!-- ??＝ 罹붾쾭??-->
+                <canvas id="confetti-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 101;"></canvas>
+                
+                <div id="certificate-container" style="background: white; width: 80%; max-width: 600px; padding: 2rem; border: 15px solid #d4af37; border-style: double; box-shadow: 0 0 30px rgba(212,175,55,0.5); text-align: center; color: black; font-family: 'Playfair Display', serif; z-index: 102;">
+                    <img src="https://images.unsplash.com/photo-1598284617181-4203da3b45a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="seal" style="width: 80px; height: 80px; margin: 0 auto 1rem auto; border-radius: 50%;">
+                    <h1 style="color: #8b5a2b; font-size: 2.5rem; margin-bottom: 1rem; border-bottom: 2px solid #8b5a2b; padding-bottom: 0.5rem; display: inline-block;">?섏꽍 ?먯퐫 ?붿옄?대꼫 ?꾨챸??/h1>
+                    
+                    <h2 style="font-size: 1.8rem; margin: 1.5rem 0; color: #333;">?뚯냽: <span id="certificate-dept-name" style="text-decoration: underline; color: #000;"></span></h2>
+                    
+                    <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; font-family: 'Noto Sans KR', sans-serif; word-break: keep-all;">
+                        ??遺?쒕뒗 媛뺥깭????쒖쓽 ?⑥뒪???⑥뀡 怨꾪쉷???뚮????吏?섍퀬, 
+                        吏??媛?ν븳 ?⑥뀡 釉뚮옖??<b>RE:BRAND</b>??吏꾩젙??媛移섎? ?몄긽???뚮━????
+                        吏???怨듯뿄???섏??쇰?濡????꾨챸?μ쓣 ?섏뿬?⑸땲??
+                    </p>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3rem; padding: 0 2rem;">
+                        <div style="text-align: left; font-family: 'Noto Sans KR', sans-serif;">
+                            <p style="margin-bottom: 0.5rem;">?좎쭨: 2026??8??9??/p>
+                            <p>諛쒓툒?? ?섏꽍 ?붿옄?대꼫 ?쒖꽌??/p>
+                        </div>
+                        <div style="font-size: 2rem; font-family: 'Great Vibes', cursive; color: #8b5a2b;">Han Seo-yeon</div>
+                    </div>
+                </div>
+                
+                <button class="btn-primary btn-logout-role" style="position: absolute; bottom: 5%; z-index: 103; padding: 1rem 2rem; font-size: 1.2rem;">硫붿씤 ?붾㈃?쇰줈 ?뚯븘媛湲?/button>
+            </section>
+            
+            <!-- ?먰븘濡쒓렇 紐⑤떖 -->
+            <div id="epilogue-modal" class="modal hidden" style="z-index: 1000;">
+                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem; text-align: center;">?먰븘濡쒓렇: ?곗묶??洹???.. ?뙼</h2>
+                    <video src="?붾뵫 ?곸긽.mp4" controls autoplay muted style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
+                    <p style="line-height: 1.8; margin-bottom: 1rem; font-size: 1.1rem; color: #eee;">
+                        ?щ윭遺꾩쓽 ?쒖빟?쇰줈 RE:BRAND??移쒗솚寃?而щ젆???곗묶?쇰뒗 ??깃났??嫄곕몢?덉뒿?덈떎!<br><br>
+                        ?뚮퉬?먮뱾? ?⑥닚???붾젮?⑥쓣 ?섏뼱, <b>?룹뿉 ?닿릿 吏援щ? ?ν븳 諛곕젮? 5R??媛移?/b>???닿킅?덉뒿?덈떎. 留ㅼ텧? ??컻?곸쑝濡?利앷??덇퀬, ?몃줎? '?ㅻ━???⑥뀡???밸━'?쇰ŉ 李ъ궗瑜?蹂대깉?듬땲??<br><br>
+                        ?먯떊??怨좎쭛????몄쓬??源⑤떖? <b>媛뺥깭?????/b>??源딆씠 諛섏꽦?섎ŉ ?⑥뒪???⑥뀡 ?앹궛 ?쇱씤???꾨㈃ ?먭린?섍퀬, ?щ윭遺꾧낵 ?쒖꽌???붿옄?대꼫??鍮꾩쟾???곴레 ?숈갭?섍린濡??쎌냽?덉뒿?덈떎.<br><br>
+                        ?꾧린??鍮좎쭊 釉뚮옖?쒕? 援ы빐二쇱뀛??媛먯궗?⑸땲??
+                    </p>
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button id="btn-close-epilogue" class="btn-primary">?ㅼ쓬?쇰줈...</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 諛섏쟾 紐⑤떖 (?앸궃 以??뚯븯吏?) -->
+            <div id="twist-modal" class="modal hidden" style="z-index: 1000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.9);">
+                <div class="modal-content" style="background: transparent; border: none; box-shadow: none; animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                    <h1 style="color: #ff3b3b; font-size: 4rem; text-shadow: 2px 2px 10px rgba(255,0,0,0.8); margin-bottom: 2rem; white-space: nowrap;">?앸궃 以??뚯븯吏? ?삇</h1>
+                    <button id="btn-twist-next" class="btn-primary" style="font-size: 1.5rem; padding: 1rem 3rem; background: var(--accent-gold); color: black; border-radius: 30px; animation: pulse 2s infinite;">留덉?留?李?誘몄뀡 ?섎윭媛湲?/button>
+                </div>
+            </div>
+
+            <!-- 1?④퀎 ?ㅽ넗由?紐⑤떖 -->
+            <div id="stage1-story-modal" class="modal hidden">
+                <div class="modal-content" style="background: rgba(10, 10, 10, 0.95); border: 2px solid var(--accent-gold); max-width: 600px;">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">?붿옄?몄슂?뚯떎 吏꾩엯</h2>
+                    <p style="line-height: 1.6; margin-bottom: 1rem; font-size: 1.1rem; text-align: left;">
+                        鍮꾨?踰덊샇媛 ?由щŉ 臾몄씠 ?대┰?덈떎. ?닿납? <strong>?붿옄?몄슂?뚯떎</strong>?낅땲??<br><br>
+                        ?쒖꽌???붿옄?대꼫媛 吏꾩쭨 而щ젆???먮떒???④꺼??泥?踰덉㎏ 諛⑹엯?덈떎.<br>
+                        ?섏?留?媛뺥깭????쒓? 怨좎슜???щ엺?ㅼ씠 ?대? 諛⑹쓣 ?ㅼ쭛???볦븯?듬땲??<br><br>
+                        ?ㅽ뻾??諛붾떏??李?뼱吏?紐⑷꺽??吏꾩닠??議곌컖?ㅺ낵, 5媛쒖쓽 蹂댁“ ?먮떒 ?꾨낫?ㅼ씠 ?⑥뼱???덉뒿?덈떎.<br>
+                        ??먮뱾怨??⑥꽌瑜?紐⑥븘 吏꾩쭨 ?먮떒??臾댁뾿?몄? ?뚯븘?댁꽭??
+                    </p>
+                    <button id="btn-start-stage1-missions" class="btn-primary" style="width: 100%;">?⑥꽌 ?뺤씤?섍린 ?뵇</button>
+                </div>
+            </div>
+
+            <!-- ?ㅼ쿇??異붾줎 (?ㅼ썙???먮Ъ?? 紐⑤떖 -->
+            <div id="reasoning-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 800px; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                    <h2 id="reasoning-title" style="color: var(--accent-gold); margin-bottom: 1rem;">?ㅼ쿇??異붾줎</h2>
+                    <div id="reasoning-intro" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem; text-align: left;"></div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                        <!-- ?쇱そ: ?ㅼ썙??? -->
+                        <div style="flex: 1; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
+                            <h4 style="color: #c7a477; margin-bottom: 1rem;">?⑹뼱吏??⑥뼱 議곌컖 (?쒕옒洹?</h4>
+                            <div id="reasoning-keywords" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                                <!-- JS?먯꽌 ?숈쟻 ?앹꽦 -->
+                            </div>
+                        </div>
+                        
+                        <!-- ?ㅻⅨ履? ?먮Ъ??臾몄옣 -->
+                        <div style="flex: 1.5; border: 1px solid var(--accent-gold); padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.5);">
+                            <h4 style="color: #c7a477; margin-bottom: 1rem;">理쒖쥌 寃곗젙臾?議곕┰ (遺???꾩슜)</h4>
+                            <div id="reasoning-sentence" style="line-height: 2; font-size: 1.1rem; text-align: left;">
+                                <!-- JS?먯꽌 ?숈쟻 ?앹꽦 (鍮덉뭏 ?ы븿) -->
+                            </div>
+                            <div style="margin-top: 1.5rem; text-align: center;">
+                                <div style="position: relative; display: inline-block;">
+                                    <button id="btn-submit-reasoning" class="btn-primary">?⑹쓽 ?꾨즺</button>
+                                    <div id="secret-skip-reasoning" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10; opacity: 0;" title="?쒖뒪???숆린??></div>
+                                </div>
+                                <p id="reasoning-error" class="error-text hidden" style="margin-top: 0.5rem;">?쇰━??留욎? ?딅뒗 ?⑥뼱媛 ?덉뒿?덈떎. ?ㅼ떆 ?섎끉?섏꽭??</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3?④퀎 ?꾨즺 諛??뷀샇 諛쒓툒 紐⑤떖 -->
+            <div id="stage3-success-modal" class="modal hidden">
+                <div class="modal-content" style="max-width: 500px; text-align: center; border: 2px solid #4caf50;">
+                    <h2 style="color: #4caf50; margin-bottom: 1rem;">?럦 3?④퀎 誘몄뀡 ?꾨즺!</h2>
+                    <p style="font-size: 1.1rem; margin-bottom: 1rem;">紐⑤뱺 誘몄뀡???꾨꼍?섍쾶 ?섑뻾?덉뒿?덈떎.</p>
+                    <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <p style="color: var(--accent-gold); font-size: 1.2rem; margin-bottom: 0.5rem;">?곕━ 遺?쒖쓽 ?④꺼吏??먮떒 議곌컖??李얠쑝?몄슂!</p>
+                    </div>
+                    <p id="stage3-guide-text" style="color: #ccc; line-height: 1.6; margin-bottom: 1.5rem;">
+                        援먯떎 ?대뵖媛???④꺼???덈뒗 <strong>議곌컖 ?먮떒</strong>??李얠븘蹂댁꽭??<br>
+                        ?먮떒??李얠? ?? ?먮떒??遺숈뼱 ?덈뒗 <strong>QR 肄붾뱶</strong>瑜??대???移대찓?쇰줈 ?ㅼ틪?섏뿬 <strong>'?④꺼吏?硫붿떆吏'</strong>瑜??뚯븘?댁빞 ?⑸땲??
+                    </p>
+                    <button id="btn-close-stage3-success" class="btn-primary" style="width: 100%;">?뷀샇 ?뺤씤 ?꾨즺 (吏곸젒 ?ㅼ틪 ?쒕룄)</button>
+                    <p id="stage3-waiting-msg" class="hidden" style="color: var(--accent-gold); font-weight: bold; margin-top: 1rem; font-size: 1.1rem; animation: pulse 2s infinite;">遺?λ떂??議곌컖???ㅼ틪?섍퀬 ?뷀샇瑜??낅젰???뚭퉴吏 湲곕떎?ㅼ＜?몄슂...</p>
+                </div>
+            </div>
+
+            <!-- Screen QR: QR 議곌컖 李얘린 ?붾㈃ -->
+            <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 500px; text-align: center;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">?뵊 議곌컖 李얘린 誘몄뀡!</h2>
+                        <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
+                            援먯떎 ?대뵖媛???④꺼吏?<strong><span id="qr-dept-name"></span></strong>??議곌컖??李얠븘 ?대??곗쑝濡??ㅼ틪?섏꽭??<br>?ㅼ틪 ???섑??섎뒗 <strong>'?④꺼吏?硫붿떆吏'</strong>瑜??뺥솗???낅젰?댁빞 議곌컖???띾뱷?????덉뒿?덈떎.
+                        </p>
+                        <input type="text" id="qr-password-input" placeholder="?④꺼吏?硫붿떆吏 ?낅젰 (?꾩뼱?곌린 ?ы븿)" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="position: relative; display: inline-block; width: 80%;">
+                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">?좉툑 ?댁젣</button>
+                            <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="媛뺤젣 ?⑥뒪"></div>
+                        </div>
+                        <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.1rem;">?닿굔 ?곕━ 議곌컖???꾨땲?먯슂! ?ㅻⅨ 議곌컖??李얠븘蹂댁꽭??</p>
+                        
+                        <div id="qr-success-panel" class="hidden" style="margin-top: 2rem;">
+                            <h3 style="color: #4caf50; margin-bottom: 1rem;">?럦 ?곕━ 遺??議곌컖??李얠븯?듬땲??</h3>
+                            <button id="btn-go-to-personal" class="btn-secondary" style="border-color: var(--accent-gold); color: var(--accent-gold);">?ㅼ쓬 誘몄뀡?쇰줈 ?대룞</button>
+                            <button id="btn-view-dashboard" class="btn-text" style="display: block; margin: 1rem auto 0 auto;">?숆툒 ?꾩껜 吏꾪뻾 ?곹솴 蹂닿린</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen Dashboard: 援먯궗????쒕낫??(?숆툒 ?꾩껜 ?꾪솴) -->
+            <section id="screen-dashboard" class="screen hidden" style="background-color: #0f1115; min-height: 100vh; overflow: hidden; position: relative;">
+                <button id="btn-close-dashboard" class="btn-text" style="position: absolute; top: 1rem; left: 1rem; z-index: 100;">???뚯븘媛湲?/button>
+                <div style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+                    <h1 style="color: var(--accent-gold); margin-bottom: 2rem; font-family: 'Playfair Display', serif; font-size: 2.5rem;">RE:BRAND 而щ젆???꾩꽦??/h1>
+                    
+                    <div id="fabric-puzzle-container" style="display: flex; width: 80%; max-width: 1000px; height: 500px; background: rgba(255,255,255,0.05); border: 4px solid #333; border-radius: 8px; overflow: hidden; position: relative; transition: transform 1s ease;">
+                        <!-- JS?먯꽌 遺???섎쭔??6?깅텇 ?щ’ ?먮룞 ?앹꽦 -->
+                    </div>
+
+                    <div id="dashboard-final-message" class="hidden" style="margin-top: 2rem; background: rgba(0,0,0,0.8); border: 2px solid var(--accent-gold); padding: 2rem; border-radius: 8px; max-width: 800px; text-align: center; animation: fadeIn 2s;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">?섏꽍 ?붿옄?대꼫 ?쒖꽌??/h2>
+                        <p id="dashboard-final-text" style="font-size: 1.2rem; line-height: 1.6; color: #fff;"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 6: 媛쒖씤 ?붿옄??諛?5R ?쒖텧 -->
+            <section id="screen-6" class="screen hidden" style="background-image: url('https://images.unsplash.com/photo-1513364776144-60967b0f800f'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                    <header class="stage-header">
+                        <h2>媛쒖씤 誘몄뀡: ?섏뿉寃??댁슱由щ뒗 ?붿옄???렓</h2>
+                        <div class="badge">?꾩옱 ??븷: <span id="display-current-role-stage6"></span></div>
+                    </header>
+
+                    <div class="mission-container">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; text-align: left;">
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">1. 吏곸젒 ?붿옄??洹몃━湲?/ ?뚯씪 ?낅줈??/h3>
+                            <p style="color: #ccc; margin-bottom: 1rem; font-size: 0.95rem;">?섏뿉寃??댁슱由щ뒗 ?룹감由쇱쓣 ?꾨옒 罹붾쾭?ㅼ뿉 吏곸젒 洹몃━嫄곕굹, ?대? 洹몃┛ ?ъ쭊???낅줈?쒗빐二쇱꽭??</p>
+                            
+                            <!-- 罹붾쾭???쒕줈???곸뿭 -->
+                            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 5px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="btn-tool" id="btn-tool-pen" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">?뻿截?蹂쇳렂</button>
+                                    <button class="btn-tool" id="btn-tool-pencil" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">?륅툘 ?고븘</button>
+                                    <button class="btn-tool" id="btn-tool-brush" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">?뼂截?遺?/button>
+                                    <button class="btn-tool" id="btn-tool-eraser" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">吏?곌컻</button>
+                                    <button class="btn-tool" id="btn-tool-clear" style="padding: 5px 10px; border-radius: 4px; background: #444; color: white; border: 1px solid var(--accent-gold);">?꾩껜 吏?곌린</button>
+                                </div>
+                                <div id="canvas-colors" style="display: flex; gap: 5px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="color-btn" data-color="#000000" style="background: #000000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#808080" style="background: #808080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#8B4513" style="background: #8B4513; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FF0000" style="background: #FF0000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFA500" style="background: #FFA500; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFFF00" style="background: #FFFF00; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#008000" style="background: #008000; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#87CEEB" style="background: #87CEEB; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#0000FF" style="background: #0000FF; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#000080" style="background: #000080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#800080" style="background: #800080; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                    <button class="color-btn" data-color="#FFC0CB" style="background: #FFC0CB; width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;"></button>
+                                </div>
+                                <div style="display: flex; justify-content: center;">
+                                    <canvas id="design-canvas" width="400" height="400" style="background: white; border-radius: 8px; cursor: crosshair; touch-action: none; max-width: 100%;"></canvas>
+                                </div>
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <button id="btn-analyze-canvas" class="btn-primary" style="padding: 0.5rem 1rem;">?렓 ??洹몃┝ AI 遺꾩꽍?섍린</button>
+                                </div>
+                            </div>
+                            
+                            <p style="color: #ccc; margin-bottom: 0.5rem; font-size: 0.9rem; text-align: center;">?먮뒗 ?뚯씪 ?낅줈?쒗븯湲?</p>
+                            <input type="file" id="design-upload" accept="image/*" style="margin-bottom: 1rem; color: white; display: block; margin-left: auto; margin-right: auto;">
+                            
+                            <div id="ai-feedback-panel" class="hidden" style="margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid #4caf50;">
+                                <h4 style="color: #4caf50; margin-bottom: 0.5rem;">?쨼 AI ?붿옄??遺꾩꽍 ?쇰뱶諛?/h4>
+                                <p id="ai-feedback-text" style="font-size: 0.95rem; line-height: 1.5;">遺꾩꽍 以?..</p>
+                                <p style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">* AI??遺꾩꽍? 李멸퀬?⑹씠硫? 理쒖쥌 ?먮떒? ?숈깮 ?먯떊???대┰?덈떎.</p>
+                            </div>
+
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">2. ?붿옄???붿냼 諛?T.P.O ?좏깮</h3>
+                            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">??(李⑹떆?④낵)</label>
+                                    <select id="personal-line" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">?좏깮</option>
+                                        <option value="?몃줈??>?몃줈??/option>
+                                        <option value="媛濡쒖꽑">媛濡쒖꽑</option>
+                                        <option value="?ъ꽑">?ъ꽑</option>
+                                        <option value="怨≪꽑">怨≪꽑</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">???⑤룄</label>
+                                    <select id="personal-temp" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">?좏깮</option>
+                                        <option value="?쒖깋">?쒖깋</option>
+                                        <option value="?쒖깋">?쒖깋</option>
+                                        <option value="?뚯뒪?뷀넠">?뚯뒪?뷀넠</option>
+                                        <option value="臾댁콈??>臾댁콈??/option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">?ъ쭏</label>
+                                    <select id="personal-material" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">?좏깮</option>
+                                        <option value="遺?쒕윭??>遺?쒕윭???ъ쭏</option>
+                                        <option value="六ｋ빰??>六ｋ빰???ъ쭏</option>
+                                        <option value="愿묓깮?덈뒗">愿묓깮 ?덈뒗 ?ъ쭏</option>
+                                        <option value="嫄곗튇">嫄곗튇 ?ъ쭏</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">臾대뒳 ?ш린</label>
+                                    <select id="personal-pattern" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">?좏깮</option>
+                                        <option value="?곕Т??>??臾대뒳</option>
+                                        <option value="?묒?臾대뒳">?묒? 臾대뒳</option>
+                                        <option value="泥댄겕臾대뒳">泥댄겕臾대뒳</option>
+                                        <option value="臾대뒳?놁쓬">臾대뒳 ?놁쓬</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">T.P.O (?곹솴)</label>
+                                    <select id="personal-tpo" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">?좏깮</option>
+                                        <option value="?됱긽蹂?>?됱긽蹂?(吏? 洹쇱쿂)</option>
+                                        <option value="?몄텧蹂?>?몄텧蹂?(?쇳븨, 紐⑥엫)</option>
+                                        <option value="?대룞蹂?>?대룞蹂?(?ㅽ룷痢?</option>
+                                        <option value="?덈났">?덈났 (寃고샎?? ?됱궗)</option>
+                                        <option value="?묒뾽蹂?>?묒뾽蹂?/option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="color: #c7a477; margin-bottom: 0.5rem; display: block;">吏?띻??μ꽦 ?붿냼 (5R)</label>
+                                    <select id="personal-5r" class="manager-select" style="width:100%; padding: 0.5rem; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; border: 1px solid var(--accent-gold);">
+                                        <option value="">媛??癒쇱? ?ㅼ쿇??1媛吏 ?좏깮</option>
+                                        <option value="嫄곗젅?섍린">嫄곗젅?섍린(Refuse)</option>
+                                        <option value="以꾩씠湲?>以꾩씠湲?Reduce)</option>
+                                        <option value="?ъ궗??>?ъ궗??Reuse)</option>
+                                        <option value="?ы솢??>?ы솢??Recycle)</option>
+                                        <option value="?⑺엳湲?>?⑺엳湲?Rot)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">3. ?좏깮 ?댁쑀</h3>
+                            <textarea id="personal-reason" placeholder="???붿옄??議고빀???섏뿉寃????댁슱由곕떎怨??앷컖?섎뒗吏, T.P.O? 吏?띻??μ꽦???대뼸寃?怨좊젮?덈뒗吏 1~2臾몄옣?쇰줈 ?먯쑀濡?쾶 ?곸뼱二쇱꽭??" style="width: 100%; height: 100px; padding: 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--accent-gold); border-radius: 4px; resize: vertical; margin-bottom: 2rem;"></textarea>
+                            
+                            <div style="text-align: center; position: relative;">
+                                <button id="btn-submit-personal-design" class="btn-primary" style="width: 100%; max-width: 300px;">?붿옄???쒖텧 諛??됯? 媛湲?/button>
+                                <div id="secret-skip-personal" style="position: absolute; right: 0; top: 0; width: 50px; height: 100%; cursor: pointer; z-index: 10;" title="媛뺤젣 ?⑥뒪"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 7: ?쒕룞 ?뚭컧 -->
+            <section id="screen-7" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 600px; margin: 0 auto; text-align: left;">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 2rem; text-align: center;">?ㅻ뒛??誘몄뀡 ?뚭컧 ?뱷</h2>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: white; margin-bottom: 0.5rem; display: block; font-size: 1.1rem;">Q1. ?ㅻ뒛 誘몄뀡 以?媛??湲곗뼲???⑤뒗 ?쒓컙??</label>
+                            <textarea id="reflection-q1" placeholder="?몄긽 源딆뿀???λ㈃???곸뼱二쇱꽭??" style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <label style="color: white; margin-bottom: 0.5rem; display: block; font-size: 1.1rem;">Q2. ?ㅻ뒛 諛곗슫 寃?以??섏쓽 ?띠뿉???ㅼ쿇?대낫怨??띠? ??媛吏??</label>
+                            <textarea id="reflection-q2" placeholder="援ъ껜?곸씤 ?ㅼ쿇 ?ㅼ쭚???곸뼱二쇱꽭??" style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="text-align: center; position: relative;">
+                            <button id="btn-submit-reflections" class="btn-primary" style="width: 100%; max-width: 300px; font-size: 1.2rem;">理쒖쥌 ?쒖텧 ?꾨즺 ?럦</button>
+                            <div id="secret-skip-reflection" style="position: absolute; right: 0; top: 0; width: 50px; height: 100%; cursor: pointer; z-index: 10;" title="媛뺤젣 ?⑥뒪"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 愿由ъ옄 紐⑤떖 -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-btn" id="close-admin-modal">횞</button>
+            <h2>愿由ъ옄 ?ㅼ젙</h2>
+            <div id="pin-entry-section">
+                <p>PIN 踰덊샇瑜??낅젰?섏꽭??/p>
+                <input type="password" id="admin-pin-input" maxlength="4" placeholder="****">
+                <button id="btn-verify-pin" class="btn-primary">?뺤씤</button>
+                <p id="pin-error-msg" class="error-text hidden">鍮꾨?踰덊샇媛 ??몄뒿?덈떎.</p>
+            </div>
+            
+                        <!-- 援먯궗 ?꾩슜 硫붿씤 ??쒕낫???ㅽ겕由?-->
+            <section id="screen-teacher-dashboard" class="screen hidden" style="background-color: #12141a; min-height: 100vh; display: flex; color: #eee; font-family: 'Noto Sans KR', sans-serif;">
+                
+                <!-- ?ъ씠?쒕컮 -->
+                <aside style="width: 280px; background: #1a1d24; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 20px 0;">
+                    <div style="padding: 0 20px 20px; border-bottom: 1px solid #333; margin-bottom: 20px;">
+                        <h2 style="color: var(--accent-gold); font-size: 1.5rem; margin-bottom: 5px;">?뫅?랅윆?援먯궗 ??쒕낫??/h2>
+                        <div style="font-size: 0.9rem; color: #888;">RE:BRAND 而⑦듃濡????/div>
+                        
+                        <div style="margin-top: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid #444;">
+                            <label style="font-size: 0.8rem; color: #aaa;">?꾩옱 ?쒖꽦?붾맂 諛?/label>
+                            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                <input type="text" id="td-active-class-input" placeholder="?? 3-1" style="flex: 1; padding: 5px; background: #222; border: 1px solid #555; color: white; border-radius: 4px;">
+                                <button id="btn-td-set-class" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">?ㅼ젙</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul id="td-menu" style="list-style: none; padding: 0; margin: 0; flex: 1;">
+                        <li class="td-menu-item active" data-tab="tab-roster" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid var(--accent-gold); background: rgba(255,215,0,0.1); display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                            <span style="font-size: 1.2rem;">?뫁</span> 議??몄꽦 諛?紐낅떒 愿由?                        </li>
+                        <li class="td-menu-item" data-tab="tab-progress" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                            <span style="font-size: 1.2rem;">?뱤</span> ?ㅼ떆媛?吏꾪뻾 ?꾪솴??                        </li>
+                        <li class="td-menu-item" data-tab="tab-results" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                            <span style="font-size: 1.2rem;">?렓</span> ?숈깮 寃곌낵臾??뺤씤
+                        </li>
+                        <li class="td-menu-item" data-tab="tab-actions" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                            <span style="font-size: 1.2rem;">??/span> 媛뺣젰 異붿쿇 湲곕뒫
+                        </li>
+                    </ul>
+
+                    <div style="padding: 20px; border-top: 1px solid #333;">
+                        <button id="btn-td-exit" class="btn-text" style="color: #aaa; width: 100%; text-align: left;">????쒕낫???섍?湲?/button>
+                    </div>
+                </aside>
+
+                <!-- 硫붿씤 而⑦뀗痢??곸뿭 -->
+                <main style="flex: 1; padding: 30px; overflow-y: auto; position: relative;">
+                    
+                    <!-- [??1] 議??몄꽦 諛?紐낅떒 愿由?-->
+                    <div id="tab-roster" class="td-tab-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="font-size: 1.8rem;">?뫁 議??몄꽦 諛?紐낅떒 愿由?/h3>
+                            <button id="btn-td-add-dept" class="btn-primary" style="background: #4caf50;">+ ??遺??異붽?</button>
+                        </div>
+                        <p style="color: #aaa; margin-bottom: 20px;">媛?遺?쒕퀎濡??숈깮?ㅼ쓽 ?숇쾲怨??대쫫???낅젰?대몢硫? ?숈깮?ㅼ씠 遺???좏깮 ???먯떊???뺣낫? 留ㅽ븨?⑸땲??</p>
+                        
+                        <div id="td-roster-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                            <!-- JS ?쒕뜑留??곸뿭 -->
+                        </div>
+                    </div>
+
+                    <!-- [??2] ?ㅼ떆媛?吏꾪뻾 ?꾪솴??-->
+                    <div id="tab-progress" class="td-tab-content hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="font-size: 1.8rem;">?뱤 ?ㅼ떆媛?吏꾪뻾 ?꾪솴??/h3>
+                            <button id="btn-td-refresh-progress" class="btn-primary" style="background: #2196f3;">?봽 ?덈줈怨좎묠</button>
+                        </div>
+                        
+                        <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid #333;">
+                            <table style="width: 100%; border-collapse: collapse; min-width: 800px; text-align: center;">
+                                <thead>
+                                    <tr style="background: rgba(255,215,0,0.1); border-bottom: 2px solid var(--accent-gold);">
+                                        <th style="padding: 15px; color: var(--accent-gold);">遺?쒕챸</th>
+                                        <th style="padding: 15px;">吏곸콉 (?숈깮)</th>
+                                        <th style="padding: 15px;">吏꾪뻾 ?④퀎</th>
+                                        <th style="padding: 15px;">1.?붿냼</th>
+                                        <th style="padding: 15px;">2.?먮떒</th>
+                                        <th style="padding: 15px;">3.議고빀</th>
+                                        <th style="padding: 15px;">4.?붿옄??/th>
+                                        <th style="padding: 15px;">5.?뚭컧臾?/th>
+                                    </tr>
+                                </thead>
+                                <tbody id="td-progress-tbody">
+                                    <!-- JS ?뚮뜑留?-->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- [??3] ?숈깮 寃곌낵臾??뺤씤 (罹≪쿂 ?ㅼ슫濡쒕뱶) -->
+                    <div id="tab-results" class="td-tab-content hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="font-size: 1.8rem;">?렓 ?숈깮 寃곌낵臾??뺤씤</h3>
+                            <button id="btn-td-download-all" class="btn-primary" style="background: #e91e63;">?꾩껜 ?대?吏 ?ㅼ슫濡쒕뱶 (ZIP)</button>
+                        </div>
+                        
+                        <div id="td-results-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                            <!-- JS ?뚮뜑留?-->
+                        </div>
+                    </div>
+
+                    <!-- [??4] 媛뺣젰 異붿쿇 湲곕뒫 -->
+                    <div id="tab-actions" class="td-tab-content hidden">
+                        <h3 style="font-size: 1.8rem; margin-bottom: 20px;">??媛뺣젰 異붿쿇 湲곕뒫</h3>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444;">
+                                <h4 style="color: #ff9800; font-size: 1.2rem; margin-bottom: 10px;">?Ⅶ ?붾㈃ ?쇱쓬 (吏묒쨷 紐⑤뱶)</h4>
+                                <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">?숈깮?ㅼ쓽 ?붾㈃???쇱떆?뺤??쒗궎怨??좎깮?섏쓣 蹂닿쾶 ?⑸땲??</p>
+                                <button id="btn-td-freeze" class="btn-primary" style="background: #ff9800; width: 100%;">?쇱쓬 ?쒖꽦???꾬툘</button>
+                            </div>
+                            
+                            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444;">
+                                <h4 style="color: #e91e63; font-size: 1.2rem; margin-bottom: 10px;">??툘 ?꾩껜 媛뺤젣 ?⑥뒪</h4>
+                                <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">?쒓컙??遺議깊븷 ??紐⑤뱺 ?숈깮?ㅼ쓣 ?ㅼ쓬 ?④퀎濡?媛뺤젣 ?대룞?쒗궢?덈떎.</p>
+                                <select id="td-force-pass-stage" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; color: white; border: 1px solid #555; border-radius: 4px;">
+                                    <option value="1">1?④퀎濡??대룞</option>
+                                    <option value="2">2?④퀎濡??대룞</option>
+                                    <option value="3">3?④퀎濡??대룞</option>
+                                    <option value="6">6?④퀎(媛쒖씤誘몄뀡)濡??대룞</option>
+                                </select>
+                                <button id="btn-td-force-pass" class="btn-primary" style="background: #e91e63; width: 100%;">?대떦 ?④퀎濡?媛뺤젣 ?대룞 ??</button>
+                            </div>
+                            
+                            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444; grid-column: span 2;">
+                                <h4 style="color: #4caf50; font-size: 1.2rem; margin-bottom: 10px;">?뱼 湲닿툒 ?앹뾽 怨듭?</h4>
+                                <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">紐⑤뱺 ?숈깮???붾㈃??怨듭??ы빆???앹뾽?쇰줈 ?꾩썎?덈떎.</p>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="td-notice-input" placeholder="怨듭????댁슜???낅젰?섏꽭?? style="flex: 1; padding: 10px; background: #222; color: white; border: 1px solid #555; border-radius: 4px;">
+                                    <button id="btn-td-send-notice" class="btn-primary" style="background: #4caf50; white-space: nowrap;">怨듭? ?꾩넚 ?벂</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333;">
+                            <h4 style="color: #f44336; margin-bottom: 10px;">?좑툘 ?곗씤? 議?/h4>
+                            <button id="btn-td-reset-class" class="btn-danger" style="margin-right: 10px;">?꾩옱 諛??곗씠???꾩껜 珥덇린??/button>
+                        </div>
+                    </div>
+                </main>
+            </section>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); z-index: 100; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+        <span style="pointer-events: auto; cursor: pointer; text-decoration: underline; margin: 0 10px;" onclick="openPolicyModal('modal-policy', '媛쒖씤?뺣낫泥섎━諛⑹묠.md')">媛쒖씤?뺣낫泥섎━諛⑹묠</span>
+        |
+        <span style="pointer-events: auto; cursor: pointer; text-decoration: underline; margin: 0 10px;" onclick="openPolicyModal('modal-policy', '?댁슜?쎄?.md')">?댁슜?쎄?</span>
+        |
+        <span style="margin: 0 10px;">BY. LEE JIN YOUNG</span>
+    </div>
+
+    <!-- Policy Modal -->
+    <div id="modal-policy" class="modal hidden" style="z-index: 9999;">
+        <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 1px solid var(--accent-gold); max-height: 80vh; display: flex; flex-direction: column;">
+            <pre id="modal-policy-content" style="width: 100%; height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.5); color: #ddd; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: 'Noto Sans KR', sans-serif; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem; border: 1px solid #444;"></pre>
+            <button class="btn-primary" style="width: 100%;" onclick="document.getElementById('modal-policy').classList.add('hidden')">?リ린</button>
+        </div>
+    </div>
+
+    <script>
+        function openPolicyModal(modalId, filePath) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById(modalId + '-content').textContent = '濡쒕뵫 以?..';
+            fetch(filePath)
+                .then(r => r.text())
+                .then(t => {
+                    document.getElementById(modalId + '-content').textContent = t;
+                })
+                .catch(e => {
+                    document.getElementById(modalId + '-content').textContent = '臾몄꽌瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??';
+                });
+        }
+    </script>
+
+    <script type="module" src="app.js?v=29.0"></script>
+</body>
+</html>
+

@@ -9,8 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.0">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
+    <!-- 현재 학급 워터마크 (교사 확인용) -->
+    <div id="active-class-watermark" style="position: fixed; top: 10px; right: 20px; font-size: 1.5rem; font-weight: bold; color: rgba(255, 255, 255, 0.15); z-index: 1000; pointer-events: none; font-family: 'Noto Sans KR', sans-serif;"></div>
     <div id="version-display" style="position:fixed; top:10px; right:10px; z-index:9999; background:red; color:white; padding:5px 10px; font-weight:bold; border-radius:5px;">v29.0</div>
     <div id="app-container">
         <!-- 상단 고정 헤더 -->
@@ -624,7 +627,7 @@
             <div id="epilogue-modal" class="modal hidden" style="z-index: 1000;">
                 <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
                     <h2 style="color: var(--accent-gold); margin-bottom: 1rem; text-align: center;">에필로그: 런칭쇼 그 후... 🌿</h2>
-                    <video src="엔딩 영상.mp4" controls style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
+                    <video src="엔딩 영상.mp4" controls autoplay style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
                     <p style="line-height: 1.8; margin-bottom: 1rem; font-size: 1.1rem; color: #eee;">
                         여러분의 활약으로 RE:BRAND의 친환경 컬렉션 런칭쇼는 대성공을 거두었습니다!<br><br>
                         소비자들은 단순한 화려함을 넘어, <b>옷에 담긴 지구를 향한 배려와 5R의 가치</b>에 열광했습니다. 매출은 폭발적으로 증가했고, 언론은 '윤리적 패션의 승리'라며 찬사를 보냈습니다.<br><br>
@@ -949,8 +952,173 @@
                 </div>
             </div>
         </div>
-
     </div>
+    
+    <!-- 교사 전용 메인 대시보드 스크린 -->
+    <section id="screen-teacher-dashboard" class="screen hidden" style="background-color: #12141a; min-height: 100vh; display: flex; color: #eee; font-family: 'Noto Sans KR', sans-serif; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;">
+        <!-- 사이드바 -->
+        <aside style="width: 280px; background: #1a1d24; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 20px 0;">
+            <div style="padding: 0 20px 20px; border-bottom: 1px solid #333; margin-bottom: 20px;">
+                <h2 style="color: var(--accent-gold); font-size: 1.5rem; margin-bottom: 5px;">👨‍🏫 교사 대시보드</h2>
+                <div style="font-size: 0.9rem; color: #888;">RE:BRAND 컨트롤 타워</div>
+                
+                <div style="margin-top: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid #444;">
+                    <label style="font-size: 0.8rem; color: #aaa;">현재 활성화된 반</label>
+                    <div style="display: flex; gap: 5px; margin-top: 5px;">
+                        <input type="text" id="td-active-class-input" placeholder="예: 3-1" style="flex: 1; padding: 5px; background: #222; border: 1px solid #555; color: white; border-radius: 4px;">
+                        <button id="btn-td-set-class" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">설정</button>
+                    </div>
+                </div>
+            </div>
+
+            <ul id="td-menu" style="list-style: none; padding: 0; margin: 0; flex: 1;">
+                <li class="td-menu-item active" data-tab="tab-roster" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid var(--accent-gold); background: rgba(255,215,0,0.1); display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                    <span style="font-size: 1.2rem;">👥</span> 조 편성 및 명단 관리
+                </li>
+                <li class="td-menu-item" data-tab="tab-progress" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                    <span style="font-size: 1.2rem;">📊</span> 실시간 진행 현황판
+                </li>
+                <li class="td-menu-item" data-tab="tab-results" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                    <span style="font-size: 1.2rem;">🎨</span> 학생 결과물 확인
+                </li>
+                <li class="td-menu-item" data-tab="tab-actions" style="padding: 15px 20px; cursor: pointer; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                    <span style="font-size: 1.2rem;">⚡</span> 강력 추천 기능
+                </li>
+            </ul>
+
+            <div style="padding: 20px; border-top: 1px solid #333;">
+                <button id="btn-td-exit" class="btn-text" style="color: #aaa; width: 100%; text-align: left;">← 대시보드 나가기</button>
+            </div>
+        </aside>
+
+        <!-- 메인 컨텐츠 영역 -->
+        <main style="flex: 1; padding: 30px; overflow-y: auto; position: relative;">
+            
+            <!-- [탭 1] 조 편성 및 명단 관리 -->
+            <div id="tab-roster" class="td-tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="font-size: 1.8rem;">👥 조 편성 및 명단 관리</h3>
+                    <button id="btn-td-add-dept" class="btn-primary" style="background: #4caf50;">+ 새 부서 추가</button>
+                </div>
+                <p style="color: #aaa; margin-bottom: 20px;">각 부서별로 학생들의 학번과 이름을 입력해두면, 학생들이 부서 선택 시 자신의 정보와 매핑됩니다.</p>
+                
+                <div id="td-roster-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <!-- JS 랜더링 영역 -->
+                </div>
+            </div>
+
+            <!-- [탭 2] 실시간 진행 현황판 -->
+            <div id="tab-progress" class="td-tab-content hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="font-size: 1.8rem;">📊 실시간 진행 현황판</h3>
+                    <button id="btn-td-refresh-progress" class="btn-primary" style="background: #2196f3;">🔄 새로고침</button>
+                </div>
+                
+                <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid #333;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 800px; text-align: center;">
+                        <thead>
+                            <tr style="background: rgba(255,215,0,0.1); border-bottom: 2px solid var(--accent-gold);">
+                                <th style="padding: 15px; color: var(--accent-gold);">부서명</th>
+                                <th style="padding: 15px;">직책 (학생)</th>
+                                <th style="padding: 15px;">진행 단계</th>
+                                <th style="padding: 15px;">1.요소</th>
+                                <th style="padding: 15px;">2.원단</th>
+                                <th style="padding: 15px;">3.조합</th>
+                                <th style="padding: 15px;">4.디자인</th>
+                                <th style="padding: 15px;">5.소감문</th>
+                            </tr>
+                        </thead>
+                        <tbody id="td-progress-tbody">
+                            <!-- JS 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- [탭 3] 학생 결과물 확인 (캡처 다운로드) -->
+            <div id="tab-results" class="td-tab-content hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="font-size: 1.8rem;">🎨 학생 결과물 확인</h3>
+                    <button id="btn-td-download-all" class="btn-primary" style="background: #e91e63;">전체 이미지 다운로드 (ZIP)</button>
+                </div>
+                
+                <div id="td-results-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                    <!-- JS 렌더링 -->
+                </div>
+            </div>
+
+            <!-- [탭 4] 강력 추천 기능 -->
+            <div id="tab-actions" class="td-tab-content hidden">
+                <h3 style="font-size: 1.8rem; margin-bottom: 20px;">⚡ 강력 추천 기능</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444;">
+                        <h4 style="color: #ff9800; font-size: 1.2rem; margin-bottom: 10px;">🥶 화면 얼음 (집중 모드)</h4>
+                        <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">학생들의 화면을 일시정지시키고 선생님을 보게 합니다.</p>
+                        <button id="btn-td-freeze" class="btn-primary" style="background: #ff9800; width: 100%;">얼음 활성화 ❄️</button>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444;">
+                        <h4 style="color: #e91e63; font-size: 1.2rem; margin-bottom: 10px;">⏭️ 전체 강제 패스</h4>
+                        <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">시간이 부족할 때 모든 학생들을 다음 단계로 강제 이동시킵니다.</p>
+                        <select id="td-force-pass-stage" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; color: white; border: 1px solid #555; border-radius: 4px;">
+                            <option value="1">1단계로 이동</option>
+                            <option value="2">2단계로 이동</option>
+                            <option value="3">3단계로 이동</option>
+                            <option value="6">6단계(개인미션)로 이동</option>
+                        </select>
+                        <button id="btn-td-force-pass" class="btn-primary" style="background: #e91e63; width: 100%;">해당 단계로 강제 이동 🚀</button>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid #444; grid-column: span 2;">
+                        <h4 style="color: #4caf50; font-size: 1.2rem; margin-bottom: 10px;">📢 긴급 팝업 공지</h4>
+                        <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">모든 학생의 화면에 공지사항을 팝업으로 띄웁니다.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="td-notice-input" placeholder="공지할 내용을 입력하세요" style="flex: 1; padding: 10px; background: #222; color: white; border: 1px solid #555; border-radius: 4px;">
+                            <button id="btn-td-send-notice" class="btn-primary" style="background: #4caf50; white-space: nowrap;">공지 전송 📨</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333;">
+                    <h4 style="color: #f44336; margin-bottom: 10px;">⚠️ 데인저 존</h4>
+                    <button id="btn-td-reset-class" class="btn-danger" style="margin-right: 10px;">현재 반 데이터 전체 초기화</button>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- Footer -->
+    <div style="position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); z-index: 10000; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+        <span style="pointer-events: auto; cursor: pointer; text-decoration: underline; margin: 0 10px;" onclick="openPolicyModal('modal-policy', '개인정보처리방침.md')">개인정보처리방침</span>
+        |
+        <span style="pointer-events: auto; cursor: pointer; text-decoration: underline; margin: 0 10px;" onclick="openPolicyModal('modal-policy', '이용약관.md')">이용약관</span>
+        |
+        <span style="margin: 0 10px;">BY. LEE JIN YOUNG</span>
+    </div>
+
+    <!-- Policy Modal -->
+    <div id="modal-policy" class="modal hidden" style="z-index: 10001;">
+        <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 1px solid var(--accent-gold); max-height: 80vh; display: flex; flex-direction: column;">
+            <pre id="modal-policy-content" style="width: 100%; height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.5); color: #ddd; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: 'Noto Sans KR', sans-serif; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem; border: 1px solid #444;"></pre>
+            <button class="btn-primary" style="width: 100%;" onclick="document.getElementById('modal-policy').classList.add('hidden')">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        function openPolicyModal(modalId, filePath) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById(modalId + '-content').textContent = '로딩 중...';
+            fetch(filePath)
+                .then(r => r.text())
+                .then(t => {
+                    document.getElementById(modalId + '-content').textContent = t;
+                })
+                .catch(e => {
+                    document.getElementById(modalId + '-content').textContent = '문서를 불러오지 못했습니다.';
+                });
+        }
+    </script>
     <script type="module" src="app.js?v=29.0"></script>
 </body>
 </html>
