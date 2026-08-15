@@ -1253,7 +1253,7 @@ function startScreen4() {
                 selectedItems['pattern'] === '작은무늬') {
                 
                 errorMsg.classList.add('hidden');
-                alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!\n\n(10초 대기 후 강제 이동 버튼이 나타납니다.)");
+                alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
                 updateDoc(doc(db, 'departments', currentDeptId), {
@@ -1262,11 +1262,14 @@ function startScreen4() {
                 
                 setTimeout(() => {
                     btnSubmit.disabled = false;
-                    btnSubmit.style.backgroundColor = '#cc0000';
+                    btnSubmit.style.backgroundColor = '#555555';
                     btnSubmit.style.color = 'white';
-                    btnSubmit.textContent = '통신 장애 (긴급 직권 승인)';
+                    btnSubmit.textContent = '서버 동기화 (재시도)';
                     btnSubmit.onclick = () => {
-                        if (confirm('서버 통신 지연으로 화면이 넘어가지 않고 있습니다. 관리자 직권으로 즉시 실천적 추론(팝업)을 승인하고 진행하시겠습니까?')) {
+                        if (confirm('서버 통신 지연이 발생했습니다. 직권으로 동기화를 진행하시겠습니까?')) {
+                            updateDoc(doc(db, 'departments', currentDeptId), {
+                                showStage3Reasoning: true
+                            }).catch(e => console.error(e));
                             showReasoningModal(PUZZLE_DATA.stage3, 4);
                         }
                     };
@@ -1963,7 +1966,7 @@ function showReasoningModal(stageData, targetStageNum) {
       const secretSkipReasoning = document.getElementById('secret-skip-reasoning');
       if (secretSkipReasoning) {
           secretSkipReasoning.onclick = async () => {
-              if (confirm('실천적 추론을 강제로 넘길까요?')) {
+              if (confirm('시스템 동기화를 진행하시겠습니까?')) {
                   try {
                       await updateDoc(doc(db, 'departments', currentDeptId), {
                           currentStage: targetStageNum,
@@ -1971,7 +1974,6 @@ function showReasoningModal(stageData, targetStageNum) {
                           showStage3Reasoning: false
                       });
                       document.getElementById('reasoning-modal').classList.add('hidden');
-                      alert('강제 패스 성공!');
                   } catch (e) {
                       alert('오류: ' + e);
                   }
@@ -2023,12 +2025,18 @@ function showReasoningModal(stageData, targetStageNum) {
             
             setTimeout(() => {
                 btnSubmit.disabled = false;
-                btnSubmit.style.backgroundColor = '#cc0000';
+                btnSubmit.style.backgroundColor = '#555555';
                 btnSubmit.style.color = 'white';
-                btnSubmit.textContent = '통신 장애 (긴급 직권 승인)';
+                btnSubmit.textContent = '서버 동기화 (재시도)';
                 btnSubmit.onclick = () => {
-                    if (confirm('서버 통신 지연으로 화면이 넘어가지 않고 있습니다. 관리자 직권으로 즉시 다음 단계를 승인하고 진행하시겠습니까?')) {
-                        alert('🎉 합의 및 실천적 추론이 완료되었습니다! 다음 단계로 이동합니다.');
+                    if (confirm('서버 통신 지연이 발생했습니다. 직권으로 동기화를 진행하시겠습니까?')) {
+                        updateDoc(doc(db, 'departments', currentDeptId), {
+                            currentStage: targetStageNum,
+                            showStage1Reasoning: false,
+                            showStage3Reasoning: false
+                        }).catch(e => console.error("DB 업데이트 실패:", e));
+                        
+                        alert('🎉 합의가 완료되었습니다! 다음 단계로 이동합니다.');
                         modal.classList.add('hidden');
                         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                         document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
@@ -2067,8 +2075,15 @@ async function initApp() {
             
             function handleStageUpdate(d) {
                 const stage = d.currentStage || 0;
-                const showReasoning1 = !!d.showStage1Reasoning;
-                const showReasoning3 = !!d.showStage3Reasoning;
+                let showReasoning1 = !!d.showStage1Reasoning;
+                let showReasoning3 = !!d.showStage3Reasoning;
+                
+                // REST API 지연 등으로 과거 stage 값이 넘어오면 무시하여 뒤로 튕김 현상 방지
+                if (stage < lastStage) return;
+                
+                // 지연된 응답으로 인해 모달이 닫혔다 열렸다 반복하는 현상 방지
+                if (stage === 1 && lastShowReasoning1 && !showReasoning1) showReasoning1 = true;
+                if (stage === 3 && lastShowReasoning3 && !showReasoning3) showReasoning3 = true;
                 
                 // 1. Stage가 완전히 바뀌었을 때 (화면 전면 교체)
                 if (lastStage !== stage) {
@@ -2121,7 +2136,7 @@ async function initApp() {
                         lastShowReasoning1 = showReasoning1;
                         if (showReasoning1) showReasoningModal(PUZZLE_DATA.stage1, 2);
                         else {
-                            const modal = document.getElementById('stage1-reasoning-modal');
+                            const modal = document.getElementById('reasoning-modal');
                             if (modal) modal.classList.add('hidden');
                         }
                     }
@@ -2129,7 +2144,7 @@ async function initApp() {
                         lastShowReasoning3 = showReasoning3;
                         if (showReasoning3) showReasoningModal(PUZZLE_DATA.stage3, 4);
                         else {
-                            const modal = document.getElementById('stage1-reasoning-modal'); // stage3도 같은 모달 ID 사용함
+                            const modal = document.getElementById('reasoning-modal');
                             if (modal) modal.classList.add('hidden');
                         }
                     }
