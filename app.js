@@ -2735,12 +2735,8 @@ document.getElementById('btn-verify-pin')?.addEventListener('click', () => {
     const pin = document.getElementById('admin-pin-input').value;
     if (pin === '1234') {
         document.getElementById('admin-modal').classList.add('hidden');
-        document.getElementById('screen-0').classList.add('hidden');
-        const tdScreen = document.getElementById('screen-teacher-dashboard');
-        if (tdScreen) {
-            tdScreen.classList.remove('hidden');
-            initTeacherDashboard();
-        }
+        document.getElementById('admin-pin-input').value = '';
+        window.open('dashboard.html', '_blank');
     }
 });
 
