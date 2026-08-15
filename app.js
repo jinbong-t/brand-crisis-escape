@@ -1672,6 +1672,7 @@ function startScreen5() {
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                         document.getElementById('screen-6').classList.remove('hidden');
                         document.getElementById('display-current-role-stage6').textContent = currentRole;
+                        initCanvas(); // 캔버스 초기화 추가
                         alert('🎉 팀원이 조각을 성공적으로 찾았습니다! 다음 미션으로 넘어갑니다.');
                     }
                 });
