@@ -72,7 +72,9 @@ document.getElementById('btn-reset-status')?.addEventListener('click', async () 
         snapshot.forEach(docSnap => {
             promises.push(updateDoc(docSnap.ref, {
                 currentStage: 0,
-                envScore: 0
+                envScore: 0,
+                showStage1Reasoning: false,
+                showStage3Reasoning: false
             }));
         });
         await Promise.all(promises);

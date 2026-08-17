@@ -1371,6 +1371,9 @@ function startScreen4() {
                 alert("🎉 완벽합니다! 환경과 디자인을 모두 고려한 친환경 의류 컬렉션이 완성되었습니다.\n이제 팝업되는 '실천적 추론' 문제를 부서원들과 토론하여 해결하세요!");
                 btnSubmit.disabled = true;
                 
+                // 모달 즉시 강제 호출 (캐시나 과거 상태 꼬임 방지)
+                showReasoningModal(PUZZLE_DATA.stage3, 4);
+                
                 updateDoc(getDeptDocRef(currentDeptId), {
                     showStage3Reasoning: true
                 }).catch(e => console.error(e));
