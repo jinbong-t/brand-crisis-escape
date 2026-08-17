@@ -181,6 +181,38 @@ document.getElementById('btn-add-team')?.addEventListener('click', async () => {
     }
 });
 
+// 학생 명패(Pill) 생성 함수
+function createRosterPill(line) {
+    const container = document.getElementById('roster-pills');
+    const pill = document.createElement('div');
+    pill.className = 'roster-pill';
+    pill.textContent = line;
+    pill.draggable = true;
+    pill.style.cssText = 'background: var(--accent-gold); color: black; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: bold; cursor: grab; user-select: none; font-size: 0.9rem; transition: transform 0.1s;';
+    
+    pill.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', line);
+        pill.style.opacity = '0.5';
+        window.draggedStudent = line;
+        window.draggedStudentElement = pill;
+    });
+    pill.addEventListener('dragend', () => {
+        pill.style.opacity = '1';
+        window.draggedStudent = null;
+        window.draggedStudentElement = null;
+    });
+    
+    // 클릭 투 인풋 선택
+    pill.addEventListener('click', () => {
+        document.querySelectorAll('.roster-pill').forEach(p => p.style.boxShadow = 'none');
+        pill.style.boxShadow = '0 0 0 3px white';
+        window.selectedStudentPill = line;
+        window.selectedStudentElement = pill;
+    });
+    
+    container.appendChild(pill);
+}
+
 // 학생 명단 파싱 및 Pill 생성
 document.getElementById('btn-parse-roster')?.addEventListener('click', () => {
     const text = document.getElementById('roster-input').value;
@@ -193,41 +225,16 @@ document.getElementById('btn-parse-roster')?.addEventListener('click', () => {
         return;
     }
     
-    lines.forEach(line => {
-        const pill = document.createElement('div');
-        pill.className = 'roster-pill';
-        pill.textContent = line;
-        pill.draggable = true;
-        pill.style.cssText = 'background: var(--accent-gold); color: black; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: bold; cursor: grab; user-select: none; font-size: 0.9rem; transition: transform 0.1s;';
-        
-        pill.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', line);
-            pill.style.opacity = '0.5';
-            window.draggedStudent = line;
-        });
-        pill.addEventListener('dragend', () => {
-            pill.style.opacity = '1';
-            window.draggedStudent = null;
-        });
-        
-        // 클릭 투 인풋 선택
-        pill.addEventListener('click', () => {
-            document.querySelectorAll('.roster-pill').forEach(p => p.style.boxShadow = 'none');
-            pill.style.boxShadow = '0 0 0 3px white';
-            window.selectedStudentPill = line;
-        });
-        
-        container.appendChild(pill);
-    });
+    lines.forEach(createRosterPill);
 });
 
 // 자동 배치 로직 공통 함수
 function autoAssign(randomize) {
     const pills = Array.from(document.querySelectorAll('.roster-pill'));
-    const inputs = Array.from(document.querySelectorAll('.member-input'));
+    const inputs = Array.from(document.querySelectorAll('.member-input')).filter(input => !input.value); // 빈 칸만 찾기
     
     if (pills.length === 0) return alert('명단을 먼저 적용해주세요!');
-    if (inputs.length === 0) return alert('부서가 생성되어 있지 않습니다.');
+    if (inputs.length === 0) return alert('배치할 빈 자리가 없습니다. 부서를 추가하거나 빈칸을 만들어주세요.');
     
     let students = pills.map(p => p.textContent);
     
@@ -243,10 +250,11 @@ function autoAssign(randomize) {
     for (let i = 0; i < Math.min(students.length, inputs.length); i++) {
         inputs[i].value = students[i];
         inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
+        pills[i].remove(); // 대기칸에서 제거
         assignedCount++;
     }
     
-    alert(`총 ${assignedCount}명의 학생이 배치 완료되었습니다!`);
+    alert(`총 ${assignedCount}명의 학생이 빈칸에 배치 완료되었습니다!`);
 }
 
 document.getElementById('btn-auto-assign-seq')?.addEventListener('click', () => autoAssign(false));
@@ -270,15 +278,37 @@ deptListContainer.addEventListener('drop', (e) => {
         e.preventDefault();
         e.target.style.borderColor = 'rgba(255,255,255,0.1)';
         const data = e.dataTransfer.getData('text/plain');
-        if (data) {
+        if (data && window.draggedStudentElement) {
+            // 이미 값이 있다면 대기칸으로 되돌리기
+            if (e.target.value) {
+                createRosterPill(e.target.value);
+            }
             e.target.value = data;
             e.target.dispatchEvent(new Event('change', { bubbles: true }));
+            window.draggedStudentElement.remove();
+            window.draggedStudentElement = null;
         }
     }
 });
 deptListContainer.addEventListener('click', (e) => {
     if (e.target.classList.contains('member-input') && window.selectedStudentPill) {
+        if (e.target.value) {
+            createRosterPill(e.target.value);
+        }
         e.target.value = window.selectedStudentPill;
+        e.target.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        if (window.selectedStudentElement) {
+            window.selectedStudentElement.remove();
+            window.selectedStudentElement = null;
+            window.selectedStudentPill = null;
+        }
+    }
+});
+deptListContainer.addEventListener('dblclick', (e) => {
+    if (e.target.classList.contains('member-input') && e.target.value) {
+        createRosterPill(e.target.value);
+        e.target.value = '';
         e.target.dispatchEvent(new Event('change', { bubbles: true }));
     }
 });
