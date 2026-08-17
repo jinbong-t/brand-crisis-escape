@@ -2266,8 +2266,8 @@ window.submitQr = async () => {
     const inputPw = qrPasswordInput.value.trim();
     const correctPw = PUZZLE_DATA.qrMessages[currentDeptId] || '';
     
-    // 입력값과 정답에서 띄어쓰기를 모두 제거하여 비교 (관대하게)
-    if (correctPw && inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
+    // 입력값과 정답에서 띄어쓰기 및 보이지 않는 문자(Zero-width space)를 모두 제거하여 비교 (매우 관대하게)
+    if (correctPw && inputPw.replace(/[\s\u200B-\u200D\uFEFF]+/g, '') === correctPw.replace(/[\s\u200B-\u200D\uFEFF]+/g, '')) {
         qrErrorMsg.classList.add('hidden');
         btnSubmitQr.classList.add('hidden');
         qrPasswordInput.disabled = true;
