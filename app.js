@@ -1385,6 +1385,7 @@ function startScreen4() {
                     btnSubmit.textContent = '서버 동기화 (재시도)';
                     btnSubmit.onclick = () => {
                         if (confirm('서버 통신 지연이 발생했습니다. 직권으로 동기화를 진행하시겠습니까?')) {
+                            showReasoningModal(PUZZLE_DATA.stage3, 4);
                             updateDoc(getDeptDocRef(currentDeptId), {
                                 showStage3Reasoning: true
                             }).catch(e => console.error(e));
