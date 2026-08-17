@@ -25,6 +25,13 @@ async function loadGlobalConfig() {
     initDashboard();
 }
 
+classInput.addEventListener('click', () => {
+    classInput.select();
+});
+classInput.addEventListener('focus', () => {
+    classInput.select();
+});
+
 document.getElementById('btn-set-class')?.addEventListener('click', async () => {
     const newClass = classInput.value.trim();
     if (newClass) {

@@ -2664,16 +2664,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: Date.now()
             };
 
-            await updateDoc(getRoleDocRef(currentDeptId, currentRole), {
+            await setDoc(getRoleDocRef(currentDeptId, currentRole), {
                 stage6Completed: true,
                 personalDesign: personalData
-            });
+            }, { merge: true });
             
             // 개인 제출 시마다 부서 환경 점수 10점씩 추가
             const deptRef = getDeptDocRef(currentDeptId);
             getDoc(deptRef).then(snap => {
                 let currentScore = snap.exists() && snap.data().envScore ? snap.data().envScore : 0;
-                updateDoc(deptRef, { envScore: currentScore + 10 });
+                setDoc(deptRef, { envScore: currentScore + 10 }, { merge: true });
             });
             
             alert('디자인이 성공적으로 저장되었습니다! 다음 단계로 이동합니다.');
@@ -2682,7 +2682,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch(e) {
             console.error("Personal Design Save Error:", e);
-            alert("저장에 실패했습니다. 다시 시도해주세요.");
+            alert("저장에 실패했습니다. 다시 시도해주세요. (네트워크 연결을 확인해주세요)");
             btn.disabled = false;
             btn.textContent = "디자인 제출 및 평가 가기";
         }
