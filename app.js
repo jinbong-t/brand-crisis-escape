@@ -4,6 +4,53 @@ import { PUZZLE_DATA } from './puzzle-data.js?v=5.0';
 // 글로벌 학급 설정 (기본값)
 let activeClass = '3-1';
 
+// 글로벌 학급 설정 실시간 동기화
+let firstNoticeLoad = true;
+onSnapshot(doc(db, 'global', 'config'), (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.currentActiveSession) {
+            activeClass = data.currentActiveSession;
+            const wm = document.getElementById('active-class-watermark');
+            if (wm) wm.textContent = `Class: ${activeClass}`;
+            console.log("Current active class updated to:", activeClass);
+            
+            // 반이 설정된 후 공지사항 리스너 등록
+            onSnapshot(doc(db, `classes/${activeClass}/global`, 'notice'), (noticeSnap) => {
+                if (noticeSnap.exists()) {
+                    const noticeData = noticeSnap.data();
+                    if (!firstNoticeLoad && noticeData.message) {
+                        alert(`📢 [선생님 전체 공지]\n\n${noticeData.message}`);
+                    }
+                    firstNoticeLoad = false;
+                }
+            });
+            
+            // 상태(얼음 등) 리스너 등록
+            onSnapshot(doc(db, `classes/${activeClass}/global`, 'state'), (stateSnap) => {
+                const overlay = document.getElementById('freeze-overlay');
+                if (stateSnap.exists()) {
+                    const data = stateSnap.data();
+                    // 얼음 상태
+                    if (data.freeze) {
+                        if (overlay) {
+                            overlay.style.display = 'flex';
+                            overlay.classList.remove('hidden');
+                        }
+                    } else {
+                        if (overlay) {
+                            overlay.style.display = 'none';
+                            overlay.classList.add('hidden');
+                        }
+                    }
+                    // 활동 시작 상태 저장
+                    window.activityStarted = data.activityStarted === true;
+                }
+            });
+        }
+    }
+});
+
 // Firebase Document Reference 래퍼 함수 (학급 격리)
 function getDeptDocRef(deptId) {
     return doc(db, `classes/${activeClass}/departments`, deptId);
@@ -99,6 +146,12 @@ const DEFAULT_DEPTS = [
 
 // Splash Screen Logic
 btnEnterGame.addEventListener('click', () => {
+    // 0. 활동 시작 여부 확인
+    if (!window.activityStarted) {
+        alert("선생님의 배치 확정을 기다리고 있습니다.\\n잠시만 기다려주세요! ⏳");
+        return;
+    }
+
     // 1. 강렬한 팝업 "당신의 부서는 무엇입니까?" 띄우기
     geniusModal.classList.remove('hidden');
     
@@ -190,12 +243,17 @@ async function checkRoleAvailability() {
         const roleRef = getRoleDocRef(currentDeptId, role);
         const snap = await getDoc(roleRef);
         
+        let studentName = "";
+        if (snap.exists() && snap.data().studentName) {
+            studentName = `<br><span style="color:#d4af37; font-size:0.9rem;">👤 ${snap.data().studentName}</span>`;
+        }
+        
         if (snap.exists() && snap.data().taken) {
             card.disabled = true;
-            card.innerHTML = `<h3>${role}</h3><p>(선택 완료)</p>`;
+            card.innerHTML = `<h3>${role}</h3><p>(선택 완료)${studentName}</p>`;
         } else {
             card.disabled = false;
-            card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}</p>`;
+            card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}${studentName}</p>`;
         }
     });
 }
@@ -2600,7 +2658,18 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.getElementById('screen-7').classList.add('hidden');
             document.getElementById('screen-ending').classList.remove('hidden');
+            
+            // 이름 매핑 가져오기
+            let studentNameStr = currentRole;
+            try {
+                const roleSnap = await getDoc(getRoleDocRef(currentDeptId, currentRole));
+                if (roleSnap.exists() && roleSnap.data().studentName) {
+                    studentNameStr = `${currentRole} (${roleSnap.data().studentName})`;
+                }
+            } catch(e) { console.error("이름 가져오기 실패", e); }
+            
             document.getElementById('certificate-dept-name').textContent = currentDeptName || '우리 부서';
+            document.getElementById('certificate-student-name').textContent = studentNameStr;
             
             setTimeout(() => {
                 document.getElementById('epilogue-modal').classList.remove('hidden');

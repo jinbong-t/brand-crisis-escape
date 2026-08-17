@@ -391,6 +391,19 @@ document.getElementById('btn-reset-assign')?.addEventListener('click', () => {
     });
 });
 
+// 배치 확정 및 활동 시작 버튼
+document.getElementById('btn-start-activity')?.addEventListener('click', async () => {
+    if (!confirm('학생들의 배치를 확정하고 활동을 시작하시겠습니까?\\n(이후 학생들이 기기에서 입장할 수 있습니다)')) return;
+    try {
+        const ref = doc(db, `classes/${activeClass}/global`, 'state');
+        await setDoc(ref, { activityStarted: true }, { merge: true });
+        alert('배치 확정 및 활동이 시작되었습니다! 학생들에게 로그인을 안내해주세요.');
+    } catch(e) {
+        console.error(e);
+        alert('활동 시작 상태 업데이트에 실패했습니다.');
+    }
+});
+
 // 2. 실시간 현황판 (상태 탭)
 function renderStatusTab() {
     const container = document.getElementById('td-progress-board');
@@ -572,6 +585,9 @@ function renderControlTab() {
                 snap.forEach(async (docSnap) => {
                     await deleteDoc(doc(db, `classes/${activeClass}/departments`, docSnap.id));
                 });
+                
+                // 전역 상태 초기화 (활동 시작, 얼음 등)
+                await setDoc(doc(db, `classes/${activeClass}/global`, 'state'), { freeze: false, activityStarted: false });
                 
                 alert(`[${activeClass}] 반 초기화가 완료되었습니다.`);
             } catch(e) {
