@@ -1759,28 +1759,7 @@ if (btnTwistNext) {
     };
 }
 
-const btnSubmitReflections = document.getElementById('btn-submit-reflections');
-if (btnSubmitReflections) {
-    btnSubmitReflections.onclick = () => {
-        const q1 = document.getElementById('reflection-q1').value;
-        const q2 = document.getElementById('reflection-q2').value;
-        if (!q1 || !q2) {
-            alert('모든 질문에 답해주세요.');
-            return;
-        }
-        alert('소중한 소감 감사합니다! 모든 활동이 종료되었습니다.');
-        document.getElementById('screen-7').classList.add('hidden');
-        
-        const endingScreen = document.getElementById('screen-ending');
-        if (endingScreen) endingScreen.classList.remove('hidden');
-        
-        const deptName = currentDeptName || '우리 부서';
-        const certDeptName = document.getElementById('certificate-dept-name');
-        if (certDeptName) certDeptName.textContent = deptName;
-        
-        triggerConfetti();
-    };
-}
+
 // ------------------------------------
 
 // 폭죽 (Confetti) 애니메이션 함수
