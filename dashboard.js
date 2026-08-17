@@ -98,10 +98,10 @@ function renderTeamTab() {
             card.className = 'dept-card';
             card.innerHTML = `
                 <h3>${deptName}</h3>
-                <input type="text" placeholder="인턴 학번/이름 (예: 30101 홍길동)" class="member-input" data-dept="${deptId}" data-role="인턴">
-                <input type="text" placeholder="사원 학번/이름" class="member-input" data-dept="${deptId}" data-role="사원">
-                <input type="text" placeholder="차장 학번/이름" class="member-input" data-dept="${deptId}" data-role="차장">
-                <input type="text" placeholder="부장 학번/이름" class="member-input" data-dept="${deptId}" data-role="부장">
+                <input type="text" placeholder="인턴 학번/이름 (예: 30101 홍길동)" class="member-input" data-dept="${deptId}" data-role="인턴" draggable="true">
+                <input type="text" placeholder="사원 학번/이름" class="member-input" data-dept="${deptId}" data-role="사원" draggable="true">
+                <input type="text" placeholder="차장 학번/이름" class="member-input" data-dept="${deptId}" data-role="차장" draggable="true">
+                <input type="text" placeholder="부장 학번/이름" class="member-input" data-dept="${deptId}" data-role="부장" draggable="true">
             `;
             container.appendChild(card);
             
@@ -262,6 +262,22 @@ document.getElementById('btn-auto-assign-rand')?.addEventListener('click', () =>
 
 // td-dept-list 드래그 앤 드롭 및 클릭 투 인풋 지원
 const deptListContainer = document.getElementById('td-dept-list');
+deptListContainer.addEventListener('dragstart', (e) => {
+    if (e.target.classList.contains('member-input')) {
+        if (!e.target.value) {
+            e.preventDefault();
+            return;
+        }
+        e.dataTransfer.setData('text/plain', e.target.value);
+        window.draggedSourceInput = e.target;
+        e.dataTransfer.effectAllowed = 'move';
+    }
+});
+deptListContainer.addEventListener('dragend', (e) => {
+    if (e.target.classList.contains('member-input')) {
+        window.draggedSourceInput = null;
+    }
+});
 deptListContainer.addEventListener('dragover', (e) => {
     if (e.target.classList.contains('member-input')) {
         e.preventDefault();
@@ -278,15 +294,26 @@ deptListContainer.addEventListener('drop', (e) => {
         e.preventDefault();
         e.target.style.borderColor = 'rgba(255,255,255,0.1)';
         const data = e.dataTransfer.getData('text/plain');
-        if (data && window.draggedStudentElement) {
-            // 이미 값이 있다면 대기칸으로 되돌리기
-            if (e.target.value) {
-                createRosterPill(e.target.value);
+        if (data) {
+            if (window.draggedSourceInput && window.draggedSourceInput !== e.target) {
+                // Input -> Input Swap
+                const temp = e.target.value;
+                e.target.value = data;
+                window.draggedSourceInput.value = temp;
+                
+                e.target.dispatchEvent(new Event('change', { bubbles: true }));
+                window.draggedSourceInput.dispatchEvent(new Event('change', { bubbles: true }));
+                window.draggedSourceInput = null;
+            } else if (window.draggedStudentElement) {
+                // Roster -> Input
+                if (e.target.value) {
+                    createRosterPill(e.target.value);
+                }
+                e.target.value = data;
+                e.target.dispatchEvent(new Event('change', { bubbles: true }));
+                window.draggedStudentElement.remove();
+                window.draggedStudentElement = null;
             }
-            e.target.value = data;
-            e.target.dispatchEvent(new Event('change', { bubbles: true }));
-            window.draggedStudentElement.remove();
-            window.draggedStudentElement = null;
         }
     }
 });
@@ -311,6 +338,57 @@ deptListContainer.addEventListener('dblclick', (e) => {
         e.target.value = '';
         e.target.dispatchEvent(new Event('change', { bubbles: true }));
     }
+});
+
+// 대기칸 Drop 이벤트 (Input -> Roster)
+const rosterArea = document.getElementById('roster-pills');
+rosterArea.addEventListener('dragover', (e) => e.preventDefault());
+rosterArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (window.draggedSourceInput) {
+        const val = window.draggedSourceInput.value;
+        if (val) {
+            createRosterPill(val);
+            window.draggedSourceInput.value = '';
+            window.draggedSourceInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        window.draggedSourceInput = null;
+    }
+});
+
+// 완전 삭제 쓰레기통
+const trashDropzone = document.getElementById('trash-dropzone');
+trashDropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    trashDropzone.style.background = 'rgba(255, 71, 87, 0.3)';
+});
+trashDropzone.addEventListener('dragleave', (e) => {
+    trashDropzone.style.background = 'rgba(255, 71, 87, 0.1)';
+});
+trashDropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    trashDropzone.style.background = 'rgba(255, 71, 87, 0.1)';
+    if (window.draggedSourceInput) {
+        window.draggedSourceInput.value = '';
+        window.draggedSourceInput.dispatchEvent(new Event('change', { bubbles: true }));
+        window.draggedSourceInput = null;
+    } else if (window.draggedStudentElement) {
+        window.draggedStudentElement.remove();
+        window.draggedStudentElement = null;
+    }
+});
+
+// 배치 전체 초기화 버튼
+document.getElementById('btn-reset-assign')?.addEventListener('click', () => {
+    if (!confirm('정말로 배치된 모든 명단을 초기화하시겠습니까?\\n배치된 학생들은 모두 대기칸으로 돌아갑니다.')) return;
+    const inputs = document.querySelectorAll('.member-input');
+    inputs.forEach(input => {
+        if (input.value) {
+            createRosterPill(input.value);
+            input.value = '';
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
 });
 
 // 2. 실시간 현황판 (상태 탭)
