@@ -98,9 +98,8 @@ function renderTeamTab() {
             card.className = 'dept-card';
             card.innerHTML = `
                 <h3>${deptName}</h3>
-                <input type="text" placeholder="사원 학번/이름 (예: 30101 홍길동)" class="member-input" data-dept="${deptId}" data-role="사원">
-                <input type="text" placeholder="대리 학번/이름" class="member-input" data-dept="${deptId}" data-role="대리">
-                <input type="text" placeholder="과장 학번/이름" class="member-input" data-dept="${deptId}" data-role="과장">
+                <input type="text" placeholder="인턴 학번/이름 (예: 30101 홍길동)" class="member-input" data-dept="${deptId}" data-role="인턴">
+                <input type="text" placeholder="사원 학번/이름" class="member-input" data-dept="${deptId}" data-role="사원">
                 <input type="text" placeholder="차장 학번/이름" class="member-input" data-dept="${deptId}" data-role="차장">
                 <input type="text" placeholder="부장 학번/이름" class="member-input" data-dept="${deptId}" data-role="부장">
             `;
