@@ -214,7 +214,7 @@ function renderAdminDeptList() {
 
 // 부서 선택
 async function selectDepartment(dept) {
-    currentDeptId = dept.id;
+    currentDeptId = dept.name; // ID가 아닌 부서 이름 자체를 문서 ID로 사용 (대시보드와 일치)
     currentDeptName = dept.name;
     
     selectedDeptName.textContent = dept.name;

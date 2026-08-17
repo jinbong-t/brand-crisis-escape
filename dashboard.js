@@ -481,7 +481,7 @@ function renderStatusTab() {
             const trackHtml = `
                 <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; position: relative;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0; color: var(--accent-gold); font-size: 1.1rem;">${docSnap.id}</h4>
+                        <h4 style="margin: 0; color: var(--accent-gold); font-size: 1.1rem;">${data.name || docSnap.id}</h4>
                         <span style="font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px;">Stage ${stage}</span>
                     </div>
                     
