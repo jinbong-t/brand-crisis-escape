@@ -403,6 +403,26 @@ document.getElementById('btn-reset-assign')?.addEventListener('click', () => {
     });
 });
 
+// 전체 명단 완전 삭제 버튼
+document.getElementById('btn-clear-all-roster')?.addEventListener('click', () => {
+    if (!confirm('정말로 모든 명단을 완전히 삭제하시겠습니까?\\n대기칸의 명단과 조에 배치된 명단이 모두 완전히 삭제됩니다.')) return;
+    
+    // 1. 대기칸 비우기
+    document.getElementById('roster-pills').innerHTML = '';
+    document.getElementById('roster-input').value = '';
+    
+    // 2. 조에 배치된 명단 비우기
+    const inputs = document.querySelectorAll('.member-input');
+    inputs.forEach(input => {
+        if (input.value) {
+            input.value = '';
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+    
+    alert('모든 명단이 완전히 삭제되었습니다.');
+});
+
 // 배치 확정 및 활동 시작 버튼
 document.getElementById('btn-start-activity')?.addEventListener('click', async () => {
     if (!confirm('학생들의 배치를 확정하고 활동을 시작하시겠습니까?\\n(이후 학생들이 기기에서 입장할 수 있습니다)')) return;
