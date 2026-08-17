@@ -296,13 +296,22 @@ deptListContainer.addEventListener('drop', (e) => {
         const data = e.dataTransfer.getData('text/plain');
         if (data) {
             if (window.draggedSourceInput && window.draggedSourceInput !== e.target) {
-                // Input -> Input Swap
-                const temp = e.target.value;
-                e.target.value = data;
-                window.draggedSourceInput.value = temp;
-                
-                e.target.dispatchEvent(new Event('change', { bubbles: true }));
-                window.draggedSourceInput.dispatchEvent(new Event('change', { bubbles: true }));
+                // Input -> Input
+                if (e.ctrlKey) {
+                    // 복사 (스왑하지 않고 덮어쓰기)
+                    if (e.target.value) {
+                        createRosterPill(e.target.value);
+                    }
+                    e.target.value = data;
+                    e.target.dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    // 스왑
+                    const temp = e.target.value;
+                    e.target.value = data;
+                    window.draggedSourceInput.value = temp;
+                    e.target.dispatchEvent(new Event('change', { bubbles: true }));
+                    window.draggedSourceInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
                 window.draggedSourceInput = null;
             } else if (window.draggedStudentElement) {
                 // Roster -> Input
@@ -311,7 +320,10 @@ deptListContainer.addEventListener('drop', (e) => {
                 }
                 e.target.value = data;
                 e.target.dispatchEvent(new Event('change', { bubbles: true }));
-                window.draggedStudentElement.remove();
+                
+                if (!e.ctrlKey) { // Ctrl 누르고 드래그 시 명단에서 삭제하지 않음 (복제)
+                    window.draggedStudentElement.remove();
+                }
                 window.draggedStudentElement = null;
             }
         }
@@ -325,7 +337,7 @@ deptListContainer.addEventListener('click', (e) => {
         e.target.value = window.selectedStudentPill;
         e.target.dispatchEvent(new Event('change', { bubbles: true }));
         
-        if (window.selectedStudentElement) {
+        if (window.selectedStudentElement && !e.ctrlKey) { // Ctrl 누르고 클릭 시 명단에서 삭제하지 않음 (다중 배치)
             window.selectedStudentElement.remove();
             window.selectedStudentElement = null;
             window.selectedStudentPill = null;
