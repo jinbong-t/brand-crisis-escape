@@ -152,7 +152,7 @@ document.getElementById('btn-init-depts')?.addEventListener('click', async () =>
         const promises = DEFAULT_DEPTS.map(dept => 
             setDoc(doc(db, `classes/${activeClass}/departments`, dept.name), {
                 name: dept.name,
-                currentStage: 1,
+                currentStage: 0,
                 createdAt: Date.now()
             }, { merge: true })
         );
