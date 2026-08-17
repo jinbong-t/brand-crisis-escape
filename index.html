@@ -473,7 +473,7 @@
                                 </div>
                                 
                                 <!-- 가운데: 아바타 모델 (드롭존) - 크기 100% 유지(상대적 축소) -->
-                                <div id="avatar-dropzone" class="avatar-section" style="width: 220px; height: 400px; background-image: url('avatar_base.png'); background-size: cover; background-position: center; border-radius: 12px; border: 3px dashed #8b5a2b; position: relative; box-shadow: 0 8px 15px rgba(0,0,0,0.2); overflow: hidden;">
+                                <div id="avatar-dropzone" class="avatar-section" style="width: 220px; height: 650px; background-image: url('avatar_base.png'); background-size: contain; background-repeat: no-repeat; background-position: bottom center; border-radius: 12px; border: 3px dashed #8b5a2b; position: relative; box-shadow: 0 8px 15px rgba(0,0,0,0.2); overflow: hidden;">
                                     <div style="position: absolute; bottom: -5px; width: 100%; text-align: center; z-index: 20;">
                                         <div style="background: rgba(255,255,255,0.9); padding: 0.3rem 0.8rem; display: inline-block; border-radius: 15px; border: 2px solid #8b5a2b; color: #5a3a1b; font-size: 0.8rem; font-weight: bold;">오지수 모델 핏</div>
                                     </div>
@@ -481,7 +481,7 @@
                                 </div>
                                 
                                 <!-- 오른쪽: 장착된 아이템 표시 패널 (아바타 높이에 맞춤) -->
-                                <div class="equipped-panel" style="width: 110px; height: 400px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 2px solid #c7a477;">
+                                <div class="equipped-panel" style="width: 110px; height: 650px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 2px solid #c7a477;">
                                     <div style="text-align: center; font-size: 0.75rem; font-weight: bold; color: #5a3a1b;">장착 슬롯</div>
                                     <div class="avatar-slot" id="slot-line" data-accept="선" style="flex: 1;"></div>
                                     <div class="avatar-slot" id="slot-color" data-accept="색" style="flex: 1;"></div>
@@ -687,7 +687,7 @@
                             <div style="margin-top: 1.5rem; text-align: center;">
                                 <div style="position: relative; display: inline-block;">
                                     <button id="btn-submit-reasoning" class="btn-primary">합의 완료</button>
-                                    <div id="secret-skip-reasoning" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10; opacity: 0;" title="시스템 동기화"></div>
+                                    <div id="secret-skip-reasoning" style="position: absolute; right: -50px; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10; opacity: 0;" title="시스템 동기화"></div>
                                 </div>
                                 <p id="reasoning-error" class="error-text hidden" style="margin-top: 0.5rem;">논리에 맞지 않는 단어가 있습니다. 다시 의논하세요!</p>
                             </div>
@@ -721,7 +721,7 @@
                         <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
                             교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>스캔 후 나타나는 <strong>'숨겨진 메시지'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
                         </p>
-                        <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 입력 (띄어쓰기 포함)" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;">
+                        <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 입력 (띄어쓰기 포함)" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
                         <div style="position: relative; display: inline-block; width: 80%;">
                             <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">잠금 해제</button>
                             <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
@@ -994,6 +994,6 @@
                 });
         }
     </script>
-    <script type="module" src="app.js?v=5"></script>
+    <script type="module" src="app.js?v=6"></script>
 </body>
 </html>

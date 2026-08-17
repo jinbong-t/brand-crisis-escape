@@ -8,6 +8,7 @@ let activeClass = '3-1';
 let firstNoticeLoad = true;
 let noticeUnsub = null;
 let stateUnsub = null;
+window.localUpdateTimestamp = 0;
 
 function setupClassListeners(className) {
     if (noticeUnsub) noticeUnsub();
@@ -1857,7 +1858,13 @@ function showReasoningModal(stageData, targetStageNum) {
     if (!rData) return;
     
     const modal = document.getElementById('reasoning-modal');
+    // 이미 같은 타겟의 모달이 열려있다면 새로고침 하지 않음 (입력 데이터 날아감 방지)
+    if (!modal.classList.contains('hidden') && modal.dataset.targetStage == targetStageNum) {
+        return;
+    }
+    modal.dataset.targetStage = targetStageNum;
     modal.classList.remove('hidden');
+    window.localUpdateTimestamp = Date.now();
     
     document.getElementById('reasoning-title').textContent = rData.title;
     
@@ -1951,6 +1958,7 @@ function showReasoningModal(stageData, targetStageNum) {
           secretSkipReasoning.onclick = async () => {
               if (confirm('시스템 동기화를 진행하시겠습니까?')) {
                   try {
+                      window.localUpdateTimestamp = Date.now();
                       await updateDoc(getDeptDocRef(currentDeptId), {
                           currentStage: targetStageNum,
                           showStage1Reasoning: false,
@@ -2008,6 +2016,7 @@ function showReasoningModal(stageData, targetStageNum) {
             
             getDoc(deptRef).then(snap => {
                 let currentScore = snap.exists() && snap.data().envScore ? snap.data().envScore : 0;
+                window.localUpdateTimestamp = Date.now();
                 updateDoc(deptRef, {
                     currentStage: targetStageNum,
                     envScore: currentScore + addedScore,
@@ -2145,6 +2154,8 @@ async function initApp() {
             
             // 방화벽 대비 3초 간격 폴링 (Firebase SDK + REST API 이중 폴링)
             setInterval(async () => {
+                if (Date.now() - window.localUpdateTimestamp < 10000) return; // 10초 이내에 로컬 업데이트가 있었다면 폴링 무시 (상태 롤백 방지)
+                
                 try {
                     // 1. Firebase SDK 폴링 시도
                     const snap = await getDoc(getDeptDocRef(currentDeptId));
@@ -2255,10 +2266,10 @@ const btnViewDashboard = document.getElementById('btn-view-dashboard');
 if (btnSubmitQr) {
     btnSubmitQr.addEventListener('click', async () => {
         const inputPw = qrPasswordInput.value.trim();
-        const correctPw = PUZZLE_DATA.qrMessages[currentDeptId];
+        const correctPw = PUZZLE_DATA.qrMessages[currentDeptId] || '';
         
         // 입력값과 정답에서 띄어쓰기를 모두 제거하여 비교 (관대하게)
-        if (inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
+        if (correctPw && inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
             qrErrorMsg.classList.add('hidden');
             btnSubmitQr.classList.add('hidden');
             qrPasswordInput.disabled = true;
