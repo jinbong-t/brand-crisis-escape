@@ -97,7 +97,10 @@ function renderTeamTab() {
             const card = document.createElement('div');
             card.className = 'dept-card';
             card.innerHTML = `
-                <h3>${deptName}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h3 style="margin: 0;">${deptName}</h3>
+                    <button class="btn-delete-dept" data-id="${deptId}" style="background: none; border: none; color: #ff4757; font-size: 1.2rem; cursor: pointer;" title="부서 삭제">✖</button>
+                </div>
                 <input type="text" placeholder="인턴 학번/이름 (예: 30101 홍길동)" class="member-input" data-dept="${deptId}" data-role="인턴" draggable="true">
                 <input type="text" placeholder="사원 학번/이름" class="member-input" data-dept="${deptId}" data-role="사원" draggable="true">
                 <input type="text" placeholder="차장 학번/이름" class="member-input" data-dept="${deptId}" data-role="차장" draggable="true">
@@ -142,6 +145,22 @@ document.getElementById('td-dept-list').addEventListener('change', async (e) => 
         } catch (error) {
             console.error(error);
             alert("저장 실패");
+        }
+    }
+});
+
+// 부서 삭제 버튼 클릭 이벤트 (이벤트 위임)
+document.getElementById('td-dept-list').addEventListener('click', async (e) => {
+    if (e.target.classList.contains('btn-delete-dept')) {
+        const deptId = e.target.getAttribute('data-id');
+        if (confirm(`정말로 [${deptId}] 부서를 완전히 삭제하시겠습니까?\\n(배치된 명단과 진행 내역이 모두 삭제됩니다)`)) {
+            try {
+                await deleteDoc(doc(db, `classes/${activeClass}/departments`, deptId));
+                alert('부서가 삭제되었습니다.');
+            } catch (error) {
+                console.error(error);
+                alert("부서 삭제에 실패했습니다.");
+            }
         }
     }
 });
