@@ -471,8 +471,8 @@ function renderStatusTab() {
                         <!-- 진행 바 -->
                         <div style="height: 100%; width: ${progressPercent}%; background: var(--accent-gold); border-radius: 3px; transition: width 0.5s;"></div>
                         
-                        <!-- 러너(아이콘) -->
-                        <div style="position: absolute; top: -15px; left: ${progressPercent}%; transform: translateX(-50%); transition: left 0.5s; font-size: 1.5rem;">
+                        <!-- 러너(아이콘) - 윈도우 기본 이모지가 왼쪽을 보므로 좌우 반전 -->
+                        <div style="position: absolute; top: -15px; left: ${progressPercent}%; transform: translateX(-50%) scaleX(-1); transition: left 0.5s; font-size: 1.5rem; display: inline-block;">
                             🏃
                         </div>
                         
