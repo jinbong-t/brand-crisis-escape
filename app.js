@@ -1738,23 +1738,6 @@ function startScreen5() {
 }
 
 // --- Stage 6, 7 전역 이벤트 리스너 ---
-const btnSubmitPersonal = document.getElementById('btn-submit-personal-design');
-if (btnSubmitPersonal) {
-    btnSubmitPersonal.onclick = () => {
-        const reason = document.getElementById('personal-reason').value;
-        const r5 = document.getElementById('personal-5r').value;
-        if (!reason || !r5) {
-            alert('필수 선택 요소(5R)와 이유를 적어주세요.');
-            return;
-        }
-        document.getElementById('screen-6').classList.add('hidden');
-        
-        triggerConfetti();
-        
-        const epilogueModal = document.getElementById('epilogue-modal');
-        if (epilogueModal) epilogueModal.classList.remove('hidden');
-    };
-}
 
 const btnCloseEpilogue = document.getElementById('btn-close-epilogue');
 if (btnCloseEpilogue) {
@@ -2116,6 +2099,11 @@ async function initApp() {
                         const s5 = document.getElementById('screen-5');
                         if (s5) s5.classList.remove('hidden');
                         startScreen5();
+                    } else if (stage === 5) {
+                        const s6 = document.getElementById('screen-6');
+                        if (s6) s6.classList.remove('hidden');
+                        document.getElementById('display-current-role-stage6').textContent = currentRole;
+                        initCanvas();
                     }
                 } 
                 // 2. Stage는 같은데 팝업(Reasoning Modal) 상태만 바뀌었을 때 (화면 유지, 팝업만 띄움/닫음)
