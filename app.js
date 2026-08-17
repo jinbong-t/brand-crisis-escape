@@ -2678,7 +2678,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             alert('디자인이 성공적으로 저장되었습니다! 다음 단계로 이동합니다.');
             document.getElementById('screen-6').classList.add('hidden');
-            document.getElementById('screen-7').classList.remove('hidden');
+            
+            document.getElementById('epilogue-modal').classList.remove('hidden');
+            const video = document.querySelector('#epilogue-modal video');
+            if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
             
         } catch(e) {
             console.error("Personal Design Save Error:", e);
@@ -2691,7 +2694,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6단계 스킵
     document.getElementById('secret-skip-personal')?.addEventListener('click', () => {
         document.getElementById('screen-6').classList.add('hidden');
-        document.getElementById('screen-7').classList.remove('hidden');
+        document.getElementById('epilogue-modal').classList.remove('hidden');
+        const video = document.querySelector('#epilogue-modal video');
+        if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
     });
 
     // 7단계 소감문 제출
@@ -2728,12 +2733,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.getElementById('certificate-dept-name').textContent = currentDeptName || '우리 부서';
             document.getElementById('certificate-student-name').textContent = studentNameStr;
-            
-            setTimeout(() => {
-                document.getElementById('epilogue-modal').classList.remove('hidden');
-                const video = document.querySelector('#epilogue-modal video');
-                if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
-            }, 3000);
             
         } catch(e) {
             console.error(e);
