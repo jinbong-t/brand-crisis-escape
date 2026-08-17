@@ -376,9 +376,12 @@ if (btnResetDeptRoles) {
 const btnLogoutRoles = document.querySelectorAll('#btn-logout-role, .btn-logout-role');
 btnLogoutRoles.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (confirm("현재 역할에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다!)")) {
+        if (confirm("현재 부서와 역할에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다!)")) {
             currentRole = null;
+            currentDeptId = null;
             sessionStorage.removeItem('currentRole');
+            sessionStorage.removeItem('currentDeptId');
+            sessionStorage.removeItem('currentDeptName');
             location.reload();
         }
     });
@@ -2658,6 +2661,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = true;
         btn.textContent = "저장 중...";
         
+        // 클릭하자마자 바로 강제 스킵 버튼 노출
+        const skipBtn = document.getElementById('secret-skip-personal');
+        if (skipBtn) skipBtn.classList.remove('hidden');
+        
         // 10초 무한 로딩 대비 강제 스킵 버튼 전환 타이머
         const fallbackTimer = setTimeout(() => {
             if (btn.disabled) {
@@ -2690,11 +2697,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 personalDesign: personalData
             }, { merge: true });
             
-            // 개인 제출 시마다 부서 환경 점수 10점씩 추가
+            // 개인 제출 시마다 부서 환경 점수 10점씩 추가 및 스테이지 6 업데이트
             const deptRef = getDeptDocRef(currentDeptId);
             getDoc(deptRef).then(snap => {
                 let currentScore = snap.exists() && snap.data().envScore ? snap.data().envScore : 0;
-                setDoc(deptRef, { envScore: currentScore + 10 }, { merge: true });
+                setDoc(deptRef, { envScore: currentScore + 10, currentStage: 6 }, { merge: true });
             });
             
             clearTimeout(fallbackTimer);
@@ -2741,6 +2748,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 reflection: { q1, q2 },
                 completedAt: Date.now()
             });
+            
+            // 현황판 진행률을 위해 부서 스테이지 7로 업데이트
+            await setDoc(getDeptDocRef(currentDeptId), { currentStage: 7 }, { merge: true });
             
             document.getElementById('screen-7').classList.add('hidden');
             document.getElementById('screen-ending').classList.remove('hidden');
