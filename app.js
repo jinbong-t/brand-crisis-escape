@@ -2645,8 +2645,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const btn = document.getElementById('btn-submit-personal-design');
+        
+        // 강제 패스 모드일 경우 바로 넘기기
+        if (btn.classList.contains('force-skip-mode')) {
+            document.getElementById('screen-6').classList.add('hidden');
+            document.getElementById('epilogue-modal').classList.remove('hidden');
+            const video = document.querySelector('#epilogue-modal video');
+            if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
+            return;
+        }
+
         btn.disabled = true;
         btn.textContent = "저장 중...";
+        
+        // 10초 무한 로딩 대비 강제 스킵 버튼 전환 타이머
+        const fallbackTimer = setTimeout(() => {
+            if (btn.disabled) {
+                btn.disabled = false;
+                btn.textContent = "저장 지연됨 (여기를 눌러 강제로 넘어가기)";
+                btn.style.backgroundColor = "#ff4d4d";
+                btn.style.color = "white";
+                btn.classList.add('force-skip-mode');
+            }
+        }, 10000);
         
         try {
             // html2canvas로 영역 캡처 (선택형 캔버스)
@@ -2676,6 +2697,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setDoc(deptRef, { envScore: currentScore + 10 }, { merge: true });
             });
             
+            clearTimeout(fallbackTimer);
             alert('디자인이 성공적으로 저장되었습니다! 다음 단계로 이동합니다.');
             document.getElementById('screen-6').classList.add('hidden');
             
@@ -2684,6 +2706,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
             
         } catch(e) {
+            clearTimeout(fallbackTimer);
             console.error("Personal Design Save Error:", e);
             alert("저장에 실패했습니다. 다시 시도해주세요. (네트워크 연결을 확인해주세요)");
             btn.disabled = false;
