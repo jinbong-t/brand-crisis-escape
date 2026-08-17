@@ -41,10 +41,24 @@ function setupClassListeners(className) {
                     overlay.classList.add('hidden');
                 }
             }
-            // 활동 시작 상태 저장
+            // 활동 시작 상태 저장 및 UI 업데이트
             window.activityStarted = data.activityStarted === true;
+            const btnEnterGame = document.getElementById('btn-enter-game');
+            if (btnEnterGame) {
+                if (window.activityStarted) {
+                    btnEnterGame.innerHTML = '게임 입장 🟢';
+                    btnEnterGame.style.boxShadow = '0 0 20px #2ecc71';
+                } else {
+                    btnEnterGame.innerHTML = '선생님 신호 대기 중 ⏳';
+                    btnEnterGame.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
+                }
+            }
         } else {
             window.activityStarted = false;
+            const btnEnterGame = document.getElementById('btn-enter-game');
+            if (btnEnterGame) {
+                btnEnterGame.innerHTML = '선생님 신호 대기 중 ⏳';
+            }
         }
     });
 }
@@ -162,7 +176,7 @@ const DEFAULT_DEPTS = [
 btnEnterGame.addEventListener('click', () => {
     // 0. 활동 시작 여부 확인
     if (!window.activityStarted) {
-        alert("선생님의 배치 확정을 기다리고 있습니다.\\n잠시만 기다려주세요! ⏳");
+        alert("선생님의 배치 확정을 기다리고 있습니다.\\n잠시만 기다려주세요! ⏳\\n(대시보드에서 초록색 '배치 확정 및 활동 시작하기' 버튼을 누른 후 입장하세요)");
         return;
     }
 
