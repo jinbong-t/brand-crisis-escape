@@ -221,6 +221,37 @@ document.getElementById('btn-parse-roster')?.addEventListener('click', () => {
     });
 });
 
+// 자동 배치 로직 공통 함수
+function autoAssign(randomize) {
+    const pills = Array.from(document.querySelectorAll('.roster-pill'));
+    const inputs = Array.from(document.querySelectorAll('.member-input'));
+    
+    if (pills.length === 0) return alert('명단을 먼저 적용해주세요!');
+    if (inputs.length === 0) return alert('부서가 생성되어 있지 않습니다.');
+    
+    let students = pills.map(p => p.textContent);
+    
+    if (randomize) {
+        // 배열 셔플 (Fisher-Yates)
+        for (let i = students.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [students[i], students[j]] = [students[j], students[i]];
+        }
+    }
+    
+    let assignedCount = 0;
+    for (let i = 0; i < Math.min(students.length, inputs.length); i++) {
+        inputs[i].value = students[i];
+        inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
+        assignedCount++;
+    }
+    
+    alert(`총 ${assignedCount}명의 학생이 배치 완료되었습니다!`);
+}
+
+document.getElementById('btn-auto-assign-seq')?.addEventListener('click', () => autoAssign(false));
+document.getElementById('btn-auto-assign-rand')?.addEventListener('click', () => autoAssign(true));
+
 // td-dept-list 드래그 앤 드롭 및 클릭 투 인풋 지원
 const deptListContainer = document.getElementById('td-dept-list');
 deptListContainer.addEventListener('dragover', (e) => {
