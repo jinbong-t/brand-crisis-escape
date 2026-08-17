@@ -603,7 +603,7 @@
                     <img src="https://images.unsplash.com/photo-1598284617181-4203da3b45a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="seal" style="width: 80px; height: 80px; margin: 0 auto 1rem auto; border-radius: 50%;">
                     <h1 style="color: #8b5a2b; font-size: 2.5rem; margin-bottom: 1rem; border-bottom: 2px solid #8b5a2b; padding-bottom: 0.5rem; display: inline-block;">수석 에코 디자이너 임명장</h1>
                     
-                    <h2 style="font-size: 1.8rem; margin: 1.5rem 0; color: #333;">소속: <span id="certificate-dept-name" style="text-decoration: underline; color: #000;"></span></h2>
+                    <h2 style="font-size: 1.8rem; margin: 1.5rem 0; color: #333;">소속: <span id="certificate-dept-name" style="text-decoration: underline; color: #000;"></span> <span id="certificate-student-name" style="text-decoration: underline; color: #000; margin-left: 10px;"></span></h2>
                     
                     <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; font-family: 'Noto Sans KR', sans-serif;">
                         위 부서는 강태오 대표의 패스트 패션 계획을 훌륭히 저지하고,<br>
@@ -974,6 +974,12 @@
         </div>
     </div>
 
+    <div id="freeze-overlay" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;">
+        <span style="font-size: 5rem; margin-bottom: 2rem;">❄️</span>
+        <h1 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 1rem;">선생님께 집중!</h1>
+        <p style="font-size: 1.2rem; color: #aaa;">선생님의 설명이 끝날 때까지 화면이 잠시 정지됩니다.</p>
+    </div>
+
     <script>
         function openPolicyModal(modalId, filePath) {
             document.getElementById(modalId).classList.remove('hidden');
@@ -988,6 +994,6 @@
                 });
         }
     </script>
-    <script type="module" src="app.js?v=29.0"></script>
+    <script type="module" src="app.js?v=4"></script>
 </body>
 </html>

@@ -6,47 +6,61 @@ let activeClass = '3-1';
 
 // 글로벌 학급 설정 실시간 동기화
 let firstNoticeLoad = true;
+let noticeUnsub = null;
+let stateUnsub = null;
+
+function setupClassListeners(className) {
+    if (noticeUnsub) noticeUnsub();
+    if (stateUnsub) stateUnsub();
+    
+    // 공지사항 리스너 등록
+    noticeUnsub = onSnapshot(doc(db, `classes/${className}/global`, 'notice'), (noticeSnap) => {
+        if (noticeSnap.exists()) {
+            const noticeData = noticeSnap.data();
+            if (!firstNoticeLoad && noticeData.message) {
+                alert(`📢 [선생님 전체 공지]\\n\\n${noticeData.message}`);
+            }
+            firstNoticeLoad = false;
+        }
+    });
+    
+    // 상태(얼음 등) 리스너 등록
+    stateUnsub = onSnapshot(doc(db, `classes/${className}/global`, 'state'), (stateSnap) => {
+        const overlay = document.getElementById('freeze-overlay');
+        if (stateSnap.exists()) {
+            const data = stateSnap.data();
+            // 얼음 상태
+            if (data.freeze) {
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    overlay.classList.remove('hidden');
+                }
+            } else {
+                if (overlay) {
+                    overlay.style.display = 'none';
+                    overlay.classList.add('hidden');
+                }
+            }
+            // 활동 시작 상태 저장
+            window.activityStarted = data.activityStarted === true;
+        } else {
+            window.activityStarted = false;
+        }
+    });
+}
+
+// 초기 기본 반 리스너 등록
+setupClassListeners(activeClass);
+
 onSnapshot(doc(db, 'global', 'config'), (docSnap) => {
     if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data.currentActiveSession) {
+        if (data.currentActiveSession && data.currentActiveSession !== activeClass) {
             activeClass = data.currentActiveSession;
             const wm = document.getElementById('active-class-watermark');
             if (wm) wm.textContent = `Class: ${activeClass}`;
             console.log("Current active class updated to:", activeClass);
-            
-            // 반이 설정된 후 공지사항 리스너 등록
-            onSnapshot(doc(db, `classes/${activeClass}/global`, 'notice'), (noticeSnap) => {
-                if (noticeSnap.exists()) {
-                    const noticeData = noticeSnap.data();
-                    if (!firstNoticeLoad && noticeData.message) {
-                        alert(`📢 [선생님 전체 공지]\n\n${noticeData.message}`);
-                    }
-                    firstNoticeLoad = false;
-                }
-            });
-            
-            // 상태(얼음 등) 리스너 등록
-            onSnapshot(doc(db, `classes/${activeClass}/global`, 'state'), (stateSnap) => {
-                const overlay = document.getElementById('freeze-overlay');
-                if (stateSnap.exists()) {
-                    const data = stateSnap.data();
-                    // 얼음 상태
-                    if (data.freeze) {
-                        if (overlay) {
-                            overlay.style.display = 'flex';
-                            overlay.classList.remove('hidden');
-                        }
-                    } else {
-                        if (overlay) {
-                            overlay.style.display = 'none';
-                            overlay.classList.add('hidden');
-                        }
-                    }
-                    // 활동 시작 상태 저장
-                    window.activityStarted = data.activityStarted === true;
-                }
-            });
+            setupClassListeners(activeClass);
         }
     }
 });
