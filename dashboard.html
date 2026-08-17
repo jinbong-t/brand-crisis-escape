@@ -129,7 +129,10 @@
                         <p id="env-score-msg" style="margin-top: 1rem; color: #aaa; font-size: 0.95rem; text-align: center;">학생들이 긍정적인 환경 선택을 할 때마다 게이지가 차오릅니다.</p>
                     </div>
 
-                    <h3 style="margin-bottom: 1rem; color: var(--accent-gold);">🏃 부서별 진행 트랙</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; color: var(--accent-gold);">🏃 부서별 진행 트랙</h3>
+                        <button id="btn-reset-status" class="btn-danger-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 4px;">🔄 트랙 및 게이지 초기화</button>
+                    </div>
                     <div id="td-progress-board" style="display: flex; flex-direction: column; gap: 1rem;">
                         <!-- 진행 현황(트랙)이 여기에 렌더링됨 -->
                     </div>
@@ -183,6 +186,6 @@
     </div>
 
     <!-- Firebase -->
-    <script type="module" src="dashboard.js"></script>
+    <script src="dashboard.js?v=3" type="module"></script>
 </body>
 </html>

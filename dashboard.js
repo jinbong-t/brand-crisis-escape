@@ -61,6 +61,28 @@ document.getElementById('btn-exit')?.addEventListener('click', () => {
     window.close();
 });
 
+// 실시간 현황판 초기화 버튼 (Stage 및 envScore 리셋)
+document.getElementById('btn-reset-status')?.addEventListener('click', async () => {
+    if (!confirm('정말로 모든 부서의 진행 상황(Stage)과 학급 환경 점수를 완전히 초기화하시겠습니까?')) return;
+    
+    try {
+        const deptsRef = collection(db, `classes/${activeClass}/departments`);
+        const snapshot = await getDocs(deptsRef);
+        const promises = [];
+        snapshot.forEach(docSnap => {
+            promises.push(updateDoc(docSnap.ref, {
+                currentStage: 0,
+                envScore: 0
+            }));
+        });
+        await Promise.all(promises);
+        alert('모든 진행 상황과 환경 점수가 성공적으로 초기화되었습니다!');
+    } catch (e) {
+        console.error(e);
+        alert('초기화 중 오류가 발생했습니다.');
+    }
+});
+
 // ==========================================
 // 파이어베이스 데이터 구독 및 렌더링
 // ==========================================
