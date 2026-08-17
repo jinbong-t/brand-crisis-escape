@@ -112,6 +112,7 @@ const roleSelection = document.getElementById('role-selection');
 const selectedDeptName = document.getElementById('selected-dept-name');
 const roleCards = document.querySelectorAll('.role-card');
 const btnBackToDept = document.getElementById('btn-back-to-dept');
+const btnResetDeptRoles = document.getElementById('btn-reset-dept-roles');
 const mainHeader = document.getElementById('main-header');
 const currentTeamDisplay = document.getElementById('current-team-display');
 
@@ -346,6 +347,30 @@ btnBackToDept.addEventListener('click', () => {
     roleSelection.classList.add('hidden');
     deptSelection.classList.remove('hidden');
 });
+
+if (btnResetDeptRoles) {
+    btnResetDeptRoles.addEventListener('click', async () => {
+        if (!currentDeptId) return;
+        const confirmReset = confirm(`정말로 [${currentDeptName}] 부서의 직급 선택을 모두 초기화하시겠습니까? (이미 선택된 역할이 모두 해제됩니다)`);
+        if (confirmReset) {
+            try {
+                const roles = ['인턴', '사원', '차장', '부장'];
+                for (const role of roles) {
+                    await setDoc(getRoleDocRef(currentDeptId, role), { 
+                        taken: false,
+                        stage1Confirmed: false,
+                        stage4Confirmed: false,
+                        stage2Ready: false
+                    });
+                }
+                alert('해당 부서의 직급 선택이 모두 초기화되었습니다! 다시 선택해주세요.');
+            } catch (e) {
+                console.error(e);
+                alert('초기화 중 오류가 발생했습니다.');
+            }
+        }
+    });
+}
 
 // 역할 변경 (로그아웃 - 데이터 유지)
 const btnLogoutRoles = document.querySelectorAll('#btn-logout-role, .btn-logout-role');

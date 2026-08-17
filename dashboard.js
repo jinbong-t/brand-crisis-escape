@@ -725,6 +725,33 @@ function renderControlTab() {
         }
     };
     
+    const btnResetAllRoles = document.getElementById('btn-reset-all-roles');
+    if(btnResetAllRoles) btnResetAllRoles.onclick = async () => {
+        if(confirm(`정말 [${activeClass}] 반의 모든 직급(역할) 선택을 초기화하시겠습니까?\n부서는 그대로 유지되며, 학생들이 다시 역할을 선택할 수 있습니다.`)) {
+            try {
+                const deptsRef = collection(db, `classes/${activeClass}/departments`);
+                const snap = await getDocs(deptsRef);
+                const roles = ['인턴', '사원', '차장', '부장'];
+                
+                snap.forEach(async (docSnap) => {
+                    for (const role of roles) {
+                        const roleRef = doc(db, `classes/${activeClass}/departments/${docSnap.id}/roles`, role);
+                        await setDoc(roleRef, { 
+                            taken: false,
+                            stage1Confirmed: false,
+                            stage4Confirmed: false,
+                            stage2Ready: false
+                        });
+                    }
+                });
+                alert(`[${activeClass}] 반의 모든 직급 선택이 해제되었습니다.`);
+            } catch(e) {
+                console.error(e);
+                alert("직급 초기화 실패");
+            }
+        }
+    };
+
     const btnResetClass = document.getElementById('btn-reset-class');
     if(btnResetClass) btnResetClass.onclick = async () => {
         if(confirm(`정말 [${activeClass}] 반의 모든 데이터를 삭제하시겠습니까? 복구할 수 없습니다!`)) {
