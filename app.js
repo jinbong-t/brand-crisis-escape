@@ -308,7 +308,7 @@ roleCards.forEach(card => {
                 if (docSnap.exists() && docSnap.data().taken) {
                     throw "이미 선택된 직급입니다.";
                 }
-                transaction.set(roleRef, { taken: true, timestamp: Date.now() });
+                transaction.set(roleRef, { taken: true, timestamp: Date.now() }, { merge: true });
             });
             
             // 성공
