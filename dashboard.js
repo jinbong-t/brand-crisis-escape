@@ -449,24 +449,61 @@ function renderStatusTab() {
             return;
         }
 
-        const grid = document.createElement('div');
-        grid.className = 'grid-layout';
+        let totalEnvScore = 0;
+        let maxPossibleScore = snapshot.size * 100; // 부서당 최대 100점이라 가정
 
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
-            const card = document.createElement('div');
-            card.className = 'dept-card';
-            card.innerHTML = `
-                <h3>${docSnap.id}</h3>
-                <p style="font-size: 2rem; color: var(--accent-gold); font-weight: 900; margin-top: 1rem;">
-                    Stage ${data.currentStage || 1}
-                </p>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">마지막 업데이트: 방금 전</p>
-            `;
-            grid.appendChild(card);
-        });
+            totalEnvScore += (data.envScore || 0);
+            
+            const stage = data.currentStage || 0;
+            const progressPercent = Math.min((stage / 7) * 100, 100); // 7단계를 끝으로 가정 (0~7)
 
-        container.appendChild(grid);
+            const trackHtml = `
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; color: var(--accent-gold); font-size: 1.1rem;">${docSnap.id}</h4>
+                        <span style="font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px;">Stage ${stage}</span>
+                    </div>
+                    
+                    <!-- 트랙 배경 -->
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; position: relative; margin-top: 1.5rem;">
+                        <!-- 진행 바 -->
+                        <div style="height: 100%; width: ${progressPercent}%; background: var(--accent-gold); border-radius: 3px; transition: width 0.5s;"></div>
+                        
+                        <!-- 러너(아이콘) -->
+                        <div style="position: absolute; top: -15px; left: ${progressPercent}%; transform: translateX(-50%); transition: left 0.5s; font-size: 1.5rem;">
+                            🏃
+                        </div>
+                        
+                        <!-- 주요 지점 마커 -->
+                        <div style="position: absolute; top: -4px; left: 0%; width: 14px; height: 14px; background: #333; border: 2px solid #fff; border-radius: 50%; transform: translateX(-50%);" title="Start"></div>
+                        <div style="position: absolute; top: -4px; left: 100%; width: 14px; height: 14px; background: #333; border: 2px solid var(--accent-gold); border-radius: 50%; transform: translateX(-50%);" title="Finish"></div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', trackHtml);
+        });
+        
+        // 환경 게이지 업데이트
+        if (maxPossibleScore > 0) {
+            let envPercent = Math.min(Math.round((totalEnvScore / maxPossibleScore) * 100), 100);
+            document.getElementById('env-score-text').textContent = `${envPercent}%`;
+            document.getElementById('env-score-bar').style.width = `${envPercent}%`;
+            
+            const msgEl = document.getElementById('env-score-msg');
+            if (envPercent >= 70) {
+                msgEl.textContent = "대성공! 우리 회사가 진정한 친환경 브랜드로 거듭나고 있습니다! 🎉";
+                msgEl.style.color = "#2ecc71";
+            } else if (envPercent >= 30) {
+                msgEl.textContent = "런칭쇼는 무사히 진행되겠지만, 강태오 대표의 방식이 일부 남아있습니다. 분발하세요! ⚠️";
+                msgEl.style.color = "#f1c40f";
+            } else {
+                msgEl.textContent = "위험합니다. 이대로라면 회사는 결국 강태오 대표의 비윤리적 방식으로 되돌아갑니다. 🚨";
+                msgEl.style.color = "#e74c3c";
+            }
+        }
+
         updateForcePassSelect(snapshot);
     });
     unsubscribes.push(unsub);
@@ -491,8 +528,6 @@ function renderResultsTab() {
     
     const deptsRef = collection(db, `classes/${activeClass}/departments`);
     
-    // 이 탭은 onSnapshot 대신 버튼 누르거나 탭 전환 시 새로고침하는 것이 효율적입니다.
-    // 하지만 onSnapshot으로 실시간 연동해두면 더 좋습니다.
     const unsub = onSnapshot(deptsRef, async (snapshot) => {
         if (snapshot.empty) {
             container.innerHTML = '<p style="color: var(--text-muted); padding: 1rem;">현재 반에 데이터가 없습니다.</p>';
@@ -505,6 +540,21 @@ function renderResultsTab() {
 
         for (const docSnap of snapshot.docs) {
             const deptId = docSnap.id;
+            
+            // 실천적 추론 데이터 가져오기
+            const reasoningRef = collection(db, `classes/${activeClass}/departments/${deptId}/reasoning`);
+            const reasoningSnap = await getDocs(reasoningRef);
+            let reasoningHtml = '';
+            if (!reasoningSnap.empty) {
+                reasoningHtml = '<div style="margin-bottom: 1rem; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px dashed var(--accent-gold);">';
+                reasoningHtml += '<h4 style="margin: 0 0 0.5rem 0; color: var(--accent-gold);">🗣️ 팀 실천적 추론 결과</h4>';
+                reasoningSnap.forEach(rDoc => {
+                    reasoningHtml += `<p style="font-size: 0.85rem; color: #ddd; margin-bottom: 0.3rem;"><strong>${rDoc.id}:</strong> ${rDoc.data().summary || '-'}</p>`;
+                });
+                reasoningHtml += '</div>';
+            }
+
+            // 역할별 디자인 및 소감 가져오기
             const rolesRef = collection(db, `classes/${activeClass}/departments/${deptId}/roles`);
             const rolesSnap = await getDocs(rolesRef);
             
@@ -512,22 +562,49 @@ function renderResultsTab() {
                 const roleId = roleDoc.id;
                 const data = roleDoc.data();
                 
-                if (data.personalDesign && data.personalDesign.designImage) {
+                // 제출한 항목이 있는 경우만 표시 (디자인 또는 소감)
+                if ((data.personalDesign && data.personalDesign.designImage) || data.reflection) {
                     const studentName = data.studentName ? data.studentName : '이름 미상';
                     const card = document.createElement('div');
                     card.className = 'dept-card';
-                    card.innerHTML = `
+                    
+                    let innerHtml = `
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h3 style="margin: 0; color: var(--accent-gold); font-size: 1.1rem;">${deptId} - ${roleId}</h3>
                             <span style="font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px;">${studentName}</span>
                         </div>
-                        <img src="${data.personalDesign.designImage}" style="width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 1rem;">
-                        <div style="font-size: 0.85rem; color: #ddd; line-height: 1.4;">
-                            <p><strong style="color:var(--accent-blue)">TPO:</strong> ${data.personalDesign.tpo || '-'}</p>
-                            <p><strong style="color:var(--success)">5R:</strong> ${data.personalDesign.r5 || '-'}</p>
-                        </div>
-                        <button onclick="downloadImage('${data.personalDesign.designImage}', '${deptId}_${roleId}_${studentName}.png')" style="width:100%; padding: 0.5rem; margin-top: 1rem; border-radius: 8px; border: none; background: var(--accent-gold); color: black; font-weight: bold; cursor: pointer;">이미지 다운로드</button>
                     `;
+                    
+                    // 팀 추론 결과는 '부장' 카드에만 렌더링하거나 모든 카드 상단에 배치 (모든 카드에 넣으면 중복이므로 부장에게만)
+                    if (roleId === '부장' && reasoningHtml) {
+                        innerHtml += reasoningHtml;
+                    }
+
+                    if (data.personalDesign && data.personalDesign.designImage) {
+                        innerHtml += `
+                            <img src="${data.personalDesign.designImage}" style="width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 1rem;">
+                            <div style="font-size: 0.85rem; color: #ddd; line-height: 1.4; margin-bottom: 1rem;">
+                                <p><strong style="color:var(--accent-blue)">TPO:</strong> ${data.personalDesign.tpo || '-'}</p>
+                                <p><strong style="color:var(--success)">5R:</strong> ${data.personalDesign.r5 || '-'}</p>
+                                <p><strong style="color:var(--accent-gold)">이유:</strong> ${data.personalDesign.reason || '-'}</p>
+                            </div>
+                        `;
+                    }
+                    
+                    if (data.reflection) {
+                        innerHtml += `
+                            <div style="font-size: 0.85rem; padding: 0.8rem; background: rgba(255,255,255,0.05); border-left: 3px solid var(--success); border-radius: 4px;">
+                                <p style="margin-bottom: 0.5rem;"><strong style="color:#aaa;">기억에 남는 순간:</strong><br>${data.reflection.q1 || '-'}</p>
+                                <p><strong style="color:#aaa;">실천하고 싶은 점:</strong><br>${data.reflection.q2 || '-'}</p>
+                            </div>
+                        `;
+                    }
+
+                    if (data.personalDesign && data.personalDesign.designImage) {
+                        innerHtml += `<button onclick="downloadImage('${data.personalDesign.designImage}', '${deptId}_${roleId}_${studentName}.png')" style="width:100%; padding: 0.5rem; margin-top: 1rem; border-radius: 8px; border: none; background: var(--accent-gold); color: black; font-weight: bold; cursor: pointer;">이미지 다운로드</button>`;
+                    }
+                    
+                    card.innerHTML = innerHtml;
                     grid.appendChild(card);
                 }
             });

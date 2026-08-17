@@ -1968,11 +1968,21 @@ function showReasoningModal(stageData, targetStageNum) {
             btnSubmit.disabled = true;
             btnSubmit.textContent = '제출 중...';
             
-            updateDoc(getDeptDocRef(currentDeptId), {
-                currentStage: targetStageNum,
-                showStage1Reasoning: false,
-                showStage3Reasoning: false
-            }).catch(e => console.error("DB 업데이트 실패:", e));
+            const deptRef = getDeptDocRef(currentDeptId);
+            let addedScore = 0;
+            if (targetStageNum === 2) addedScore = 20;
+            else if (targetStageNum === 3) addedScore = 20;
+            else if (targetStageNum === 4) addedScore = 30;
+            
+            getDoc(deptRef).then(snap => {
+                let currentScore = snap.exists() && snap.data().envScore ? snap.data().envScore : 0;
+                updateDoc(deptRef, {
+                    currentStage: targetStageNum,
+                    envScore: currentScore + addedScore,
+                    showStage1Reasoning: false,
+                    showStage3Reasoning: false
+                }).catch(e => console.error("DB 업데이트 실패:", e));
+            });
             
             alert('🎉 합의가 완료되었습니다! 다음 단계로 이동합니다.');
             
@@ -2616,6 +2626,13 @@ document.addEventListener('DOMContentLoaded', () => {
             await updateDoc(getRoleDocRef(currentDeptId, currentRole), {
                 stage6Completed: true,
                 personalDesign: personalData
+            });
+            
+            // 개인 제출 시마다 부서 환경 점수 10점씩 추가
+            const deptRef = getDeptDocRef(currentDeptId);
+            getDoc(deptRef).then(snap => {
+                let currentScore = snap.exists() && snap.data().envScore ? snap.data().envScore : 0;
+                updateDoc(deptRef, { envScore: currentScore + 10 });
             });
             
             alert('디자인이 성공적으로 저장되었습니다! 다음 단계로 이동합니다.');
