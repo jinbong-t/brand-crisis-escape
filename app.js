@@ -2255,42 +2255,48 @@ if (devGodModeBtn) {
     });
 }
 
-// --- QR 조각 찾기 화면 로직 ---
+window.submitQr = async () => {
+    const qrPasswordInput = document.getElementById('qr-password-input');
+    const qrErrorMsg = document.getElementById('qr-error-msg');
+    const btnSubmitQr = document.getElementById('btn-submit-qr');
+    const qrSuccessPanel = document.getElementById('qr-success-panel');
+    
+    if (!qrPasswordInput || !btnSubmitQr) return;
+    
+    const inputPw = qrPasswordInput.value.trim();
+    const correctPw = PUZZLE_DATA.qrMessages[currentDeptId] || '';
+    
+    // 입력값과 정답에서 띄어쓰기를 모두 제거하여 비교 (관대하게)
+    if (correctPw && inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
+        qrErrorMsg.classList.add('hidden');
+        btnSubmitQr.classList.add('hidden');
+        qrPasswordInput.disabled = true;
+        qrSuccessPanel.classList.remove('hidden');
+        
+        // pieces 컬렉션 업데이트
+        try {
+            await setDoc(getPieceDocRef(currentDeptId), { 
+                unlocked: true, 
+                unlockedAt: new Date().toISOString()
+            }, { merge: true });
+        } catch (e) {
+            console.error('Error updating piece:', e);
+        }
+    } else {
+        alert(`디버그: 정답 불일치\n입력값: [${inputPw}]\n정답: [${correctPw}]\n부서: [${currentDeptId}]`);
+        qrErrorMsg.classList.remove('hidden');
+        qrPasswordInput.value = '';
+        qrPasswordInput.focus();
+    }
+};
+
 const btnSubmitQr = document.getElementById('btn-submit-qr');
-const qrPasswordInput = document.getElementById('qr-password-input');
-const qrErrorMsg = document.getElementById('qr-error-msg');
-const qrSuccessPanel = document.getElementById('qr-success-panel');
+if (btnSubmitQr) {
+    btnSubmitQr.addEventListener('click', window.submitQr);
+}
+
 const btnGoToPersonal = document.getElementById('btn-go-to-personal');
 const btnViewDashboard = document.getElementById('btn-view-dashboard');
-
-if (btnSubmitQr) {
-    btnSubmitQr.addEventListener('click', async () => {
-        const inputPw = qrPasswordInput.value.trim();
-        const correctPw = PUZZLE_DATA.qrMessages[currentDeptId] || '';
-        
-        // 입력값과 정답에서 띄어쓰기를 모두 제거하여 비교 (관대하게)
-        if (correctPw && inputPw.replace(/\s+/g, '') === correctPw.replace(/\s+/g, '')) {
-            qrErrorMsg.classList.add('hidden');
-            btnSubmitQr.classList.add('hidden');
-            qrPasswordInput.disabled = true;
-            qrSuccessPanel.classList.remove('hidden');
-            
-            // pieces 컬렉션 업데이트
-            try {
-                await setDoc(getPieceDocRef(currentDeptId), { 
-                    unlocked: true, 
-                    unlockedAt: new Date().toISOString()
-                }, { merge: true });
-            } catch (e) {
-                console.error('Error updating piece:', e);
-            }
-        } else {
-            qrErrorMsg.classList.remove('hidden');
-            qrPasswordInput.value = '';
-            qrPasswordInput.focus();
-        }
-    });
-}
 
 if (btnGoToPersonal) {
     btnGoToPersonal.addEventListener('click', () => {
