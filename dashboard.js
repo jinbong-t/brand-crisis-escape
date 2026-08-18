@@ -916,6 +916,35 @@ async function loadDeptQrPasswords() {
 
 
 
+// 비밀번호 전체 초기화 버튼
+document.getElementById('btn-reset-all-qr-pw')?.addEventListener('click', async () => {
+    if (!confirm('모든 부서의 QR 비밀번호를 초기화(빈칸)하시겠습니까?\n(이미 입력된 입력칸도 모두 비워집니다)')) return;
+    try {
+        await setDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'), {
+            deptPasswords: {}
+        }, { merge: true });
+
+        // 입력칸 및 상태 라벨 초기화
+        document.querySelectorAll('[id^="qr-pw-"]').forEach(input => {
+            input.value = '';
+        });
+        document.querySelectorAll('[id^="status-"]').forEach(el => {
+            el.textContent = '미설정';
+            el.style.color = '#aaa';
+        });
+
+        // 버튼 피드백
+        const btn = document.getElementById('btn-reset-all-qr-pw');
+        if (btn) {
+            btn.textContent = '✅ 초기화 완료';
+            setTimeout(() => { btn.textContent = '🗑️ 비번 초기화'; }, 2000);
+        }
+    } catch(e) {
+        console.error(e);
+        alert('초기화 실패: ' + e.message);
+    }
+});
+
 // 원단 조각 초기화 버튼
 document.getElementById('btn-reset-fabric')?.addEventListener('click', async () => {
     if (!confirm('모든 부서의 원단 조각 수집 현황을 초기화하시겠습니까?')) return;
