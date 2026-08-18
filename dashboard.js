@@ -948,22 +948,40 @@ document.getElementById('btn-reset-all-qr-pw')?.addEventListener('click', async 
 // 원단 조각 초기화 버튼
 document.getElementById('btn-reset-fabric')?.addEventListener('click', async () => {
     if (!confirm('모든 부서의 원단 조각 수집 현황을 초기화하시겠습니까?')) return;
+    const btn = document.getElementById('btn-reset-fabric');
+    if (btn) { btn.textContent = '⏳ 초기화 중...'; btn.disabled = true; }
     try {
         const deptsRef = collection(db, `classes/${activeClass}/departments`);
         const snap = await getDocs(deptsRef);
         const promises = [];
+        const depts = [];
         snap.forEach(docSnap => {
-            // app.js와 동일한 경로: classes/{activeClass}/pieces/{deptId}
+            depts.push({ id: docSnap.id, name: docSnap.data().name || docSnap.id });
             const pieceRef = doc(db, `classes/${activeClass}/pieces`, docSnap.id);
-            promises.push(setDoc(pieceRef, { unlocked: false }, { merge: true }));
+            promises.push(setDoc(pieceRef, { unlocked: false })); // merge 없이 완전 덮어쓰기
         });
         await Promise.all(promises);
-        alert('원단 조각이 초기화되었습니다.');
+
+        // ⚡ onSnapshot은 departments 변화만 감지하므로 수동으로 UI 갱신
+        const pieceStates = depts.map(d => ({ ...d, unlocked: false }));
+        const total = depts.length;
+        document.getElementById('fabric-count-badge').textContent = `0 / ${total}`;
+        const completeMsg = document.getElementById('fabric-complete-msg');
+        if (completeMsg) completeMsg.classList.add('hidden');
+        renderFabricPuzzle(pieceStates, total);
+        renderFabricDeptList(pieceStates);
+
+        if (btn) { btn.textContent = '✅ 초기화 완료'; }
+        setTimeout(() => {
+            if (btn) { btn.textContent = '🔄 조각 수집 초기화'; btn.disabled = false; }
+        }, 2000);
     } catch(e) {
         console.error(e);
         alert('초기화 실패: ' + e.message);
+        if (btn) { btn.textContent = '🔄 조각 수집 초기화'; btn.disabled = false; }
     }
 });
+
 
 // 원단 조각 실시간 구독 및 퍼즐 뷰어 렌더링
 function watchFabricPieces() {
