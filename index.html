@@ -19,9 +19,10 @@
     <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/scroll-behaviour.min.js"></script>
     <script>
         MobileDragDrop.polyfill({
+            holdToDrag: 250, // 모바일에서 스크롤과 구분을 위해 250ms 꾹 누르면 드래그 시작
             dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
         });
-        window.addEventListener('touchmove', function() {}, {passive: false});
+        // 태블릿 세로 스크롤 이슈를 일으키던 touchmove 이벤트 제거
     </script>
 <body>
     <!-- 현재 학급 워터마크 (교사 확인용) -->
@@ -131,13 +132,13 @@
                 <p class="guide-text">조사 카드 4장을 뒤집어 단서를 확인하고, 올바른 순서로 정렬하여 잠금을 해제하세요.</p>
                 
                 <div id="intro-modal" class="modal hidden">
-                    <div class="modal-content" style="max-width: 600px; position: relative; padding-bottom: 4rem;">
+                    <div class="modal-content" style="max-height: 85vh; overflow-y: auto; overflow-x: hidden; width: 95%; max-width: 600px; padding: 2rem;">
                         <h3 style="margin-bottom: 1rem; text-align: center;">사건의 시작</h3>
-                        <video id="intro-video" controls width="100%" class="intro-video-player" style="margin-bottom: 1rem; border-radius: 8px;">
+                        <video id="intro-video" controls autoplay playsinline muted width="100%" class="intro-video-player" style="margin-bottom: 1rem; border-radius: 8px;">
                             <source src="intro_video.mp4" type="video/mp4">
                             브라우저가 비디오 태그를 지원하지 않습니다.
                         </video>
-                        <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 1rem; padding-right: 10px;">
+                        <div id="intro-text-container" style="font-size: 1.1rem; line-height: 1.6; text-align: left; margin-bottom: 2.5rem; padding-right: 10px; max-height: 30vh; overflow-y: auto;">
                             <!-- JS에서 문단별로 렌더링 -->
                         </div>
                         <button id="btn-intro-next" class="btn-primary" style="position: absolute; bottom: 1.5rem; right: 1.5rem;">다음 ▶</button>
@@ -663,9 +664,9 @@
             
             <!-- 에필로그 모달 -->
             <div id="epilogue-modal" class="modal hidden" style="z-index: 1000;">
-                <div class="modal-content" style="width: 90%; max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                <div class="modal-content" style="max-height: 85vh; overflow-y: auto; overflow-x: hidden; width: 90%; max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
                     <h2 style="color: var(--accent-gold); margin-bottom: 1rem; text-align: center;">에필로그: 런칭쇼 그 후... 🌿</h2>
-                    <video id="epilogue-video" src="엔딩 영상.mp4" controls style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
+                    <video id="epilogue-video" data-src="엔딩 영상.mp4" controls style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
                     <p style="line-height: 1.8; margin-bottom: 1rem; font-size: 1.1rem; color: #eee;">
                         여러분의 활약으로 RE:BRAND의 친환경 컬렉션 런칭쇼는 대성공을 거두었습니다!<br><br>
                         소비자들은 단순한 화려함을 넘어, <b>옷에 담긴 지구를 향한 배려와 5R의 가치</b>에 열광했습니다. 매출은 폭발적으로 증가했고, 언론은 '윤리적 패션의 승리'라며 찬사를 보냈습니다.<br><br>

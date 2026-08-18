@@ -750,8 +750,10 @@ function startScreen1() {
             p.innerHTML = introParagraphs[currentIntroIndex];
             container.appendChild(p);
             
-            // 컨테이너 스크롤 맨 아래로
-            container.parentElement.scrollTop = container.parentElement.scrollHeight;
+            // 컨테이너 스크롤 맨 아래로 (자체 스크롤 컨테이너 사용)
+            setTimeout(() => {
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            }, 50);
             
             if (currentIntroIndex === introParagraphs.length - 1) {
                 btnNext.classList.add('hidden');
@@ -762,9 +764,14 @@ function startScreen1() {
 
     introModal.classList.remove('hidden');
     
-    // 영상은 학생이 직접 재생 버튼을 눌러서 보도록 자동 재생 시도 코드를 제거함
+    // 영상 자동 재생 (모바일 호환성을 위해 muted, playsInline 명시적 설정)
     if (introVideo) {
-        introVideo.pause();
+        introVideo.muted = true;
+        introVideo.playsInline = true;
+        const playPromise = introVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.log("Autoplay prevented:", e));
+        }
     }
 
     renderOpeningCards();
@@ -1449,6 +1456,7 @@ function startScreen4() {
             
             item.addEventListener('dragstart', (e) => {
                 item.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', 'drag-polyfill-fallback'); // 모바일 폴리필 강제 인식용
                 e.dataTransfer.setData('category', item.getAttribute('data-category'));
                 e.dataTransfer.setData('val', item.getAttribute('data-val'));
                 if (!item.id) item.id = 'item-' + Date.now() + Math.floor(Math.random()*1000);
@@ -1456,6 +1464,42 @@ function startScreen4() {
             });
             item.addEventListener('dragend', () => {
                 item.classList.remove('dragging');
+            });
+
+            // 모바일/태블릿 지원을 위한 터치/클릭 로직 추가
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+                const category = item.getAttribute('data-category');
+                const val = item.getAttribute('data-val');
+                
+                if (item.closest('#avatar-dropzone')) {
+                    // 이미 드롭존에 있다면 원래 선반으로 되돌림
+                    const shelves = document.querySelectorAll('.shelf-items');
+                    let targetShelf = Array.from(shelves).find(s => s.querySelector(`[data-category="${category}"]`));
+                    if (!targetShelf) targetShelf = document.querySelector('.shelf-items');
+                    if (targetShelf) targetShelf.appendChild(item);
+                    
+                    delete selectedItems[category];
+                    btnSubmit.disabled = true;
+                } else {
+                    // 선반에 있다면 드롭존 슬롯으로 이동
+                    const targetSlot = document.getElementById(`slot-${category}`);
+                    if (targetSlot) {
+                        if (targetSlot.children.length > 0) {
+                            const oldItem = targetSlot.children[0];
+                            const shelves = document.querySelectorAll('.shelf-items');
+                            let targetShelf = Array.from(shelves).find(s => s.querySelector(`[data-category="${category}"]`));
+                            if (!targetShelf) targetShelf = document.querySelector('.shelf-items');
+                            if (targetShelf) targetShelf.appendChild(oldItem);
+                        }
+                        targetSlot.appendChild(item);
+                        selectedItems[category] = val;
+                        
+                        if (selectedItems['line'] && selectedItems['color'] && selectedItems['material'] && selectedItems['pattern']) {
+                            btnSubmit.disabled = false;
+                        }
+                    }
+                }
             });
         });
         
@@ -2938,7 +2982,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('screen-6').classList.add('hidden');
             document.getElementById('epilogue-modal').classList.remove('hidden');
             const video = document.querySelector('#epilogue-modal video');
-            if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
+            if (video) {
+                if (video.getAttribute('data-src')) {
+                    video.src = video.getAttribute('data-src');
+                    video.removeAttribute('data-src');
+                    video.load();
+                }
+                video.pause(); // 자동 재생 금지
+            }
             return;
         }
 
@@ -2993,8 +3044,15 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('screen-6').classList.add('hidden');
             
             document.getElementById('epilogue-modal').classList.remove('hidden');
-            const video = document.querySelector('#epilogue-modal video');
-            if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
+            const video2 = document.querySelector('#epilogue-modal video');
+            if (video2) {
+                if (video2.getAttribute('data-src')) {
+                    video2.src = video2.getAttribute('data-src');
+                    video2.removeAttribute('data-src');
+                    video2.load();
+                }
+                video2.pause(); // 자동 재생 금지
+            }
             
         } catch(e) {
             clearTimeout(fallbackTimer);
@@ -3009,8 +3067,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('secret-skip-personal')?.addEventListener('click', () => {
         document.getElementById('screen-6').classList.add('hidden');
         document.getElementById('epilogue-modal').classList.remove('hidden');
-        const video = document.querySelector('#epilogue-modal video');
-        if (video) video.play().catch(e=>console.log("Autoplay prevented:", e));
+        const video3 = document.querySelector('#epilogue-modal video');
+        if (video3) {
+            if (video3.getAttribute('data-src')) {
+                video3.src = video3.getAttribute('data-src');
+                video3.removeAttribute('data-src');
+                video3.load();
+            }
+            video3.pause(); // 자동 재생 금지
+        }
     });
 
     // 7단계 소감문 제출
