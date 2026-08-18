@@ -1728,9 +1728,18 @@ function startScreen5() {
             if (successModal && successModal.classList.contains('hidden')) {
                 // pwDisplay 관련 로직은 제거됨
                 if (guideText) {
-                    // Firebase에서 QR 비밀번호 로드하여 안내
+                    // Firebase에서 부서별 QR 비밀번호 로드하여 안내
                     getDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig')).then(qrSnap => {
-                        const qrPw = qrSnap.exists() && qrSnap.data().password ? qrSnap.data().password : '????';
+                        let qrPw = '????';
+                        if (qrSnap.exists()) {
+                            const d = qrSnap.data();
+                            // 부서별 비번 우선
+                            if (d.deptPasswords && d.deptPasswords[currentDeptId]) {
+                                qrPw = d.deptPasswords[currentDeptId];
+                            } else if (d.password) {
+                                qrPw = d.password;
+                            }
+                        }
                         guideText.innerHTML = `
                             <div style="background: rgba(212,175,55,0.1); border: 1px dashed var(--accent-gold); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; text-align:left;">
                                 <p style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 0.5rem;">📜 한서연 수석 디자이너의 메시지:</p>
@@ -2279,13 +2288,19 @@ window.submitQr = async () => {
     
     const inputPw = qrPasswordInput.value.trim();
     
-    // Firebase에서 선생님이 설정한 QR 비밀번호 가져오기
+    // Firebase에서 선생님이 설정한 부서별 QR 비밀번호 가져오기
     let correctPw = '';
     try {
         const qrConfigRef = doc(db, `classes/${activeClass}/global`, 'qrConfig');
         const qrConfigSnap = await getDoc(qrConfigRef);
-        if (qrConfigSnap.exists() && qrConfigSnap.data().password) {
-            correctPw = qrConfigSnap.data().password.trim();
+        if (qrConfigSnap.exists()) {
+            const data = qrConfigSnap.data();
+            // 부서별 비번 우선, 없으면 공통 비번 fallback
+            if (data.deptPasswords && data.deptPasswords[currentDeptId]) {
+                correctPw = data.deptPasswords[currentDeptId].trim();
+            } else if (data.password) {
+                correctPw = data.password.trim();
+            }
         }
     } catch(e) {
         console.error('QR 비번 로드 실패:', e);

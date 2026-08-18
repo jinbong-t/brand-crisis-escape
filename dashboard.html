@@ -192,22 +192,30 @@
                 <!-- Tab: Fabric QR 관리 -->
                 <section id="tab-fabric" class="tab-pane">
                     <div class="pane-header">
-                        <p class="pane-desc">교실에 숨겨진 원단 조각의 QR 비밀번호를 설정하고, 학생들이 조각을 찾는 현황을 실시간으로 확인합니다.</p>
+                        <p class="pane-desc">교실에 숨겨진 원단 조각의 <strong>부서별 QR 비밀번호</strong>를 설정하고, 학생들이 조각을 찾는 현황을 실시간으로 확인합니다.</p>
                     </div>
 
-                    <!-- QR 비밀번호 설정 -->
+                    <!-- 부서별 QR 비밀번호 설정 -->
                     <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-gold); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
-                        <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">🔑 QR 비밀번호 설정</h3>
-                        <p style="color: #aaa; margin-bottom: 1rem; font-size: 0.95rem;">모든 부서가 공유하는 하나의 비밀번호입니다. 학생들에게는 앱 화면을 통해 자동으로 안내됩니다.</p>
-                        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                            <input type="text" id="qr-password-setting" placeholder="예: 1111" maxlength="20"
-                                style="flex: 1; min-width: 200px; padding: 0.8rem 1rem; background: rgba(0,0,0,0.6); color: white; border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 1.2rem; text-align: center; letter-spacing: 4px;">
-                            <button id="btn-save-qr-password" class="btn-primary" style="padding: 0.8rem 1.5rem; font-size: 1rem;">💾 저장</button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--accent-gold); margin: 0;">🔑 부서별 QR 비밀번호 설정</h3>
+                            <button id="btn-save-all-qr-pw" class="btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">💾 전체 저장</button>
                         </div>
-                        <div id="qr-password-status" style="margin-top: 0.8rem; font-size: 0.9rem; color: #aaa;">현재 저장된 비밀번호: <span id="current-qr-pw" style="color: var(--accent-gold); font-weight: bold; letter-spacing: 2px;">없음</span></div>
-                        <div style="margin-top: 1rem; background: rgba(255,193,7,0.1); border: 1px dashed #f1c40f; border-radius: 8px; padding: 1rem;">
-                            <p style="color: #f1c40f; font-size: 0.9rem; margin: 0;">💡 <strong>학생 화면 안내 미리보기:</strong><br>
-                            "한서연 수석 디자이너가 남긴 메시지: 친환경 원단을 안전하게 교실 곳곳에 숨겨 두었습니다. 너희 부서의 원단을 찾아 하나로 완성해 주세요! 원단을 찾은 곳의 비밀번호는 <span id="preview-qr-pw" style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px; font-weight: bold;">[ 미설정 ]</span> 입니다."</p>
+                        <p style="color: #aaa; margin-bottom: 1.2rem; font-size: 0.9rem;">
+                            각 부서마다 다른 비밀번호를 설정하세요. 학생들이 3단계 완료 후 앱에서 자기 부서 비번을 확인합니다.
+                        </p>
+
+                        <!-- 부서별 비번 입력 그리드 (JS에서 동적 렌더링) -->
+                        <div id="qr-dept-pw-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.2rem;">
+                            <p style="color: #aaa; font-size: 0.9rem; grid-column: 1/-1;">⏳ 부서 목록 불러오는 중... (먼저 부서를 생성해주세요)</p>
+                        </div>
+
+                        <!-- 미리보기 안내 -->
+                        <div style="background: rgba(255,193,7,0.1); border: 1px dashed #f1c40f; border-radius: 8px; padding: 1rem;">
+                            <p style="color: #f1c40f; font-size: 0.85rem; margin: 0;">
+                                💡 <strong>학생 화면 안내 예시 (디자인기획부):</strong><br>
+                                "한서연의 메시지: 교실에 원단을 숨겨뒀어요. <strong>디자인기획부</strong> 원단의 비밀번호는 <strong style="background: rgba(0,0,0,0.4); padding: 1px 6px; border-radius: 4px;">[ 설정한 비번 ]</strong> 입니다."
+                            </p>
                         </div>
                     </div>
 
@@ -235,6 +243,7 @@
                         </div>
                     </div>
                 </section>
+
 
                 <!-- Tab: Control -->
                 <section id="tab-control" class="tab-pane">

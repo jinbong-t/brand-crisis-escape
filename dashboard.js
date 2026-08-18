@@ -788,53 +788,133 @@ function renderControlTab() {
 // 5. 원단 QR 관리 탭
 // ==========================================
 function renderFabricTab() {
-    // 현재 저장된 QR 비밀번호 로드
-    loadQrPassword();
+    // 부서별 비번 입력칸 동적 생성 (Firebase에서 부서 목록 로드)
+    loadDeptQrPasswords();
     // 원단 조각 실시간 현황 구독
     watchFabricPieces();
 }
 
-async function loadQrPassword() {
+// 부서 목록 로드 + 각 부서별 비번 입력칸 생성
+async function loadDeptQrPasswords() {
+    const grid = document.getElementById('qr-dept-pw-grid');
+    if (!grid) return;
+    grid.innerHTML = '<p style="color:#aaa; grid-column:1/-1;">⏳ 부서 목록 불러오는 중...</p>';
+
     try {
-        const ref = doc(db, `classes/${activeClass}/global`, 'qrConfig');
-        const snap = await getDoc(ref);
-        if (snap.exists() && snap.data().password) {
-            const pw = snap.data().password;
-            document.getElementById('current-qr-pw').textContent = pw;
-            document.getElementById('qr-password-setting').value = pw;
-            document.getElementById('preview-qr-pw').textContent = pw;
-        } else {
-            document.getElementById('current-qr-pw').textContent = '없음';
-            document.getElementById('preview-qr-pw').textContent = '[ 미설정 ]';
+        const deptsRef = collection(db, `classes/${activeClass}/departments`);
+        const deptSnap = await getDocs(deptsRef);
+
+        if (deptSnap.empty) {
+            grid.innerHTML = '<p style="color:#aaa; grid-column:1/-1;">⚠️ 생성된 부서가 없습니다. 먼저 "조 편성" 탭에서 부서를 생성해주세요.</p>';
+            return;
         }
+
+        // 현재 저장된 부서별 비번 로드
+        const qrConfigRef = doc(db, `classes/${activeClass}/global`, 'qrConfig');
+        const qrConfigSnap = await getDoc(qrConfigRef);
+        const savedPasswords = (qrConfigSnap.exists() && qrConfigSnap.data().deptPasswords) 
+            ? qrConfigSnap.data().deptPasswords 
+            : {};
+
+        grid.innerHTML = '';
+
+        // 부서 색상 팔레트
+        const colors = ['#d4af37', '#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#e67e22'];
+        let colorIdx = 0;
+
+        deptSnap.forEach(docSnap => {
+            const deptId = docSnap.id;
+            const deptName = docSnap.data().name || deptId;
+            const savedPw = savedPasswords[deptId] || '';
+            const color = colors[colorIdx % colors.length];
+            colorIdx++;
+
+            const card = document.createElement('div');
+            card.style.cssText = `
+                background: rgba(0,0,0,0.4);
+                border: 1px solid ${color}55;
+                border-radius: 10px;
+                padding: 1rem;
+                position: relative;
+            `;
+            card.innerHTML = `
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:${color}; flex-shrink:0;"></span>
+                    <strong style="color:${color}; font-size:0.9rem;">${deptName}</strong>
+                </div>
+                <input type="text" 
+                    id="qr-pw-${deptId}" 
+                    placeholder="비밀번호 입력" 
+                    value="${savedPw}"
+                    maxlength="20"
+                    style="
+                        width: 100%; padding: 0.6rem 0.8rem;
+                        background: rgba(0,0,0,0.5);
+                        color: white;
+                        border: 1.5px solid ${color}88;
+                        border-radius: 6px;
+                        font-size: 1.1rem;
+                        text-align: center;
+                        letter-spacing: 3px;
+                        box-sizing: border-box;
+                        margin-bottom: 0.5rem;
+                    "
+                >
+                <div style="font-size:0.75rem; color:#888; text-align:center;">
+                    현재: <span id="status-${deptId}" style="color:${savedPw ? '#2ecc71' : '#aaa'};">
+                        ${savedPw ? `"${savedPw}"` : '미설정'}
+                    </span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // 전체 저장 버튼 이벤트
+        const btnSaveAll = document.getElementById('btn-save-all-qr-pw');
+        if (btnSaveAll) {
+            btnSaveAll.onclick = async () => {
+                const newPasswords = {};
+                deptSnap.forEach(docSnap => {
+                    const deptId = docSnap.id;
+                    const input = document.getElementById(`qr-pw-${deptId}`);
+                    if (input) newPasswords[deptId] = input.value.trim();
+                });
+
+                try {
+                    await setDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'), {
+                        deptPasswords: newPasswords
+                    }, { merge: true });
+
+                    // 상태 라벨 업데이트
+                    Object.entries(newPasswords).forEach(([deptId, pw]) => {
+                        const statusEl = document.getElementById(`status-${deptId}`);
+                        if (statusEl) {
+                            statusEl.textContent = pw ? `"${pw}"` : '미설정';
+                            statusEl.style.color = pw ? '#2ecc71' : '#aaa';
+                        }
+                    });
+
+                    // 버튼 피드백
+                    btnSaveAll.textContent = '✅ 저장 완료!';
+                    btnSaveAll.style.background = 'var(--success)';
+                    setTimeout(() => {
+                        btnSaveAll.textContent = '💾 전체 저장';
+                        btnSaveAll.style.background = '';
+                    }, 2000);
+                } catch(e) {
+                    console.error(e);
+                    alert('저장 실패: ' + e.message);
+                }
+            };
+        }
+
     } catch(e) {
-        console.error('QR 비번 로드 실패:', e);
+        console.error('부서 목록 로드 실패:', e);
+        grid.innerHTML = '<p style="color:#e74c3c; grid-column:1/-1;">❌ 부서 목록 로드 실패: ' + e.message + '</p>';
     }
 }
 
-// QR 비밀번호 저장 버튼
-document.getElementById('btn-save-qr-password')?.addEventListener('click', async () => {
-    const pw = document.getElementById('qr-password-setting').value.trim();
-    if (!pw) return alert('비밀번호를 입력해주세요!');
-    try {
-        await setDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'), {
-            password: pw
-        }, { merge: true });
-        document.getElementById('current-qr-pw').textContent = pw;
-        document.getElementById('preview-qr-pw').textContent = pw;
-        // 버튼 피드백
-        const btn = document.getElementById('btn-save-qr-password');
-        btn.textContent = '✅ 저장됨!';
-        btn.style.background = 'var(--success)';
-        setTimeout(() => {
-            btn.textContent = '💾 저장';
-            btn.style.background = '';
-        }, 2000);
-    } catch(e) {
-        console.error(e);
-        alert('저장 실패: ' + e.message);
-    }
-});
+
 
 // 원단 조각 초기화 버튼
 document.getElementById('btn-reset-fabric')?.addEventListener('click', async () => {
