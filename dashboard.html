@@ -7,6 +7,8 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dashboard.css">
+    <!-- QR 코드 생성 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -192,7 +194,36 @@
                 <!-- Tab: Fabric QR 관리 -->
                 <section id="tab-fabric" class="tab-pane">
                     <div class="pane-header">
-                        <p class="pane-desc">교실에 숨겨진 원단 조각의 <strong>부서별 QR 비밀번호</strong>를 설정하고, 학생들이 조각을 찾는 현황을 실시간으로 확인합니다.</p>
+                        <p class="pane-desc">교실에 숨겨진 원단 조각의 <strong>부서별 QR 비밀번호</strong>를 설정하고, QR 코드를 인쇄해서 원단에 붙이세요.</p>
+                    </div>
+
+                    <!-- QR 코드 생성 & 출력 -->
+                    <div style="background: rgba(0,0,0,0.5); border: 2px solid #3498db; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="color: #3498db; margin: 0 0 0.3rem 0;">📱 QR 코드 생성 &amp; 출력</h3>
+                                <p style="color: #888; font-size: 0.8rem; margin: 0;">학생이 스캔 → 자기 부서 비밀번호 입력 화면으로 이동</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button id="btn-gen-qr" class="btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">⚙️ QR 생성</button>
+                                <button id="btn-print-qr" class="btn-success" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; display:none;">🖨️ 인쇄하기</button>
+                            </div>
+                        </div>
+
+                        <!-- 게임 URL 입력 -->
+                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                            <label style="color: #aaa; font-size: 0.85rem; white-space: nowrap;">게임 URL:</label>
+                            <input type="text" id="game-url-input"
+                                style="flex:1; min-width:250px; padding: 0.5rem 0.8rem; background: rgba(0,0,0,0.5); color: white; border: 1px solid #3498db55; border-radius: 6px; font-size: 0.85rem;"
+                                placeholder="자동으로 감지됩니다">
+                        </div>
+
+                        <!-- QR 카드 출력 영역 -->
+                        <div id="qr-cards-container" style="display: none;">
+                            <div id="qr-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                                <!-- JS에서 QR 카드 생성 -->
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 부서별 QR 비밀번호 설정 -->

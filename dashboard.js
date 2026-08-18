@@ -788,11 +788,178 @@ function renderControlTab() {
 // 5. 원단 QR 관리 탭
 // ==========================================
 function renderFabricTab() {
+    // 게임 URL 자동 감지
+    const urlInput = document.getElementById('game-url-input');
+    if (urlInput && !urlInput.value) {
+        // dashboard.html이 있는 경로에서 index.html로 URL 자동 설정
+        const baseUrl = window.location.href.replace(/dashboard\.html.*$/, 'index.html');
+        urlInput.value = baseUrl + '?qr=true';
+    }
+
     // 부서별 비번 입력칸 동적 생성 (Firebase에서 부서 목록 로드)
     loadDeptQrPasswords();
     // 원단 조각 실시간 현황 구독
     watchFabricPieces();
 }
+
+// QR 생성 버튼
+document.getElementById('btn-gen-qr')?.addEventListener('click', async () => {
+    const urlInput = document.getElementById('game-url-input');
+    const gameUrl = urlInput?.value.trim();
+    if (!gameUrl) return alert('게임 URL을 확인해주세요.');
+
+    const grid = document.getElementById('qr-cards-grid');
+    const container = document.getElementById('qr-cards-container');
+    grid.innerHTML = '<p style="color:#aaa; text-align:center; padding:1rem;">⏳ 부서 목록과 QR 코드를 생성하는 중...</p>';
+    container.style.display = 'block';
+
+    try {
+        const deptsRef = collection(db, `classes/${activeClass}/departments`);
+        const deptSnap = await getDocs(deptsRef);
+
+        // 현재 저장된 비번도 함께 로드
+        const qrConfigSnap = await getDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'));
+        const savedPws = (qrConfigSnap.exists() && qrConfigSnap.data().deptPasswords) 
+            ? qrConfigSnap.data().deptPasswords : {};
+
+        if (deptSnap.empty) {
+            grid.innerHTML = '<p style="color:#e74c3c; text-align:center; padding:1rem;">⚠️ 부서가 없습니다. 먼저 부서를 생성해주세요.</p>';
+            return;
+        }
+
+        grid.innerHTML = '';
+        const colors = ['#d4af37', '#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#e67e22'];
+        let idx = 0;
+
+        deptSnap.forEach(docSnap => {
+            const deptId = docSnap.id;
+            const deptName = docSnap.data().name || deptId;
+            const pw = savedPws[deptId] || '(미설정)';
+            const color = colors[idx % colors.length];
+            idx++;
+
+            // QR 카드 div
+            const card = document.createElement('div');
+            card.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                padding: 1.2rem;
+                text-align: center;
+                border: 3px solid ${color};
+                color: #111;
+                font-family: 'Noto Sans KR', sans-serif;
+            `;
+
+            // 타이틀
+            const title = document.createElement('div');
+            title.style.cssText = `font-weight: bold; font-size: 1rem; color: ${color}; margin-bottom: 0.3rem;`;
+            title.textContent = '🧵 ' + deptName;
+            card.appendChild(title);
+
+            const subtitle = document.createElement('div');
+            subtitle.style.cssText = 'font-size: 0.75rem; color: #666; margin-bottom: 0.8rem;';
+            subtitle.textContent = '원단을 찾으면 QR을 스캔하세요!';
+            card.appendChild(subtitle);
+
+            // QR 코드 div (qrcodejs가 내부에 canvas/img 생성)
+            const qrDiv = document.createElement('div');
+            qrDiv.style.cssText = 'display: flex; justify-content: center; margin-bottom: 0.8rem;';
+            const qrInner = document.createElement('div');
+            qrInner.id = `qr-${deptId}`;
+            qrDiv.appendChild(qrInner);
+            card.appendChild(qrDiv);
+
+            // QR 생성 (qrcodejs)
+            try {
+                new QRCode(qrInner, {
+                    text: gameUrl,
+                    width: 160,
+                    height: 160,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch(e) {
+                qrInner.innerHTML = '<p style="color:red; font-size:0.8rem;">QR 생성 실패</p>';
+            }
+
+            // 비번 안내
+            const pwBox = document.createElement('div');
+            pwBox.style.cssText = `
+                background: ${color}22;
+                border: 1px solid ${color}88;
+                border-radius: 6px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                color: #333;
+                margin-bottom: 0.4rem;
+            `;
+            pwBox.innerHTML = `🔑 비밀번호: <strong>${pw}</strong>`;
+            card.appendChild(pwBox);
+
+            const note = document.createElement('div');
+            note.style.cssText = 'font-size: 0.7rem; color: #aaa;';
+            note.textContent = '원단 조각에 이 카드를 붙여주세요';
+            card.appendChild(note);
+
+            grid.appendChild(card);
+        });
+
+        // 인쇄 버튼 표시
+        document.getElementById('btn-print-qr').style.display = '';
+
+    } catch(e) {
+        console.error(e);
+        grid.innerHTML = `<p style="color:#e74c3c;">❌ 오류: ${e.message}</p>`;
+    }
+});
+
+// QR 인쇄 버튼
+document.getElementById('btn-print-qr')?.addEventListener('click', () => {
+    const grid = document.getElementById('qr-cards-grid');
+    if (!grid) return;
+
+    const printWin = window.open('', '_blank', 'width=900,height=700');
+    printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>원단 QR 카드 인쇄</title>
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body { font-family: 'Noto Sans KR', sans-serif; padding: 20px; background: white; }
+                h2 { text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: #333; }
+                .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+                .card { border: 2px solid #333; border-radius: 12px; padding: 16px; text-align: center; page-break-inside: avoid; }
+                .card-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; }
+                .card-sub { font-size: 0.75rem; color: #666; margin-bottom: 10px; }
+                .card-qr { display: flex; justify-content: center; margin-bottom: 10px; }
+                .card-qr img, .card-qr canvas { width: 140px; height: 140px; }
+                .card-pw { background: #f5f5f5; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; margin-bottom: 4px; }
+                .card-note { font-size: 0.7rem; color: #aaa; }
+                @media print {
+                    body { padding: 10px; }
+                    .grid { grid-template-columns: repeat(3, 1fr); }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <h2 class="no-print">🧵 원단 QR 카드 인쇄 미리보기</h2>
+            <button class="no-print" onclick="window.print()" style="display:block; margin: 0 auto 20px; padding: 10px 30px; background:#3498db; color:white; border:none; border-radius:8px; font-size:1rem; cursor:pointer; font-family:inherit;">🖨️ 인쇄 시작</button>
+            <div class="grid">
+                ${grid.innerHTML}
+            </div>
+        </body>
+        </html>
+    `);
+    printWin.document.close();
+    printWin.focus();
+});
+
+
 
 // 부서 목록 로드 + 각 부서별 비번 입력칸 생성
 async function loadDeptQrPasswords() {
