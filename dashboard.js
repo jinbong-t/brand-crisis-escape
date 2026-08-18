@@ -784,5 +784,262 @@ function renderControlTab() {
     };
 }
 
+// ==========================================
+// 5. 원단 QR 관리 탭
+// ==========================================
+function renderFabricTab() {
+    // 현재 저장된 QR 비밀번호 로드
+    loadQrPassword();
+    // 원단 조각 실시간 현황 구독
+    watchFabricPieces();
+}
+
+async function loadQrPassword() {
+    try {
+        const ref = doc(db, `classes/${activeClass}/global`, 'qrConfig');
+        const snap = await getDoc(ref);
+        if (snap.exists() && snap.data().password) {
+            const pw = snap.data().password;
+            document.getElementById('current-qr-pw').textContent = pw;
+            document.getElementById('qr-password-setting').value = pw;
+            document.getElementById('preview-qr-pw').textContent = pw;
+        } else {
+            document.getElementById('current-qr-pw').textContent = '없음';
+            document.getElementById('preview-qr-pw').textContent = '[ 미설정 ]';
+        }
+    } catch(e) {
+        console.error('QR 비번 로드 실패:', e);
+    }
+}
+
+// QR 비밀번호 저장 버튼
+document.getElementById('btn-save-qr-password')?.addEventListener('click', async () => {
+    const pw = document.getElementById('qr-password-setting').value.trim();
+    if (!pw) return alert('비밀번호를 입력해주세요!');
+    try {
+        await setDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'), {
+            password: pw
+        }, { merge: true });
+        document.getElementById('current-qr-pw').textContent = pw;
+        document.getElementById('preview-qr-pw').textContent = pw;
+        // 버튼 피드백
+        const btn = document.getElementById('btn-save-qr-password');
+        btn.textContent = '✅ 저장됨!';
+        btn.style.background = 'var(--success)';
+        setTimeout(() => {
+            btn.textContent = '💾 저장';
+            btn.style.background = '';
+        }, 2000);
+    } catch(e) {
+        console.error(e);
+        alert('저장 실패: ' + e.message);
+    }
+});
+
+// 원단 조각 초기화 버튼
+document.getElementById('btn-reset-fabric')?.addEventListener('click', async () => {
+    if (!confirm('모든 부서의 원단 조각 수집 현황을 초기화하시겠습니까?')) return;
+    try {
+        const deptsRef = collection(db, `classes/${activeClass}/departments`);
+        const snap = await getDocs(deptsRef);
+        const promises = [];
+        snap.forEach(docSnap => {
+            // app.js와 동일한 경로: classes/{activeClass}/pieces/{deptId}
+            const pieceRef = doc(db, `classes/${activeClass}/pieces`, docSnap.id);
+            promises.push(setDoc(pieceRef, { unlocked: false }, { merge: true }));
+        });
+        await Promise.all(promises);
+        alert('원단 조각이 초기화되었습니다.');
+    } catch(e) {
+        console.error(e);
+        alert('초기화 실패: ' + e.message);
+    }
+});
+
+// 원단 조각 실시간 구독 및 퍼즐 뷰어 렌더링
+function watchFabricPieces() {
+    const deptsRef = collection(db, `classes/${activeClass}/departments`);
+    const unsub = onSnapshot(deptsRef, async (deptSnap) => {
+        if (deptSnap.empty) return;
+
+        const depts = [];
+        deptSnap.forEach(d => depts.push({ id: d.id, name: d.data().name || d.id }));
+        const total = depts.length;
+
+        // 각 부서의 조각 상태 병렬 조회 (app.js와 동일한 경로)
+        const pieceStates = await Promise.all(depts.map(async (dept) => {
+            try {
+                const pieceRef = doc(db, `classes/${activeClass}/pieces`, dept.id);
+                const pieceSnap = await getDoc(pieceRef);
+                return { ...dept, unlocked: pieceSnap.exists() && pieceSnap.data().unlocked };
+            } catch(e) {
+                return { ...dept, unlocked: false };
+            }
+        }));
+
+        const unlockedCount = pieceStates.filter(p => p.unlocked).length;
+
+        // 카운트 배지 업데이트
+        document.getElementById('fabric-count-badge').textContent = `${unlockedCount} / ${total}`;
+
+        // 완성 메시지
+        const completeMsg = document.getElementById('fabric-complete-msg');
+        if (unlockedCount === total && total > 0) {
+            completeMsg.classList.remove('hidden');
+        } else {
+            completeMsg.classList.add('hidden');
+        }
+
+        // 원단 퍼즐 뷰어 렌더링
+        renderFabricPuzzle(pieceStates, total);
+
+        // 부서별 조각 상태 목록 렌더링
+        renderFabricDeptList(pieceStates);
+    });
+    unsubscribes.push(unsub);
+}
+
+function renderFabricPuzzle(pieceStates, total) {
+    const viewer = document.getElementById('fabric-puzzle-viewer');
+    if (!viewer) return;
+    viewer.innerHTML = '';
+
+    if (total === 0) {
+        viewer.innerHTML = '<p style="color:#aaa; text-align:center; padding:2rem;">부서가 생성되면 원단이 표시됩니다.</p>';
+        return;
+    }
+
+    // 원단 이미지를 total등분하여 CSS로 각 슬롯 표시
+    // 2행 배치: 3개이하는 1행, 4~6개는 2행
+    const cols = total <= 3 ? total : Math.ceil(total / 2);
+    const rows = total <= 3 ? 1 : 2;
+
+    viewer.style.display = 'grid';
+    viewer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    viewer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    viewer.style.gap = '2px';
+
+    pieceStates.forEach((piece, idx) => {
+        const slot = document.createElement('div');
+        slot.style.cssText = `
+            position: relative;
+            overflow: hidden;
+            transition: all 0.8s ease;
+            background: ${piece.unlocked ? 'transparent' : 'rgba(30,30,50,0.9)'};
+        `;
+
+        if (piece.unlocked) {
+            // 원단 이미지의 해당 영역만 표시
+            const colIdx = idx % cols;
+            const rowIdx = Math.floor(idx / cols);
+            const bgXPercent = total <= 1 ? 0 : (colIdx / (cols - 1)) * 100;
+            const bgYPercent = rows <= 1 ? 0 : (rowIdx / (rows - 1)) * 100;
+
+            // background-size와 position으로 이미지 등분
+            slot.style.backgroundImage = "url('조각 원단.png')";
+            slot.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
+            slot.style.backgroundPosition = `${bgXPercent}% ${bgYPercent}%`;
+            slot.style.backgroundRepeat = 'no-repeat';
+
+            // 반짝임 효과
+            const shine = document.createElement('div');
+            shine.style.cssText = `
+                position: absolute; inset: 0;
+                background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
+                animation: fabricShine 2s ease-in-out infinite alternate;
+                pointer-events: none;
+            `;
+            slot.appendChild(shine);
+
+            // 부서명 라벨
+            const label = document.createElement('div');
+            label.style.cssText = `
+                position: absolute; bottom: 0; left: 0; right: 0;
+                background: rgba(0,0,0,0.6);
+                color: #fff; font-size: 0.7rem; text-align: center;
+                padding: 3px; font-weight: bold;
+            `;
+            label.textContent = '✅ ' + piece.name;
+            slot.appendChild(label);
+        } else {
+            // 잠긴 슬롯 - 어둡고 물음표 표시
+            slot.innerHTML = `
+                <div style="
+                    width: 100%; height: 100%;
+                    display: flex; flex-direction: column;
+                    align-items: center; justify-content: center;
+                    background: repeating-linear-gradient(
+                        45deg,
+                        rgba(255,255,255,0.02) 0px,
+                        rgba(255,255,255,0.02) 10px,
+                        rgba(0,0,0,0.1) 10px,
+                        rgba(0,0,0,0.1) 20px
+                    );
+                    border: 1px dashed rgba(255,255,255,0.1);
+                ">
+                    <span style="font-size: 1.5rem; opacity: 0.4;">🧵</span>
+                    <span style="font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-top: 4px; text-align:center; padding: 0 4px;">${piece.name}</span>
+                </div>
+            `;
+        }
+
+        viewer.appendChild(slot);
+    });
+}
+
+function renderFabricDeptList(pieceStates) {
+    const container = document.getElementById('fabric-dept-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    pieceStates.forEach(piece => {
+        const card = document.createElement('div');
+        card.style.cssText = `
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid ${piece.unlocked ? '#2ecc71' : 'rgba(255,255,255,0.1)'};
+            background: ${piece.unlocked ? 'rgba(46,204,113,0.1)' : 'rgba(0,0,0,0.3)'};
+            display: flex; align-items: center; gap: 0.75rem;
+            transition: all 0.5s;
+        `;
+        card.innerHTML = `
+            <span style="font-size: 1.5rem;">${piece.unlocked ? '✅' : '⏳'}</span>
+            <div>
+                <div style="font-weight: bold; color: ${piece.unlocked ? '#2ecc71' : 'white'}; font-size: 0.9rem;">${piece.name}</div>
+                <div style="font-size: 0.75rem; color: #aaa;">${piece.unlocked ? '조각 수집 완료!' : '아직 찾는 중...'}</div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// initDashboard에 renderFabricTab 추가 (탭 활성화 시 호출)
+const origInitDashboard = initDashboard;
+
+// 탭 클릭 시 fabric 탭 초기화
+document.querySelectorAll('.nav-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+        if (tab.getAttribute('data-tab') === 'fabric') {
+            // 약간의 딜레이 후 렌더 (DOM 준비 대기)
+            setTimeout(renderFabricTab, 100);
+        }
+    });
+});
+
+// CSS 애니메이션 추가
+const styleEl = document.createElement('style');
+styleEl.textContent = `
+    @keyframes fabricShine {
+        0% { opacity: 0.3; }
+        100% { opacity: 0.6; }
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+`;
+document.head.appendChild(styleEl);
+
 // 최초 실행
 loadGlobalConfig();
+

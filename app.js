@@ -1728,8 +1728,27 @@ function startScreen5() {
             if (successModal && successModal.classList.contains('hidden')) {
                 // pwDisplay 관련 로직은 제거됨
                 if (guideText) {
-                    guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
+                    // Firebase에서 QR 비밀번호 로드하여 안내
+                    getDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig')).then(qrSnap => {
+                        const qrPw = qrSnap.exists() && qrSnap.data().password ? qrSnap.data().password : '????';
+                        guideText.innerHTML = `
+                            <div style="background: rgba(212,175,55,0.1); border: 1px dashed var(--accent-gold); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; text-align:left;">
+                                <p style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 0.5rem;">📜 한서연 수석 디자이너의 메시지:</p>
+                                <p style="color: white; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+                                    "친환경 원단을 안전하게 교실 곳곳에 숨겨 두었습니다.<br>
+                                    너희 <strong>${currentDeptId}</strong>의 원단을 찾아 하나로 완성해 주세요!<br>
+                                    원단을 찾은 곳의 비밀번호는 <strong style="color: #f1c40f; font-size: 1.2rem; letter-spacing: 2px;">${qrPw}</strong> 입니다."
+                                </p>
+                            </div>
+                            <p style="color: #ccc; font-size: 0.9rem;">
+                                원단을 찾은 뒤, <strong>팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.
+                            </p>
+                        `;
+                    }).catch(() => {
+                        guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
+                    });
                 }
+
                 
                 closeBtn.classList.remove('hidden'); // 누구나 스캔 창을 열 수 있음
                 if(waitingMsg) waitingMsg.classList.add('hidden');
@@ -2259,16 +2278,35 @@ window.submitQr = async () => {
     if (!qrPasswordInput || !btnSubmitQr) return;
     
     const inputPw = qrPasswordInput.value.trim();
-    const correctPw = PUZZLE_DATA.qrMessages[currentDeptId] || '';
     
-    // 입력값과 정답에서 띄어쓰기 및 보이지 않는 문자(Zero-width space)를 모두 제거하여 비교 (매우 관대하게)
-    if (correctPw && inputPw.replace(/[\s\u200B-\u200D\uFEFF]+/g, '') === correctPw.replace(/[\s\u200B-\u200D\uFEFF]+/g, '')) {
+    // Firebase에서 선생님이 설정한 QR 비밀번호 가져오기
+    let correctPw = '';
+    try {
+        const qrConfigRef = doc(db, `classes/${activeClass}/global`, 'qrConfig');
+        const qrConfigSnap = await getDoc(qrConfigRef);
+        if (qrConfigSnap.exists() && qrConfigSnap.data().password) {
+            correctPw = qrConfigSnap.data().password.trim();
+        }
+    } catch(e) {
+        console.error('QR 비번 로드 실패:', e);
+    }
+    
+    // 비번이 설정되지 않은 경우 PUZZLE_DATA 멘트를 fallback으로 사용 (기존 동작 유지)
+    if (!correctPw) {
+        correctPw = PUZZLE_DATA.qrMessages[currentDeptId] || '';
+    }
+    
+    // 입력값과 정답 비교 (공백/보이지 않는 문자 무시)
+    const normalize = s => s.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
+    if (correctPw && normalize(inputPw) === normalize(correctPw)) {
         qrErrorMsg.classList.add('hidden');
         btnSubmitQr.classList.add('hidden');
         qrPasswordInput.disabled = true;
-        qrSuccessPanel.classList.remove('hidden');
         
-        // pieces 컬렉션 업데이트
+        // 1단계: 원단 조각 이미지 표시
+        showFabricPieceReveal();
+        
+        // pieces 컬렉션 업데이트 (Firebase)
         try {
             await setDoc(getPieceDocRef(currentDeptId), { 
                 unlocked: true, 
@@ -2278,12 +2316,130 @@ window.submitQr = async () => {
             console.error('Error updating piece:', e);
         }
     } else {
-        alert(`디버그: 정답 불일치\n입력값: [${inputPw}]\n정답: [${correctPw}]\n부서: [${currentDeptId}]`);
         qrErrorMsg.classList.remove('hidden');
         qrPasswordInput.value = '';
         qrPasswordInput.focus();
+        // 오류 애니메이션
+        qrPasswordInput.style.borderColor = '#e74c3c';
+        setTimeout(() => { qrPasswordInput.style.borderColor = ''; }, 1000);
     }
 };
+
+// 원단 조각 이미지 공개 함수 (단계별)
+function showFabricPieceReveal() {
+    const screenQr = document.getElementById('screen-qr');
+    if (!screenQr) return;
+    
+    // screen-qr 내부를 단계별 공개 UI로 교체
+    const overlay = screenQr.querySelector('.glass-overlay') || screenQr;
+    const card = overlay.querySelector('.mission-card');
+    if (!card) return;
+    
+    // 부서에 해당하는 원단 조각 인덱스 (부서 순서에 따라)
+    const depts = ['디자인기획부', '소재개발부', '스타일링부', '생산전략부', '마케팅부', '품질관리부'];
+    const deptIdx = depts.indexOf(currentDeptId);
+    const totalDepts = depts.filter(d => d === currentDeptId || true).length; // 실제 사용 부서 수는 Firebase에서
+    
+    // 멘트
+    const deptMotto = PUZZLE_DATA.qrMessages[currentDeptId] || '비밀 메시지';
+    
+    card.innerHTML = `
+        <!-- Step 1: 원단 조각 발견 -->
+        <div id="qr-step-1" style="text-align:center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; animation: bounce 0.5s ease-in-out 3;">🎉</div>
+            <h2 style="color: #2ecc71; margin-bottom: 0.5rem;">조각을 찾았습니다!</h2>
+            <p style="color: #ccc; margin-bottom: 1.5rem; font-size: 0.95rem;">${currentDeptId}의 원단 조각</p>
+            
+            <!-- 원단 조각 이미지 표시 -->
+            <div style="
+                width: 200px; height: 200px; margin: 0 auto 1.5rem auto;
+                border: 3px solid var(--accent-gold);
+                border-radius: 12px; overflow: hidden;
+                box-shadow: 0 0 30px rgba(212,175,55,0.5);
+                animation: pieceReveal 0.8s ease-out;
+                background-image: url('조각 원단.png');
+                background-size: cover;
+                background-position: center;
+            "></div>
+            
+            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                🧩 이 원단 조각이 모이면 하나의 완성된 원단이 됩니다!
+            </p>
+            <button id="btn-qr-reveal-motto" class="btn-primary" style="font-size: 1.1rem; padding: 0.8rem 2rem;">
+                📜 한서연의 비밀 메시지 확인하기
+            </button>
+        </div>
+        
+        <!-- Step 2: 비밀 멘트 공개 (처음엔 숨김) -->
+        <div id="qr-step-2" class="hidden" style="text-align:center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+            <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">한서연의 비밀 메시지</h2>
+            <p style="color: #ccc; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                이 메시지를 학생용 앱에 정확히 입력하세요!
+            </p>
+            
+            <div style="
+                background: rgba(212,175,55,0.15);
+                border: 2px solid var(--accent-gold);
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+                animation: mottoReveal 0.6s ease-out;
+            ">
+                <p style="color: white; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; margin: 0;">
+                    "${deptMotto}"
+                </p>
+            </div>
+            
+            <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                위 메시지를 학생용 웹앱 화면의 입력창에 그대로 입력하세요.
+            </p>
+            <button id="btn-qr-to-final" class="btn-primary" style="font-size: 1rem; padding: 0.8rem 2rem;">
+                ✅ 확인했습니다 → 다음으로
+            </button>
+        </div>
+    `;
+    
+    // Step 1 → Step 2 전환
+    document.getElementById('btn-qr-reveal-motto').onclick = () => {
+        document.getElementById('qr-step-1').classList.add('hidden');
+        document.getElementById('qr-step-2').classList.remove('hidden');
+    };
+    
+    // Step 2 완료 → screen-6으로 이동
+    document.getElementById('btn-qr-to-final').onclick = () => {
+        if(qrSuccessPanel) qrSuccessPanel.classList.remove('hidden');
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+        const s6 = document.getElementById('screen-6');
+        if (s6) s6.classList.remove('hidden');
+        document.getElementById('display-current-role-stage6').textContent = currentRole;
+        initCanvas();
+    };
+    
+    // 애니메이션 스타일 추가
+    if (!document.getElementById('qr-reveal-style')) {
+        const style = document.createElement('style');
+        style.id = 'qr-reveal-style';
+        style.textContent = `
+            @keyframes pieceReveal {
+                0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+                70% { transform: scale(1.1) rotate(2deg); }
+                100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            }
+            @keyframes mottoReveal {
+                0% { transform: translateY(20px); opacity: 0; }
+                100% { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
 
 const btnSubmitQr = document.getElementById('btn-submit-qr');
 if (btnSubmitQr) {

@@ -83,6 +83,10 @@
                     <span class="icon">⚡</span>
                     강력 추천 기능
                 </button>
+                <button class="nav-item" data-tab="fabric">
+                    <span class="icon">🧵</span>
+                    원단 QR 관리
+                </button>
             </nav>
             
             <div class="sidebar-footer">
@@ -182,6 +186,53 @@
                     </div>
                     <div id="td-results-gallery" class="gallery-layout">
                         <!-- 결과물 갤러리 -->
+                    </div>
+                </section>
+
+                <!-- Tab: Fabric QR 관리 -->
+                <section id="tab-fabric" class="tab-pane">
+                    <div class="pane-header">
+                        <p class="pane-desc">교실에 숨겨진 원단 조각의 QR 비밀번호를 설정하고, 학생들이 조각을 찾는 현황을 실시간으로 확인합니다.</p>
+                    </div>
+
+                    <!-- QR 비밀번호 설정 -->
+                    <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-gold); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">🔑 QR 비밀번호 설정</h3>
+                        <p style="color: #aaa; margin-bottom: 1rem; font-size: 0.95rem;">모든 부서가 공유하는 하나의 비밀번호입니다. 학생들에게는 앱 화면을 통해 자동으로 안내됩니다.</p>
+                        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="qr-password-setting" placeholder="예: 1111" maxlength="20"
+                                style="flex: 1; min-width: 200px; padding: 0.8rem 1rem; background: rgba(0,0,0,0.6); color: white; border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 1.2rem; text-align: center; letter-spacing: 4px;">
+                            <button id="btn-save-qr-password" class="btn-primary" style="padding: 0.8rem 1.5rem; font-size: 1rem;">💾 저장</button>
+                        </div>
+                        <div id="qr-password-status" style="margin-top: 0.8rem; font-size: 0.9rem; color: #aaa;">현재 저장된 비밀번호: <span id="current-qr-pw" style="color: var(--accent-gold); font-weight: bold; letter-spacing: 2px;">없음</span></div>
+                        <div style="margin-top: 1rem; background: rgba(255,193,7,0.1); border: 1px dashed #f1c40f; border-radius: 8px; padding: 1rem;">
+                            <p style="color: #f1c40f; font-size: 0.9rem; margin: 0;">💡 <strong>학생 화면 안내 미리보기:</strong><br>
+                            "한서연 수석 디자이너가 남긴 메시지: 친환경 원단을 안전하게 교실 곳곳에 숨겨 두었습니다. 너희 부서의 원단을 찾아 하나로 완성해 주세요! 원단을 찾은 곳의 비밀번호는 <span id="preview-qr-pw" style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px; font-weight: bold;">[ 미설정 ]</span> 입니다."</p>
+                        </div>
+                    </div>
+
+                    <!-- 원단 조각 실시간 현황 -->
+                    <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="color: white; margin: 0;">🧩 원단 조각 수집 현황 <span id="fabric-count-badge" style="font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 2px 10px; border-radius: 20px; margin-left: 0.5rem;">0 / 0</span></h3>
+                            <button id="btn-reset-fabric" class="btn-danger-outline" style="padding: 0.4rem 1rem; font-size: 0.8rem;">조각 초기화</button>
+                        </div>
+
+                        <!-- 원단 퍼즐 조합 뷰어 -->
+                        <div style="background: rgba(0,0,0,0.6); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                            <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;">조각을 찾은 부서만큼 원단이 채워집니다. 모두 찾으면 완성!</p>
+                            <div id="fabric-puzzle-viewer" style="width: 100%; max-width: 700px; margin: 0 auto; aspect-ratio: 3/2; border-radius: 12px; overflow: hidden; border: 3px solid rgba(255,255,255,0.15); position: relative; background: #1a1a2e;">
+                                <!-- JS에서 동적으로 슬롯 생성 -->
+                            </div>
+                            <div style="text-align: center; margin-top: 1rem;">
+                                <div id="fabric-complete-msg" class="hidden" style="color: #2ecc71; font-size: 1.2rem; font-weight: bold; animation: pulse 1s infinite;">🎉 모든 원단 조각 수집 완료!</div>
+                            </div>
+                        </div>
+
+                        <!-- 부서별 조각 상태 목록 -->
+                        <div id="fabric-dept-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                            <!-- JS에서 렌더링 -->
+                        </div>
                     </div>
                 </section>
 
