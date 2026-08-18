@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>브랜드 위기 탈출</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,7 +13,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.0">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-</head>
+    <!-- 모바일 터치 환경에서 드래그앤드롭을 지원하기 위한 폴리필 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/default.css">
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/scroll-behaviour.min.js"></script>
+    <script>
+        MobileDragDrop.polyfill({
+            dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+        });
+        window.addEventListener('touchmove', function() {}, {passive: false});
+    </script>
 <body>
     <!-- 현재 학급 워터마크 (교사 확인용) -->
     <div id="active-class-watermark" style="position: fixed; top: 10px; right: 20px; font-size: 1.5rem; font-weight: bold; color: rgba(255, 255, 255, 0.15); z-index: 1000; pointer-events: none; font-family: 'Noto Sans KR', sans-serif;"></div>
@@ -44,7 +56,33 @@
                 </div>
             </section>
 
-            <!-- 더 지니어스 스타일 질문 팝업 -->
+            <!-- QR 인증 화면 (Screen QR) -->
+            <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.6);">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 400px; width: 90%; text-align: center; border: 2px solid var(--accent-gold); padding: 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem; font-size: 1.6rem; word-break: keep-all;">🧵 원단 조각 발견!</h2>
+                        
+                        <div id="qr-auth-section">
+                            <p style="color: white; font-size: 1.05rem; margin-bottom: 1.5rem; line-height: 1.5; word-break: keep-all;">부서별 비밀번호를<br>입력하세요!</p>
+                            
+                            <input type="text" id="qr-password-input" placeholder="비밀번호 입력" style="padding: 1rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 100%; margin-bottom: 1rem; box-sizing: border-box;">
+                            
+                            <button id="btn-submit-qr-pw" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem; border-radius: 8px;">확인</button>
+                            <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 0.95rem; word-break: keep-all; line-height: 1.4;">비밀번호가 틀렸습니다.<br>부서에 맞는 원단 조각을 찾으러 갑니다!</p>
+                        </div>
+                        
+                        <div id="qr-success-section" class="hidden">
+                            <h3 id="qr-success-dept" style="color: #2ecc71; margin-bottom: 0.8rem; font-size: 1.4rem;">[부서명] 원단 획득!</h3>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                                <img src="조각 원단.png" style="width: 180px; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem; border: 3px solid var(--accent-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                                <p id="qr-success-message" style="color: #f1c40f; font-size: 1.1rem; font-weight: bold; line-height: 1.5; word-break: keep-all;"></p>
+                            </div>
+                            <p style="color: #ddd; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem; word-break: keep-all;">선생님 화면에서 원단이 채워졌습니다.<br><br>이제 원래 게임 화면으로 돌아가서 단서를 활용하세요!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <div id="genius-modal" class="modal hidden">
                 <div class="modal-content genius-content">
                     <h2 class="genius-text glow-text">"당신의 부서는 무엇입니까?"</h2>
@@ -599,7 +637,7 @@
                 <!-- 폭죽 캔버스 -->
                 <canvas id="confetti-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 101;"></canvas>
                 
-                <div id="certificate-container" style="background: white; width: 80%; max-width: 600px; padding: 2rem; border: 15px solid #d4af37; border-style: double; box-shadow: 0 0 30px rgba(212,175,55,0.5); text-align: center; color: black; font-family: 'Playfair Display', serif; z-index: 102;">
+                <div id="certificate-container" style="background: white; width: 90%; max-width: 600px; padding: clamp(1rem, 3vw, 2rem); border: 15px solid #d4af37; border-style: double; box-shadow: 0 0 30px rgba(212,175,55,0.5); text-align: center; color: black; font-family: 'Playfair Display', serif; z-index: 102; box-sizing: border-box;">
                     <img src="https://images.unsplash.com/photo-1598284617181-4203da3b45a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="seal" style="width: 80px; height: 80px; margin: 0 auto 1rem auto; border-radius: 50%;">
                     <h1 style="color: #8b5a2b; font-size: 2.5rem; margin-bottom: 1rem; border-bottom: 2px solid #8b5a2b; padding-bottom: 0.5rem; display: inline-block;">수석 에코 디자이너 임명장</h1>
                     
@@ -625,9 +663,9 @@
             
             <!-- 에필로그 모달 -->
             <div id="epilogue-modal" class="modal hidden" style="z-index: 1000;">
-                <div class="modal-content" style="max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                <div class="modal-content" style="width: 90%; max-width: 600px; text-align: left; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
                     <h2 style="color: var(--accent-gold); margin-bottom: 1rem; text-align: center;">에필로그: 런칭쇼 그 후... 🌿</h2>
-                    <video src="엔딩 영상.mp4" controls autoplay style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
+                    <video id="epilogue-video" src="엔딩 영상.mp4" controls style="width: 100%; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--accent-gold);"></video>
                     <p style="line-height: 1.8; margin-bottom: 1rem; font-size: 1.1rem; color: #eee;">
                         여러분의 활약으로 RE:BRAND의 친환경 컬렉션 런칭쇼는 대성공을 거두었습니다!<br><br>
                         소비자들은 단순한 화려함을 넘어, <b>옷에 담긴 지구를 향한 배려와 5R의 가치</b>에 열광했습니다. 매출은 폭발적으로 증가했고, 언론은 '윤리적 패션의 승리'라며 찬사를 보냈습니다.<br><br>
@@ -665,7 +703,7 @@
 
             <!-- 실천적 추론 (키워드 자물쇠) 모달 -->
             <div id="reasoning-modal" class="modal hidden">
-                <div class="modal-content" style="max-width: 800px; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
+                <div class="modal-content" style="width: 95%; max-width: 800px; background: rgba(15, 17, 21, 0.95); border: 2px solid var(--accent-gold);">
                     <h2 id="reasoning-title" style="color: var(--accent-gold); margin-bottom: 1rem;">실천적 추론</h2>
                     <div id="reasoning-intro" style="line-height: 1.6; margin-bottom: 2rem; font-size: 1.05rem; text-align: left;"></div>
                     
@@ -698,7 +736,7 @@
 
             <!-- 3단계 완료 및 암호 발급 모달 -->
             <div id="stage3-success-modal" class="modal hidden">
-                <div class="modal-content" style="max-width: 500px; text-align: center; border: 2px solid #4caf50;">
+                <div class="modal-content" style="width: 90%; max-width: 500px; text-align: center; border: 2px solid #4caf50;">
                     <h2 style="color: #4caf50; margin-bottom: 1rem;">🎉 3단계 미션 완료!</h2>
                     <p style="font-size: 1.1rem; margin-bottom: 1rem;">모든 미션을 완벽하게 수행했습니다.</p>
                     <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
@@ -716,7 +754,7 @@
             <!-- Screen QR: QR 조각 찾기 화면 -->
             <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 500px; text-align: center;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); width: 95%; max-width: 500px; text-align: center; margin: 0 auto;">
                         <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">🔎 조각 찾기 미션!</h2>
                         <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
                             교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>스캔 후 나타나는 <strong>'숨겨진 메시지'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
@@ -743,7 +781,7 @@
                 <div style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
                     <h1 style="color: var(--accent-gold); margin-bottom: 2rem; font-family: 'Playfair Display', serif; font-size: 2.5rem;">RE:BRAND 컬렉션 완성도</h1>
                     
-                    <div id="fabric-puzzle-container" style="display: flex; width: 80%; max-width: 1000px; height: 500px; background: rgba(255,255,255,0.05); border: 4px solid #333; border-radius: 8px; overflow: hidden; position: relative; transition: transform 1s ease;">
+                    <div id="fabric-puzzle-container" style="display: flex; width: 100%; max-width: 1000px; height: 50vh; min-height: 400px; background: rgba(255,255,255,0.05); border: 4px solid #333; border-radius: 8px; overflow: hidden; position: relative; transition: transform 1s ease;">
                         <!-- JS에서 부서 수만큼 6등분 슬롯 자동 생성 -->
                     </div>
 
@@ -763,7 +801,7 @@
                     </header>
 
                     <div class="mission-container">
-                        <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 700px; margin: 0 auto; text-align: left;">
+                        <div class="mission-card" style="background: rgba(0,0,0,0.85); width: 95%; max-width: 700px; margin: 0 auto; text-align: left;">
                             <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">1. 직접 디자인 그리기 / 파일 업로드</h3>
                             <p style="color: #ccc; margin-bottom: 1rem; font-size: 0.95rem;">나에게 어울리는 옷차림을 아래 캔버스에 직접 그리거나, 이미 그린 사진을 업로드해주세요.</p>
                             
@@ -888,7 +926,7 @@
             <!-- Screen 7: 활동 소감 -->
             <section id="screen-7" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; display: flex; flex-direction: column; justify-content: center;">
-                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 600px; margin: 0 auto; text-align: left;">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); width: 95%; max-width: 600px; margin: 0 auto; text-align: left;">
                         <h2 style="color: var(--accent-gold); margin-bottom: 2rem; text-align: center;">오늘의 미션 소감 📝</h2>
                         
                         <div style="margin-bottom: 1.5rem;">

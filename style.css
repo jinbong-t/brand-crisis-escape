@@ -134,6 +134,7 @@ body {
 ================================== */
 .paperdoll-studio-container {
     display: flex;
+    flex-wrap: wrap;
     gap: 2rem;
     align-items: flex-start;
     justify-content: center;
@@ -149,10 +150,12 @@ body {
     margin-bottom: 1rem;
     padding: 0.8rem;
     border: 2px dashed rgba(139,90,43,0.5);
+    flex: 1;
+    min-width: 250px;
 }
 
 .closet-label {
-    font-size: 0.85rem;
+    font-size: clamp(0.85rem, 2vw, 1rem);
     color: #5a3a1b;
     font-weight: bold;
     margin-bottom: 0.5rem;
@@ -161,17 +164,17 @@ body {
 
 .shelf-items {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.3rem;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 0.5rem;
 }
 
 .paperdoll-item {
     background: white;
     border: 2px solid #c7a477;
     border-radius: 6px;
-    padding: 0.2rem;
+    padding: 0.4rem;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
     color: #5a3a1b;
     cursor: grab;
     transition: transform 0.1s;
@@ -179,6 +182,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    touch-action: none; /* 모바일 드래그 폴리필용 */
 }
 
 .paperdoll-item:active {
@@ -191,8 +195,10 @@ body {
 }
 
 .avatar-section {
-    width: 280px;
-    height: 500px;
+    width: 100%;
+    max-width: 320px;
+    min-height: 500px;
+    aspect-ratio: 9/16;
     border-radius: 16px;
     background-image: url('avatar_base.png');
     background-size: cover;
@@ -202,6 +208,7 @@ body {
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
+    margin: 0 auto;
 }
 
 .avatar-section.dragover {
@@ -212,7 +219,7 @@ body {
 
 .avatar-section.dragover .dropzone-hint {
     color: #ff0055;
-    font-size: 1rem;
+    font-size: clamp(1rem, 3vw, 1.2rem);
 }
 
 .avatar-slot {
@@ -617,39 +624,69 @@ header {
     box-shadow: none;
 }
 
-/* 태블릿 및 모바일 반응형 최적화 */
-@media (max-width: 768px) {
+/* 태블릿 및 모바일 반응형 최적화 (공통) */
+@media (max-width: 1024px) {
     .splash-title {
-        font-size: 3.5rem;
+        font-size: clamp(3rem, 6vw, 4.5rem);
     }
     .splash-subtitle {
-        font-size: 1rem;
-    }
-    .genius-text {
-        font-size: 2rem;
+        font-size: clamp(1rem, 2vw, 1.5rem);
     }
     .game-title {
-        font-size: 2.5rem;
-    }
-    .subtitle {
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
+        font-size: clamp(2rem, 4vw, 3.5rem);
     }
     .grid-container {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .splash-title {
+        font-size: clamp(2.5rem, 8vw, 3.5rem);
+    }
+    .genius-text {
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+    }
+    .subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 1rem;
     }
     .dept-card, .role-card {
-        padding: 1.5rem 1rem;
+        padding: 1.2rem 0.8rem;
     }
     .dept-card h3, .role-card h3 {
-        font-size: 1.2rem;
+        font-size: clamp(1.1rem, 3vw, 1.3rem);
     }
     header {
-        padding: 0.8rem 1rem;
+        padding: 0.6rem 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
     .brand-logo {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* 좁은 모바일(세로) 특수 처리 */
+@media (max-width: 480px) {
+    .inventory {
+        justify-content: center;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    .header-right {
+        width: 100%;
     }
 }
 

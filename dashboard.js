@@ -788,12 +788,20 @@ function renderControlTab() {
 // 5. 원단 QR 관리 탭
 // ==========================================
 function renderFabricTab() {
-    // 게임 URL 자동 감지
+    // 게임 URL 불러오기 및 설정
     const urlInput = document.getElementById('game-url-input');
-    if (urlInput && !urlInput.value) {
-        // dashboard.html이 있는 경로에서 index.html로 URL 자동 설정
-        const baseUrl = window.location.href.replace(/dashboard\.html.*$/, 'index.html');
-        urlInput.value = baseUrl + '?qr=true';
+    if (urlInput) {
+        // Firebase에서 저장된 URL 확인
+        const qrConfigRef = doc(db, `classes/${activeClass}/global`, 'qrConfig');
+        getDoc(qrConfigRef).then(qrConfigSnap => {
+            if (qrConfigSnap.exists() && qrConfigSnap.data().savedGameUrl) {
+                urlInput.value = qrConfigSnap.data().savedGameUrl;
+            } else if (!urlInput.value) {
+                // 저장된 값이 없으면 자동 감지
+                const baseUrl = window.location.href.replace(/dashboard\.html.*$/, 'index.html');
+                urlInput.value = baseUrl + '?qr=true';
+            }
+        }).catch(e => console.error(e));
     }
 
     // 부서별 비번 입력칸 동적 생성 (Firebase에서 부서 목록 로드)
@@ -802,11 +810,37 @@ function renderFabricTab() {
     watchFabricPieces();
 }
 
+// QR 게임 URL 수동 저장 버튼
+document.getElementById('btn-save-qr-url')?.addEventListener('click', async () => {
+    const urlInput = document.getElementById('game-url-input');
+    const gameUrl = urlInput?.value.trim();
+    if (!gameUrl) return alert('게임 URL을 입력해주세요.');
+
+    try {
+        await setDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'), {
+            savedGameUrl: gameUrl
+        }, { merge: true });
+        alert('QR 스캔 전용 주소가 저장되었습니다!');
+    } catch (e) {
+        console.error("URL 저장 실패:", e);
+        alert('저장에 실패했습니다.');
+    }
+});
+
 // QR 생성 버튼
 document.getElementById('btn-gen-qr')?.addEventListener('click', async () => {
     const urlInput = document.getElementById('game-url-input');
     const gameUrl = urlInput?.value.trim();
     if (!gameUrl) return alert('게임 URL을 확인해주세요.');
+
+    // QR 생성 시 입력된 URL을 Firebase에 저장
+    try {
+        await setDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'), {
+            savedGameUrl: gameUrl
+        }, { merge: true });
+    } catch (e) {
+        console.error("URL 저장 실패:", e);
+    }
 
     const grid = document.getElementById('qr-cards-grid');
     const container = document.getElementById('qr-cards-container');
@@ -871,8 +905,18 @@ document.getElementById('btn-gen-qr')?.addEventListener('click', async () => {
 
             // QR 생성 (qrcodejs)
             try {
+                // 부서별로 다른 URL 생성 (deptId 파라미터 추가)
+                let deptQrUrl = gameUrl;
+                if (deptQrUrl.includes('?qr=true')) {
+                    deptQrUrl += '&deptId=' + encodeURIComponent(deptId);
+                } else if (deptQrUrl.includes('?')) {
+                    deptQrUrl += '&qr=true&deptId=' + encodeURIComponent(deptId);
+                } else {
+                    deptQrUrl += '?qr=true&deptId=' + encodeURIComponent(deptId);
+                }
+
                 new QRCode(qrInner, {
-                    text: gameUrl,
+                    text: deptQrUrl,
                     width: 160,
                     height: 160,
                     colorDark: '#000000',

@@ -164,6 +164,112 @@ function clearSessionState() {
     sessionStorage.removeItem('currentRole');
 }
 
+// ==========================================
+// QR 인증 모드 처리
+// ==========================================
+const urlParams = new URLSearchParams(window.location.search);
+const isQrMode = urlParams.get('qr') === 'true';
+
+if (isQrMode) {
+    document.addEventListener('DOMContentLoaded', () => {
+        // QR 모드일 때는 백그라운드에서 실행되는 영상/음악을 완전히 차단 (보물 효과음만 예외)
+        const originalPlay = HTMLMediaElement.prototype.play;
+        HTMLMediaElement.prototype.play = function() {
+            if (this.src && this.src.includes('fairy_glissando')) {
+                return originalPlay.call(this); // 요정 소리만 허용
+            }
+            return Promise.resolve(); // 나머지는 모두 차단
+        };
+
+        // DOM에 이미 있는 미디어들도 강제 일시정지 및 음소거
+        document.querySelectorAll('video, audio').forEach(media => {
+            media.pause();
+            media.muted = true;
+            media.removeAttribute('autoplay');
+        });
+        
+        // 파이어베이스 이벤트로 인해 모달이 강제로 뜨는 것을 원천 차단
+        const style = document.createElement('style');
+        style.innerHTML = '#intro-modal, #epilogue-modal, #twist-modal { display: none !important; }';
+        document.head.appendChild(style);
+
+        document.getElementById('screen-splash').classList.add('hidden');
+        document.getElementById('screen-qr').classList.remove('hidden');
+        
+        const authSection = document.getElementById('qr-auth-section');
+        
+        document.getElementById('btn-submit-qr-pw').addEventListener('click', async () => {
+            const inputPw = document.getElementById('qr-password-input').value.trim();
+            if (!inputPw) return;
+            
+            try {
+                const qrConfigRef = doc(db, `classes/${activeClass}/global`, 'qrConfig');
+                const qrConfigSnap = await getDoc(qrConfigRef);
+                
+                let foundDept = null;
+                const targetDeptId = urlParams.get('deptId');
+                
+                if (qrConfigSnap.exists() && qrConfigSnap.data().deptPasswords) {
+                    const pws = qrConfigSnap.data().deptPasswords;
+                    
+                    if (targetDeptId) {
+                        // QR 코드에 할당된 부서가 있는 경우, 해당 부서 비번만 대조
+                        if (pws[targetDeptId] && pws[targetDeptId] === inputPw) {
+                            foundDept = targetDeptId;
+                        }
+                    } else {
+                        // 예전 방식(파라미터 없는 QR) 대비 안전장치: 전체 순회
+                        for (const [deptId, pw] of Object.entries(pws)) {
+                            if (pw && pw === inputPw) {
+                                foundDept = deptId;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (foundDept) {
+                    // 성공: pieces/{deptId} 에 unlocked: true 기록
+                    const pieceRef = doc(db, `classes/${activeClass}/pieces`, foundDept);
+                    await setDoc(pieceRef, { unlocked: true }, { merge: true });
+                    
+                    authSection.classList.add('hidden');
+                    document.getElementById('qr-success-section').classList.remove('hidden');
+                    
+                    // ✨ 보물 발견 효과음 재생
+                    const treasureAudio = new Audio('https://actions.google.com/sounds/v1/magic/fairy_glissando.ogg');
+                    treasureAudio.volume = 0.5;
+                    treasureAudio.play().catch(e => console.log('오디오 자동재생 방지됨:', e));
+                    
+                    // 성공 메시지 및 단서 렌더링
+                    document.getElementById('qr-success-dept').textContent = `[${foundDept}] 원단 획득!`;
+                    const clue = (typeof PUZZLE_DATA !== 'undefined' && PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[foundDept]) 
+                                    ? PUZZLE_DATA.qrMessages[foundDept] 
+                                    : '팀원들과 힘을 합쳐 다음 단계를 진행하세요.';
+                    document.getElementById('qr-success-message').innerHTML = `💡 획득한 단서:<br>"${clue}"`;
+                    
+                    try {
+                        await updateDoc(getDeptDocRef(foundDept), { qrScanned: true });
+                    } catch(e) { console.error(e); }
+                    
+                } else {
+                    const errMsg = document.getElementById('qr-error-msg');
+                    errMsg.classList.remove('hidden');
+                    setTimeout(() => errMsg.classList.add('hidden'), 3000);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("인증 처리 중 오류가 발생했습니다.");
+            }
+        });
+        
+        // 메인 게임으로 돌아가기 버튼
+        document.getElementById('btn-qr-to-main')?.addEventListener('click', () => {
+            window.location.href = window.location.pathname;
+        });
+    });
+}
+
 // 기본 부서 목록
 const DEFAULT_DEPTS = [
     { id: 'dept-1', name: '디자인기획부' },
@@ -266,25 +372,32 @@ async function selectDepartment(dept) {
     checkRoleAvailability();
 }
 
-// 직급 활성화 상태 확인
-async function checkRoleAvailability() {
-    roleCards.forEach(async (card) => {
+// 직급 활성화 상태 및 학생 이름 실시간 확인
+let roleUnsubscribes = [];
+function checkRoleAvailability() {
+    // 이전 리스너들 정리
+    roleUnsubscribes.forEach(unsub => unsub());
+    roleUnsubscribes = [];
+    
+    roleCards.forEach((card) => {
         const role = card.getAttribute('data-role');
         const roleRef = getRoleDocRef(currentDeptId, role);
-        const snap = await getDoc(roleRef);
         
-        let studentName = "";
-        if (snap.exists() && snap.data().studentName) {
-            studentName = `<br><span style="color:#d4af37; font-size:0.9rem;">👤 ${snap.data().studentName}</span>`;
-        }
-        
-        if (snap.exists() && snap.data().taken) {
-            card.disabled = true;
-            card.innerHTML = `<h3>${role}</h3><p>(선택 완료)${studentName}</p>`;
-        } else {
-            card.disabled = false;
-            card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}${studentName}</p>`;
-        }
+        const unsub = onSnapshot(roleRef, (snap) => {
+            let studentName = "";
+            if (snap.exists() && snap.data().studentName) {
+                studentName = `<br><span style="color:#d4af37; font-size:1.0rem; font-weight:bold; display:block; margin-top:0.5rem;">👤 ${snap.data().studentName}</span>`;
+            }
+            
+            if (snap.exists() && snap.data().taken) {
+                card.disabled = true;
+                card.innerHTML = `<h3>${role}</h3><p>(선택 완료)${studentName}</p>`;
+            } else {
+                card.disabled = false;
+                card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}${studentName}</p>`;
+            }
+        });
+        roleUnsubscribes.push(unsub);
     });
 }
 
@@ -649,9 +762,9 @@ function startScreen1() {
 
     introModal.classList.remove('hidden');
     
-    // 영상 자동 재생 시도
+    // 영상은 학생이 직접 재생 버튼을 눌러서 보도록 자동 재생 시도 코드를 제거함
     if (introVideo) {
-        introVideo.play().catch(e => console.log("자동 재생 방지됨", e));
+        introVideo.pause();
     }
 
     renderOpeningCards();
