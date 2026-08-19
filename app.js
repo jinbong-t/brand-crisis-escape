@@ -1693,6 +1693,16 @@ function startScreen5() {
             item.addEventListener('dragend', () => {
                 item.style.opacity = '1';
             });
+            
+            // 모바일/태블릿용 터치/클릭 지원
+            const handleSelect = (e) => {
+                e.preventDefault();
+                draggables.forEach(d => d.style.boxShadow = 'none');
+                item.style.boxShadow = '0 0 10px 3px var(--accent-gold)';
+                window.selected5RItemForTouch = item.getAttribute('data-val');
+            };
+            item.addEventListener('click', handleSelect);
+            item.addEventListener('touchstart', handleSelect, {passive: false});
         });
         
         // ------------------------------------
@@ -1741,6 +1751,31 @@ function startScreen5() {
                     checkManagerStage4Complete();
                 }
             });
+            
+            // 모바일/태블릿용 터치/클릭 지원
+            const handleDrop = (e) => {
+                e.preventDefault();
+                if (window.selected5RItemForTouch) {
+                    slot.textContent = window.selected5RItemForTouch;
+                    slot.style.border = '2px solid #4caf50';
+                    slot.style.color = '#fff';
+                    selected5R[index] = window.selected5RItemForTouch;
+                    checkManagerStage4Complete();
+                    
+                    // 선택 초기화
+                    window.selected5RItemForTouch = null;
+                    draggables.forEach(d => d.style.boxShadow = 'none');
+                } else if (selected5R[index]) {
+                    // 이미 값이 있고 선택된 것이 없다면 비우기
+                    slot.textContent = (index + 1) + "순위";
+                    slot.style.border = '2px dashed #666';
+                    slot.style.color = '#888';
+                    selected5R[index] = null;
+                    checkManagerStage4Complete();
+                }
+            };
+            slot.addEventListener('click', handleDrop);
+            slot.addEventListener('touchstart', handleDrop, {passive: false});
         });
         
         scoreInput.addEventListener('input', checkManagerStage4Complete);
