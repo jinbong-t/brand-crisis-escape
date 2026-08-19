@@ -1027,11 +1027,23 @@ input:focus {
     .flip-card-back {
         font-size: 2rem;
     }
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .flip-card {
+        width: 100px;
+        height: 140px;
+    }
+    .flip-card-front p {
+        font-size: 0.75rem;
+    }
+    .flip-card-back {
+        font-size: 2rem;
+    }
     .card-container {
         gap: 0.5rem;
     }
 }
 
-. n o - s c r o l l b a r : : - w e b k i t - s c r o l l b a r   {   d i s p l a y :   n o n e ;   }  
- . n o - s c r o l l b a r   {   - m s - o v e r f l o w - s t y l e :   n o n e ;   s c r o l l b a r - w i d t h :   n o n e ;   }  
- 
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

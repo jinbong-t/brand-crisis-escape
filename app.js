@@ -57,7 +57,8 @@ window.playSound = function(type) {
 // 모든 버튼 클릭 시 기본 효과음 적용
 document.addEventListener('click', (e) => {
     const target = e.target.closest('button, .role-card, .dept-btn, .item-5r, .slot-5r, .card');
-    if (target) {
+    // 사용자의 요청으로 인트로 화면 버튼은 효과음 제외
+    if (target && target.id !== 'btn-intro-next' && target.id !== 'close-intro-modal') {
         playSound('click');
     }
 }, { capture: true });
@@ -2735,6 +2736,32 @@ function showFabricPieceReveal() {
 const btnSubmitQr = document.getElementById('btn-submit-qr');
 if (btnSubmitQr) {
     btnSubmitQr.addEventListener('click', window.submitQr);
+}
+
+const btnBypassQr = document.getElementById('btn-bypass-qr');
+if (btnBypassQr) {
+    btnBypassQr.addEventListener('click', async () => {
+        if (confirm("네트워크 오류 등으로 스캔이 불가능한 경우에만 수동 패스를 이용하세요. 강제로 다음 단계로 넘어가시겠습니까?")) {
+            const qrErrorMsg = document.getElementById('qr-error-msg');
+            const qrPasswordInput = document.getElementById('qr-password-input');
+            if (qrErrorMsg) qrErrorMsg.classList.add('hidden');
+            if (btnSubmitQr) btnSubmitQr.classList.add('hidden');
+            if (qrPasswordInput) qrPasswordInput.disabled = true;
+            btnBypassQr.classList.add('hidden');
+            
+            showFabricPieceReveal();
+            
+            try {
+                const { setDoc, doc } = await import('./firebase-config.js');
+                await setDoc(getPieceDocRef(currentDeptId), { 
+                    unlocked: true, 
+                    unlockedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.error('Error updating piece via bypass:', e);
+            }
+        }
+    });
 }
 
 const btnGoToPersonal = document.getElementById('btn-go-to-personal');
