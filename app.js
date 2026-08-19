@@ -3197,7 +3197,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     video.removeAttribute('data-src');
                     video.load();
                 }
-                video.pause(); // 자동 재생 금지
+                video.play().catch(e => {
+                    console.log('자동재생 차단됨 (브라우저 정책):', e);
+                    // 자동재생 차단 시 컨트롤바로 직접 재생 유도
+                });
             }
             return;
         }
@@ -3260,7 +3263,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     video2.removeAttribute('data-src');
                     video2.load();
                 }
-                video2.pause(); // 자동 재생 금지
+                video2.play().catch(e => {
+                    console.log('자동재생 차단됨 (브라우저 정책):', e);
+                });
             }
             
         } catch(e) {
@@ -3283,7 +3288,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 video3.removeAttribute('data-src');
                 video3.load();
             }
-            video3.pause(); // 자동 재생 금지
+            video3.play().catch(e => {
+                    console.log('자동재생 차단됨 (브라우저 정책):', e);
+                });
         }
     });
 
