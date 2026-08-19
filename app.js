@@ -414,6 +414,19 @@ function getRoleDesc(role) {
 roleCards.forEach(card => {
     card.addEventListener('click', async () => {
         if (card.disabled) return;
+        
+        // 브라우저 정책(오디오 자동 재생 제한) 우회를 위해 사용자 클릭 시점에 미리 미디어 권한 획득
+        if (introVideo) {
+            introVideo.muted = false;
+            let playPromise = introVideo.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    introVideo.pause();
+                    introVideo.currentTime = 0;
+                }).catch(e => console.log("Audio context unlock failed:", e));
+            }
+        }
+        
         const role = card.getAttribute('data-role');
         
         try {
