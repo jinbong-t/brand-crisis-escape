@@ -693,7 +693,11 @@ function renderControlTab() {
             const snap = await getDoc(ref);
             if (snap.exists()) {
                 const stage = snap.data().currentStage || 1;
-                await updateDoc(ref, { currentStage: stage + 1 });
+                await updateDoc(ref, { 
+                    currentStage: stage + 1,
+                    showStage1Reasoning: false,
+                    showStage3Reasoning: false
+                });
                 alert(`${deptId} 부서를 강제로 Stage ${stage + 1}로 넘겼습니다.`);
             }
         } catch(e) {

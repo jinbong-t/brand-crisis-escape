@@ -84,6 +84,7 @@ window.alert = function(message) {
 let firstNoticeLoad = true;
 let noticeUnsub = null;
 let stateUnsub = null;
+let lastSeenNoticeTimestamp = 0;
 window.localUpdateTimestamp = 0;
 
 function setupClassListeners(className) {
@@ -94,8 +95,12 @@ function setupClassListeners(className) {
     noticeUnsub = onSnapshot(doc(db, `classes/${className}/global`, 'notice'), (noticeSnap) => {
         if (noticeSnap.exists()) {
             const noticeData = noticeSnap.data();
-            if (!firstNoticeLoad && noticeData.message) {
-                alert(`📢 [선생님 전체 공지]\\n\\n${noticeData.message}`);
+            if (noticeData.timestamp) {
+                // 첫 로드가 아니고, 기존에 본 공지보다 최신 공지인 경우에만 알림 띄움
+                if (!firstNoticeLoad && noticeData.timestamp > lastSeenNoticeTimestamp && noticeData.message) {
+                    alert(`📢 [선생님 공지]\n\n${noticeData.message}`);
+                }
+                lastSeenNoticeTimestamp = noticeData.timestamp;
             }
             firstNoticeLoad = false;
         }
@@ -2485,7 +2490,18 @@ async function initApp() {
                         if (s6) s6.classList.remove('hidden');
                         document.getElementById('display-current-role-stage6').textContent = currentRole;
                         initCanvas();
+                    } else if (stage === 6) {
+                        const s7 = document.getElementById('screen-7');
+                        if (s7) s7.classList.remove('hidden');
+                    } else if (stage === 7) {
+                        const ending = document.getElementById('screen-ending');
+                        if (ending) ending.classList.remove('hidden');
                     }
+                    
+                    // 강제 패스 등 비정상적인 단계 이동 시 띄워져 있던 모달 강제 종료 (reasoning은 아래에서 별도 제어)
+                    document.getElementById('stage3-success-modal')?.classList.add('hidden');
+                    document.getElementById('twist-modal')?.classList.add('hidden');
+                    document.getElementById('intro-modal')?.classList.add('hidden');
                 } 
                 // 2. Stage는 같은데 팝업(Reasoning Modal) 상태만 바뀌었을 때 (화면 유지, 팝업만 띄움/닫음)
                 else {
