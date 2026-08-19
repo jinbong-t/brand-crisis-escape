@@ -2756,11 +2756,7 @@ if (btnStartScanner) {
         if (typeof Html5QrcodeScanner !== 'undefined') {
             html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
             html5QrcodeScanner.render((decodedText, decodedResult) => {
-                // 스캔 성공 시
-                const qrPasswordInput = document.getElementById('qr-password-input');
-                if (qrPasswordInput) qrPasswordInput.value = decodedText;
-                
-                // 스캐너 종료
+                // 스캐너 즉시 종료
                 if (html5QrcodeScanner) {
                     html5QrcodeScanner.clear().catch(e => console.error(e));
                     html5QrcodeScanner = null;
@@ -2768,7 +2764,41 @@ if (btnStartScanner) {
                 qrReaderContainer.classList.add('hidden');
                 btnStartScanner.classList.remove('hidden');
                 
-                // 자동 제출
+                // 1. 스캔된 텍스트가 선생님이 만든 QR 링크(URL)인 경우
+                if (decodedText.includes('deptId=')) {
+                    const match = decodedText.match(/deptId=([^&]+)/);
+                    if (match && match[1]) {
+                        const scannedDeptId = decodeURIComponent(match[1]);
+                        if (scannedDeptId === currentDeptId) {
+                            // 내 부서 조각이 맞으면 즉시 패스!
+                            playSound('success');
+                            showFabricPieceReveal();
+                            
+                            const qrErrorMsg = document.getElementById('qr-error-msg');
+                            const qrPasswordInput = document.getElementById('qr-password-input');
+                            if (qrErrorMsg) qrErrorMsg.classList.add('hidden');
+                            if (btnSubmitQr) btnSubmitQr.classList.add('hidden');
+                            if (qrPasswordInput) qrPasswordInput.disabled = true;
+                            
+                            import('./firebase-config.js').then(({ setDoc, doc }) => {
+                                setDoc(getPieceDocRef(currentDeptId), { 
+                                    unlocked: true, 
+                                    unlockedAt: new Date().toISOString()
+                                }, { merge: true });
+                            }).catch(console.error);
+                            
+                            return;
+                        } else {
+                            playSound('error');
+                            alert(`이건 다른 부서의 조각입니다! 현재 부서: ${currentDeptId}`);
+                            return;
+                        }
+                    }
+                }
+                
+                // 2. URL이 아니라 비밀번호 텍스트 자체를 스캔한 경우 (또는 그 외)
+                const qrPasswordInput = document.getElementById('qr-password-input');
+                if (qrPasswordInput) qrPasswordInput.value = decodedText;
                 if (btnSubmitQr) btnSubmitQr.click();
             }, (errorMessage) => {
                 // 스캔 실패(프레임별) - 무시
