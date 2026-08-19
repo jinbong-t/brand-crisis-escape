@@ -275,7 +275,7 @@ if (isQrMode) {
         const authSection = document.getElementById('qr-auth-section');
         
         document.getElementById('btn-submit-qr-pw').addEventListener('click', async () => {
-            const inputPw = document.getElementById('qr-password-input').value.trim();
+            const inputPw = document.getElementById('qr-password-input-standalone').value.trim();
             if (!inputPw) return;
             
             try {
@@ -288,15 +288,18 @@ if (isQrMode) {
                 if (qrConfigSnap.exists() && qrConfigSnap.data().deptPasswords) {
                     const pws = qrConfigSnap.data().deptPasswords;
                     
+                    const normalize = s => typeof s === 'string' ? s.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase() : '';
+                    const normInput = normalize(inputPw);
+                    
                     if (targetDeptId) {
                         // QR 코드에 할당된 부서가 있는 경우, 해당 부서 비번만 대조
-                        if (pws[targetDeptId] && pws[targetDeptId] === inputPw) {
+                        if (pws[targetDeptId] && normalize(pws[targetDeptId]) === normInput) {
                             foundDept = targetDeptId;
                         }
                     } else {
                         // 예전 방식(파라미터 없는 QR) 대비 안전장치: 전체 순회
                         for (const [deptId, pw] of Object.entries(pws)) {
-                            if (pw && pw === inputPw) {
+                            if (pw && normalize(pw) === normInput) {
                                 foundDept = deptId;
                                 break;
                             }
@@ -329,7 +332,8 @@ if (isQrMode) {
                     } catch(e) { console.error(e); }
                     
                 } else {
-                    const errMsg = document.getElementById('qr-error-msg');
+                    playSound('error');
+                    const errMsg = document.getElementById('qr-error-msg-standalone');
                     errMsg.classList.remove('hidden');
                     setTimeout(() => errMsg.classList.add('hidden'), 3000);
                 }
