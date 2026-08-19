@@ -897,31 +897,26 @@ document.getElementById('btn-gen-qr')?.addEventListener('click', async () => {
 
             // QR 코드 div (qrcodejs가 내부에 canvas/img 생성)
             const qrDiv = document.createElement('div');
-            qrDiv.style.cssText = 'display: flex; justify-content: center; margin-bottom: 0.8rem;';
+            qrDiv.style.cssText = 'display: flex; justify-content: center; margin-bottom: 0.8rem; background: white; padding: 8px; border-radius: 8px;';
             const qrInner = document.createElement('div');
             qrInner.id = `qr-${deptId}`;
             qrDiv.appendChild(qrInner);
             card.appendChild(qrDiv);
 
             // QR 생성 (qrcodejs)
+            let deptQrUrl = '';
             try {
-                // 부서별로 다른 URL 생성 (deptId 파라미터 추가)
-                let deptQrUrl = gameUrl;
-                if (deptQrUrl.includes('?qr=true')) {
-                    deptQrUrl += '&deptId=' + encodeURIComponent(deptId);
-                } else if (deptQrUrl.includes('?')) {
-                    deptQrUrl += '&qr=true&deptId=' + encodeURIComponent(deptId);
-                } else {
-                    deptQrUrl += '?qr=true&deptId=' + encodeURIComponent(deptId);
-                }
+                // URL에서 기존 qr/deptId 파라미터 정리 후 새로 추가
+                let baseGameUrl = gameUrl.split('?')[0];
+                deptQrUrl = baseGameUrl + '?qr=true&deptId=' + deptId;
 
                 new QRCode(qrInner, {
                     text: deptQrUrl,
-                    width: 160,
-                    height: 160,
+                    width: 220,
+                    height: 220,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.M
+                    correctLevel: QRCode.CorrectLevel.L
                 });
             } catch(e) {
                 qrInner.innerHTML = '<p style="color:red; font-size:0.8rem;">QR 생성 실패</p>';
@@ -934,12 +929,21 @@ document.getElementById('btn-gen-qr')?.addEventListener('click', async () => {
                 border: 1px solid ${color}88;
                 border-radius: 6px;
                 padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
+                font-size: 0.9rem;
                 color: #333;
                 margin-bottom: 0.4rem;
+                font-weight: bold;
             `;
-            pwBox.innerHTML = `🔑 비밀번호: <strong>${pw}</strong>`;
+            pwBox.innerHTML = `🔑 비밀번호: <strong style="font-size:1.1rem; color:${color};">${pw}</strong>`;
             card.appendChild(pwBox);
+
+            // URL 표시 (스캔 안 될 때 직접 입력용)
+            if (deptQrUrl) {
+                const urlNote = document.createElement('div');
+                urlNote.style.cssText = 'font-size: 0.6rem; color: #999; word-break: break-all; margin-bottom: 0.3rem; text-align: left; padding: 0 0.3rem;';
+                urlNote.textContent = '🔗 ' + deptQrUrl;
+                card.appendChild(urlNote);
+            }
 
             const note = document.createElement('div');
             note.style.cssText = 'font-size: 0.7rem; color: #aaa;';
@@ -979,14 +983,15 @@ document.getElementById('btn-print-qr')?.addEventListener('click', () => {
                 .card { border: 2px solid #333; border-radius: 12px; padding: 16px; text-align: center; page-break-inside: avoid; }
                 .card-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; }
                 .card-sub { font-size: 0.75rem; color: #666; margin-bottom: 10px; }
-                .card-qr { display: flex; justify-content: center; margin-bottom: 10px; }
-                .card-qr img, .card-qr canvas { width: 140px; height: 140px; }
-                .card-pw { background: #f5f5f5; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; margin-bottom: 4px; }
+                .card-qr { display: flex; justify-content: center; margin-bottom: 10px; background: white; padding: 4px; }
+                .card-qr img, .card-qr canvas { width: 200px !important; height: 200px !important; }
+                .card-pw { background: #f5f5f5; border-radius: 6px; padding: 6px 10px; font-size: 1rem; font-weight: bold; margin-bottom: 4px; }
                 .card-note { font-size: 0.7rem; color: #aaa; }
                 @media print {
                     body { padding: 10px; }
                     .grid { grid-template-columns: repeat(3, 1fr); }
                     .no-print { display: none; }
+                    .card-qr img, .card-qr canvas { width: 200px !important; height: 200px !important; }
                 }
             </style>
         </head>
