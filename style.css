@@ -26,6 +26,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden; /* 가로 스크롤 차단 */
 }
 
 /* 유틸리티 */
@@ -729,6 +730,12 @@ header {
     width: 90%;
     max-width: 500px;
     position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+    /* 스크롤바가 콘텐츠를 안 가리도록 */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-gold) transparent;
+    box-sizing: border-box;
 }
 .close-btn {
     position: absolute;

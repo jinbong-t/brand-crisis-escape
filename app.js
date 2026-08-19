@@ -277,9 +277,21 @@ if (isQrMode) {
         document.getElementById('btn-submit-qr-pw').addEventListener('click', async () => {
             const inputPw = document.getElementById('qr-password-input-standalone').value.trim();
             if (!inputPw) return;
+
+            // 버튼 비활성화 (중복 클릭 방지)
+            const submitBtn = document.getElementById('btn-submit-qr-pw');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '확인 중...';
             
             try {
-                const qrConfigRef = doc(db, `classes/${activeClass}/global`, 'qrConfig');
+                // ① activeClass를 Firebase에서 직접 조회 (비동기 동기화 문제 해결)
+                const globalConfigSnap = await getDoc(doc(db, 'global', 'config'));
+                let qrClass = activeClass; // 기본값
+                if (globalConfigSnap.exists() && globalConfigSnap.data().currentActiveSession) {
+                    qrClass = globalConfigSnap.data().currentActiveSession;
+                }
+                
+                const qrConfigRef = doc(db, `classes/${qrClass}/global`, 'qrConfig');
                 const qrConfigSnap = await getDoc(qrConfigRef);
                 
                 let foundDept = null;
@@ -309,7 +321,7 @@ if (isQrMode) {
                 
                 if (foundDept) {
                     // 성공: pieces/{deptId} 에 unlocked: true 기록
-                    const pieceRef = doc(db, `classes/${activeClass}/pieces`, foundDept);
+                    const pieceRef = doc(db, `classes/${qrClass}/pieces`, foundDept);
                     await setDoc(pieceRef, { unlocked: true }, { merge: true });
                     
                     authSection.classList.add('hidden');
@@ -328,17 +340,21 @@ if (isQrMode) {
                     document.getElementById('qr-success-message').innerHTML = `💡 획득한 단서:<br>"${clue}"`;
                     
                     try {
-                        await updateDoc(getDeptDocRef(foundDept), { qrScanned: true });
+                        await updateDoc(doc(db, `classes/${qrClass}/departments`, foundDept), { qrScanned: true });
                     } catch(e) { console.error(e); }
                     
                 } else {
                     playSound('error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '확인';
                     const errMsg = document.getElementById('qr-error-msg-standalone');
                     errMsg.classList.remove('hidden');
                     setTimeout(() => errMsg.classList.add('hidden'), 3000);
                 }
             } catch (e) {
                 console.error(e);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '확인';
                 alert("인증 처리 중 오류가 발생했습니다.");
             }
         });
@@ -2064,13 +2080,14 @@ function startScreen5() {
 
     const btnCloseStage3Success = document.getElementById('btn-close-stage3-success');
     if (btnCloseStage3Success) {
-        btnCloseStage3Success.onclick = () => {
-            document.getElementById('stage3-success-modal').classList.add('hidden');
-            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-            document.getElementById('screen-qr').classList.remove('hidden');
-            document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
-        };
+        // 버튼 숨기기 - 스캔은 스마트폰으로 하고 자동으로 넘어감
+        btnCloseStage3Success.style.display = 'none';
+        // 대신 대기 메시지 표시
+        const waitingMsg = document.getElementById('stage3-waiting-msg');
+        if (waitingMsg) {
+            waitingMsg.classList.remove('hidden');
+            waitingMsg.innerHTML = '📱 팀원이 QR을 스캔하면 자동으로 다음 단계로 넘어갑니다!';
+        }
     }
 }
 
