@@ -4,6 +4,81 @@ import { PUZZLE_DATA } from './puzzle-data.js?v=5.0';
 // 글로벌 학급 설정 (기본값)
 let activeClass = '3-1';
 
+// Web Audio API를 활용한 효과음 시스템
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+window.playSound = function(type) {
+    if (!audioCtx) return;
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+    }
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now);
+        osc.stop(now + 0.1);
+    } else if (type === 'success') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.setValueAtTime(600, now + 0.1);
+        osc.frequency.setValueAtTime(800, now + 0.2);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+    } else if (type === 'error') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.setValueAtTime(100, now + 0.2);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'modal') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+        gainNode.gain.setValueAtTime(0.05, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+    }
+};
+
+// 모든 버튼 클릭 시 기본 효과음 적용
+document.addEventListener('click', (e) => {
+    const target = e.target.closest('button, .role-card, .dept-btn, .item-5r, .slot-5r, .card');
+    if (target) {
+        playSound('click');
+    }
+}, { capture: true });
+
+// alert 창이 뜰 때 내용에 따라 자동으로 상황별 효과음 재생
+const originalAlert = window.alert;
+window.alert = function(message) {
+    if (typeof message === 'string') {
+        if (message.includes('정답') || message.includes('성공') || message.includes('🎉') || message.includes('완벽')) {
+            playSound('success');
+        } else if (message.includes('오답') || message.includes('틀렸') || message.includes('오류')) {
+            playSound('error');
+        } else {
+            playSound('modal');
+        }
+    }
+    originalAlert(message);
+};
+
+
+
 // 글로벌 학급 설정 실시간 동기화
 let firstNoticeLoad = true;
 let noticeUnsub = null;
