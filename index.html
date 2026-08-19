@@ -24,6 +24,9 @@
         });
         // 태블릿 세로 스크롤 이슈를 일으키던 touchmove 이벤트 제거
     </script>
+    <!-- QR 스캐너 라이브러리 추가 -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
 <body>
     <!-- 현재 학급 워터마크 (교사 확인용) -->
     <div id="active-class-watermark" style="position: fixed; top: 10px; right: 20px; font-size: 1.5rem; font-weight: bold; color: rgba(255, 255, 255, 0.15); z-index: 1000; pointer-events: none; font-family: 'Noto Sans KR', sans-serif;"></div>
@@ -70,6 +73,8 @@
                             
                             <button id="btn-submit-qr-pw" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem; border-radius: 8px;">확인</button>
                             <p id="qr-error-msg-standalone" class="error-text hidden" style="margin-top: 1rem; font-size: 0.95rem; word-break: keep-all; line-height: 1.4;">비밀번호가 틀렸습니다.<br>부서에 맞는 원단 조각을 찾으러 갑니다!</p>
+                            
+                            <button id="btn-bypass-qr-standalone" class="btn-text" style="margin-top: 1.5rem; color: #888; text-decoration: underline; font-size: 0.9rem; background: none; border: none; cursor: pointer;">스캔이 안 되나요? (수동 패스)</button>
                         </div>
                         
                         <div id="qr-success-section" class="hidden">
@@ -762,7 +767,15 @@
                         <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
                             교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>스캔 후 나타나는 <strong>'숨겨진 메시지'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
                         </p>
-                        <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 입력 (띄어쓰기 포함)" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
+                        
+                        <!-- 웹캠 내장 QR 스캐너 -->
+                        <button id="btn-start-scanner" class="btn-secondary" style="margin-bottom: 1rem; width: 80%; background-color: #2c3e50; color: white; border-color: var(--accent-gold);">📷 기기 카메라로 직접 스캔하기</button>
+                        <div id="qr-reader-container" class="hidden" style="width: 100%; max-width: 400px; margin: 0 auto 1.5rem auto; background: white; border-radius: 8px; overflow: hidden; padding: 0.5rem;">
+                            <div id="qr-reader" style="width: 100%;"></div>
+                            <button id="btn-stop-scanner" class="btn-text" style="margin-top: 0.5rem; color: #e74c3c; width: 100%;">스캐너 닫기 ❌</button>
+                        </div>
+
+                        <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 직접 입력" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
                         <div style="position: relative; display: inline-block; width: 80%;">
                             <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">잠금 해제</button>
                             <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>

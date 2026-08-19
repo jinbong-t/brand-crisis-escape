@@ -2742,6 +2742,58 @@ if (btnSubmitQr) {
     btnSubmitQr.addEventListener('click', window.submitQr);
 }
 
+// 웹캠 내장 QR 스캐너 로직
+let html5QrcodeScanner = null;
+const btnStartScanner = document.getElementById('btn-start-scanner');
+const btnStopScanner = document.getElementById('btn-stop-scanner');
+const qrReaderContainer = document.getElementById('qr-reader-container');
+
+if (btnStartScanner) {
+    btnStartScanner.addEventListener('click', () => {
+        qrReaderContainer.classList.remove('hidden');
+        btnStartScanner.classList.add('hidden');
+        
+        if (typeof Html5QrcodeScanner !== 'undefined') {
+            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+            html5QrcodeScanner.render((decodedText, decodedResult) => {
+                // 스캔 성공 시
+                const qrPasswordInput = document.getElementById('qr-password-input');
+                if (qrPasswordInput) qrPasswordInput.value = decodedText;
+                
+                // 스캐너 종료
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.clear().catch(e => console.error(e));
+                    html5QrcodeScanner = null;
+                }
+                qrReaderContainer.classList.add('hidden');
+                btnStartScanner.classList.remove('hidden');
+                
+                // 자동 제출
+                if (btnSubmitQr) btnSubmitQr.click();
+            }, (errorMessage) => {
+                // 스캔 실패(프레임별) - 무시
+            });
+        } else {
+            alert("QR 스캐너 라이브러리를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.");
+        }
+    });
+}
+
+if (btnStopScanner) {
+    btnStopScanner.addEventListener('click', () => {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear().catch(e => console.error(e));
+            html5QrcodeScanner = null;
+        }
+        qrReaderContainer.classList.add('hidden');
+        btnStartScanner.classList.remove('hidden');
+        
+        // 라이브러리가 만들어놓은 내부 요소 초기화 (버그 방지)
+        const qrReader = document.getElementById('qr-reader');
+        if (qrReader) qrReader.innerHTML = '';
+    });
+}
+
 const btnBypassQr = document.getElementById('btn-bypass-qr');
 if (btnBypassQr) {
     btnBypassQr.addEventListener('click', async () => {
