@@ -2061,19 +2061,56 @@ function startScreen5() {
                 
                 successModal.classList.remove('hidden');
 
-                // 누군가 QR을 찍어 조각을 획득하면 모두가 6단계로 넘어감
+                // 누군가 QR을 찍어 조각을 획득하면 모두가 단서를 보고 6단계로 넘어감
                 const unsub = onSnapshot(getPieceDocRef(currentDeptId), (pieceSnap) => {
                     if (pieceSnap.exists() && pieceSnap.data().unlocked) {
                         unsub();
-                        document.getElementById('stage3-success-modal').classList.add('hidden');
-                        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                        document.getElementById('screen-6').classList.remove('hidden');
-                        document.getElementById('display-current-role-stage6').textContent = currentRole;
-                        initCanvas(); // 캔버스 초기화 추가
-                        alert('🎉 팀원이 조각을 성공적으로 찾았습니다! 다음 미션으로 넘어갑니다.');
+                        
+                        // 획득한 단서 메시지 가져오기 (부서 이름으로 조회)
+                        const clue = (typeof PUZZLE_DATA !== 'undefined' && PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[currentDeptName])
+                            ? PUZZLE_DATA.qrMessages[currentDeptName]
+                            : '팀원들과 힘을 합쳐 다음 단계를 진행하세요.';
+                        
+                        // 모달 내용을 단서 공개 화면으로 교체
+                        const modalInner = document.querySelector('#stage3-success-modal > div');
+                        if (modalInner) {
+                            modalInner.style.borderColor = '#f1c40f';
+                            modalInner.innerHTML = `
+                                <div style="text-align:center; padding: 0.5rem;">
+                                    <h2 style="color: #f1c40f; margin-bottom: 1rem; font-size: 1.6rem;">🧵 원단 조각 획득!</h2>
+                                    <div style="background: rgba(212,175,55,0.15); border: 2px solid var(--accent-gold); border-radius: 12px; padding: 1.2rem; margin-bottom: 1.2rem;">
+                                        <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 0.5rem;">🔑 한서연 디자이너의 비밀 단서:</p>
+                                        <p style="color: #f1c40f; font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; word-break: keep-all; margin: 0;">&ldquo;${clue}&rdquo;</p>
+                                    </div>
+                                    <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 1.2rem; line-height: 1.6; word-break: keep-all;">
+                                        이 단서를 잊지 마세요!<br>다음 단계에서 활용해야 합니다.
+                                    </p>
+                                    <button id="btn-proceed-to-design" class="btn-primary" style="font-size: 1.1rem; padding: 1rem; width: 100%; border-radius: 8px;">
+                                        🎨 확인! 다음 미션으로 →
+                                    </button>
+                                </div>
+                            `;
+                            
+                            document.getElementById('btn-proceed-to-design').addEventListener('click', () => {
+                                document.getElementById('stage3-success-modal').classList.add('hidden');
+                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                                document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                                document.getElementById('screen-6').classList.remove('hidden');
+                                document.getElementById('display-current-role-stage6').textContent = currentRole;
+                                initCanvas();
+                            });
+                        } else {
+                            // fallback: 모달이 없으면 바로 이동
+                            document.getElementById('stage3-success-modal').classList.add('hidden');
+                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+                            document.getElementById('screen-6').classList.remove('hidden');
+                            document.getElementById('display-current-role-stage6').textContent = currentRole;
+                            initCanvas();
+                        }
                     }
                 });
+
             }
         }
     });
