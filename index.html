@@ -76,8 +76,15 @@
                                 <img src="조각 원단.png" style="width: 180px; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem; border: 3px solid var(--accent-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                                 <p id="qr-success-message" style="color: #f1c40f; font-size: 1.1rem; font-weight: bold; line-height: 1.5; word-break: keep-all;"></p>
                             </div>
-                            <p style="color: #ddd; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem; word-break: keep-all;">인증이 완료되었습니다!<br><br>문제를 풀던 원래 게임 탭으로 돌아가면 자동으로 다음 미션이 열립니다.</p>
-                            <button id="btn-close-qr-tab" class="btn-secondary" style="width: 100%; border-color: var(--accent-gold); color: var(--accent-gold); padding: 1rem; font-size: 1.1rem; border-radius: 8px;" onclick="window.close(); alert('창이 자동으로 닫히지 않으면, 이 탭을 닫고 원래 게임 화면으로 돌아가주세요!');">이 창 닫고 돌아가기</button>
+                            <div style="background: rgba(231,76,60,0.1); border: 1px solid #e74c3c; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                                <p style="color: #e74c3c; font-size: 1rem; font-weight: bold; margin-bottom: 0.5rem;">⚠️ 주의: 이 창에서는 다음 단계로 넘어가지 않습니다!</p>
+                                <p style="color: #ddd; font-size: 0.95rem; line-height: 1.5; word-break: keep-all;">
+                                    스마트폰의 <strong>뒤로 가기(◀)</strong> 버튼을 누르거나,<br>
+                                    <strong>열려 있는 웹페이지(탭) 목록(□)</strong>을 눌러서<br>
+                                    <strong>원래 문제를 풀던 게임 화면</strong>으로 직접 돌아가 주세요!
+                                </p>
+                            </div>
+                            <button id="btn-close-qr-tab" class="btn-secondary" style="width: 100%; border-color: var(--accent-gold); color: var(--accent-gold); padding: 1rem; font-size: 1.1rem; border-radius: 8px;" onclick="window.close(); alert('만약 창이 자동으로 닫히지 않는다면, 스마트폰의 뒤로가기 버튼을 누르거나 인터넷 탭 목록에서 원래 게임 화면으로 돌아가주세요!');">이 창 닫기 시도하기</button>
                         </div>
                     </div>
                 </div>
@@ -759,7 +766,7 @@
                     <div class="mission-card" style="background: rgba(0,0,0,0.9); width: 95%; max-width: 500px; text-align: center; margin: 0 auto;">
                         <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">🔎 조각 찾기 미션!</h2>
                         <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
-                            교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>스캔 후 나타나는 <strong>'숨겨진 메시지'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
+                            교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>선생님이 지정한 <strong>'부서별 비밀번호'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
                         </p>
                         
                         <!-- 웹캠 내장 QR 스캐너 -->
@@ -769,9 +776,9 @@
                             <button id="btn-stop-scanner" class="btn-text" style="margin-top: 0.5rem; color: #e74c3c; width: 100%;">스캐너 닫기 ❌</button>
                         </div>
 
-                        <input type="text" id="qr-password-input" placeholder="숨겨진 메시지 직접 입력" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
+                        <input type="text" id="qr-password-input" placeholder="비밀번호(숫자/문자) 입력" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
                         <div style="position: relative; display: inline-block; width: 80%;">
-                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">잠금 해제</button>
+                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">원단 잠금 해제</button>
                             <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
                         </div>
                         <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.1rem;">이건 우리 조각이 아니에요! 다른 조각을 찾아보세요.</p>
