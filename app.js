@@ -2076,22 +2076,25 @@ function startScreen5() {
                             ? PUZZLE_DATA.qrMessages[currentDeptName]
                             : '팀원들과 힘을 합쳐 다음 단계를 진행하세요.';
                         
-                        // 모달 내용을 단서 공개 화면으로 교체
+                        const successModalElement = document.getElementById('stage3-success-modal');
+                        if (successModalElement) successModalElement.classList.remove('hidden');
+
                         const modalInner = document.querySelector('#stage3-success-modal > div');
                         if (modalInner) {
                             modalInner.style.borderColor = '#f1c40f';
                             modalInner.innerHTML = `
                                 <div style="text-align:center; padding: 0.5rem;">
                                     <h2 style="color: #f1c40f; margin-bottom: 1rem; font-size: 1.6rem;">🧵 원단 조각 획득!</h2>
+                                    <img src="조각 원단.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem; border: 3px solid var(--accent-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                                     <div style="background: rgba(212,175,55,0.15); border: 2px solid var(--accent-gold); border-radius: 12px; padding: 1.2rem; margin-bottom: 1.2rem;">
                                         <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 0.5rem;">🔑 한서연 디자이너의 비밀 단서:</p>
                                         <p style="color: #f1c40f; font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; word-break: keep-all; margin: 0;">&ldquo;${clue}&rdquo;</p>
                                     </div>
                                     <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 1.2rem; line-height: 1.6; word-break: keep-all;">
-                                        이 단서를 잊지 마세요!<br>다음 단계에서 활용해야 합니다.
+                                        이 단서를 명심하세요!<br>다음 디자인 미션에서 <strong>주제</strong>로 활용됩니다.
                                     </p>
                                     <button id="btn-proceed-to-design" class="btn-primary" style="font-size: 1.1rem; padding: 1rem; width: 100%; border-radius: 8px;">
-                                        🎨 확인! 다음 미션으로 →
+                                        🎨 멘트 확인! 다음 미션으로 →
                                     </button>
                                 </div>
                             `;
@@ -2106,7 +2109,7 @@ function startScreen5() {
                             });
                         } else {
                             // fallback: 모달이 없으면 바로 이동
-                            document.getElementById('stage3-success-modal').classList.add('hidden');
+                            document.getElementById('stage3-success-modal')?.classList.add('hidden');
                             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                             document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
                             document.getElementById('screen-6').classList.remove('hidden');
