@@ -764,9 +764,9 @@ function startScreen1() {
 
     introModal.classList.remove('hidden');
     
-    // 영상 자동 재생 (모바일 호환성을 위해 muted, playsInline 명시적 설정)
+    // 영상 자동 재생
     if (introVideo) {
-        introVideo.muted = true;
+        introVideo.muted = false;
         introVideo.playsInline = true;
         const playPromise = introVideo.play();
         if (playPromise !== undefined) {
