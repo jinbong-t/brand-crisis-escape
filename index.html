@@ -29,7 +29,7 @@
 </head>
 <body>
     <!-- 현재 학급 워터마크 (교사 확인용) -->
-    <div id="active-class-watermark" style="position: fixed; top: 10px; right: 20px; font-size: 1.5rem; font-weight: bold; color: rgba(255, 255, 255, 0.15); z-index: 1000; pointer-events: none; font-family: 'Noto Sans KR', sans-serif;"></div>
+    <div id="active-class-watermark" style="position: fixed; bottom: 10px; right: 10px; font-size: 1rem; font-weight: bold; color: rgba(255, 255, 255, 0.3); z-index: 1000; pointer-events: none; font-family: 'Noto Sans KR', sans-serif;"></div>
     <div id="version-display" style="position:fixed; top:10px; right:10px; z-index:9999; background:red; color:white; padding:5px 10px; font-weight:bold; border-radius:5px;">v32.0</div>
     <div id="app-container">
         <!-- 상단 고정 헤더 -->
@@ -38,12 +38,7 @@
                 <span id="btn-secret-skip" class="brand-logo" style="cursor: pointer;">RE:BRAND</span>
                 <span id="current-team-display" class="team-badge"></span>
             </div>
-            <div class="header-right">
-                <div id="inventory-bar" class="inventory">
-                    <div class="slot" data-index="0"></div>
-                    <div class="slot" data-index="1"></div>
-                    <div class="slot" data-index="2"></div>
-                </div>
+            <div class="header-right" style="display: flex; gap: 0.5rem; align-items: center;">
             </div>
         </header>
 
@@ -60,8 +55,8 @@
                 </div>
             </section>
 
-            <!-- QR 인증 화면 (Screen QR) -->
-            <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
+            <!-- QR 인증 화면 (Standalone 모드 전용) -->
+            <section id="screen-qr-standalone" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.6);">
                     <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 400px; width: 90%; text-align: center; border: 2px solid var(--accent-gold); padding: 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
                         <h2 style="color: var(--accent-gold); margin-bottom: 1rem; font-size: 1.6rem; word-break: keep-all;">🧵 원단 조각 발견!</h2>
@@ -81,7 +76,8 @@
                                 <img src="조각 원단.png" style="width: 180px; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem; border: 3px solid var(--accent-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                                 <p id="qr-success-message" style="color: #f1c40f; font-size: 1.1rem; font-weight: bold; line-height: 1.5; word-break: keep-all;"></p>
                             </div>
-                            <p style="color: #ddd; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem; word-break: keep-all;">선생님 화면에서 원단이 채워졌습니다.<br><br>이제 원래 게임 화면으로 돌아가서 단서를 활용하세요!</p>
+                            <p style="color: #ddd; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem; word-break: keep-all;">인증이 완료되었습니다!<br><br>문제를 풀던 원래 게임 탭으로 돌아가면 자동으로 다음 미션이 열립니다.</p>
+                            <button id="btn-close-qr-tab" class="btn-secondary" style="width: 100%; border-color: var(--accent-gold); color: var(--accent-gold); padding: 1rem; font-size: 1.1rem; border-radius: 8px;" onclick="window.close(); alert('창이 자동으로 닫히지 않으면, 이 탭을 닫고 원래 게임 화면으로 돌아가주세요!');">이 창 닫고 돌아가기</button>
                         </div>
                     </div>
                 </div>

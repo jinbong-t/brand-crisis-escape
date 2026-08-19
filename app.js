@@ -270,7 +270,7 @@ if (isQrMode) {
         document.head.appendChild(style);
 
         document.getElementById('screen-splash').classList.add('hidden');
-        document.getElementById('screen-qr').classList.remove('hidden');
+        document.getElementById('screen-qr-standalone').classList.remove('hidden');
         
         const authSection = document.getElementById('qr-auth-section');
         
@@ -2117,13 +2117,24 @@ function startScreen5() {
 
     const btnCloseStage3Success = document.getElementById('btn-close-stage3-success');
     if (btnCloseStage3Success) {
-        // 버튼 숨기기 - 스캔은 스마트폰으로 하고 자동으로 넘어감
-        btnCloseStage3Success.style.display = 'none';
-        // 대신 대기 메시지 표시
+        // 인게임 암호 입력창(screen-qr) 수동으로 열기
+        btnCloseStage3Success.onclick = () => {
+            document.getElementById('stage3-success-modal').classList.add('hidden');
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            
+            // 기존 인게임 QR 화면(screen-qr) 보이기
+            const inGameQrScreen = document.getElementById('screen-qr');
+            if (inGameQrScreen) {
+                inGameQrScreen.classList.remove('hidden');
+                document.getElementById('qr-dept-name').textContent = currentDeptId;
+                document.getElementById('qr-password-input').value = '';
+                document.getElementById('qr-password-input').focus();
+            }
+        };
+        // 대기 메시지는 숨김
         const waitingMsg = document.getElementById('stage3-waiting-msg');
         if (waitingMsg) {
-            waitingMsg.classList.remove('hidden');
-            waitingMsg.innerHTML = '📱 팀원이 QR을 스캔하면 자동으로 다음 단계로 넘어갑니다!';
+            waitingMsg.classList.add('hidden');
         }
     }
 }
