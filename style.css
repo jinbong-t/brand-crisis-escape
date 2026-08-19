@@ -436,7 +436,7 @@ header {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 2rem;
+    padding: clamp(0.8rem, 2vw, 2rem);
     max-width: 1000px;
     margin: 0 auto;
     width: 100%;
@@ -506,31 +506,34 @@ header {
 
 .splash-title {
     font-family: var(--font-heading);
-    font-size: 5rem;
+    font-size: clamp(2.5rem, 7vw, 5rem);
     color: var(--accent-gold);
     margin-bottom: 1rem;
     animation: titleGlow 3s infinite;
-    letter-spacing: 5px;
+    letter-spacing: clamp(2px, 0.5vw, 5px);
+    word-break: keep-all;
 }
 
 .splash-subtitle {
-    font-size: 1.5rem;
+    font-size: clamp(0.9rem, 2vw, 1.5rem);
     color: #fff;
-    margin-bottom: 4rem;
-    letter-spacing: 4px;
+    margin-bottom: clamp(1.5rem, 4vh, 4rem);
+    letter-spacing: clamp(1px, 0.5vw, 4px);
     text-transform: uppercase;
+    word-break: keep-all;
 }
 
 .btn-genius {
     background: transparent;
     border: 2px solid var(--accent-gold);
     color: var(--accent-gold);
-    font-size: 1.5rem;
-    padding: 1rem 3rem;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    padding: clamp(0.7rem, 1.5vh, 1rem) clamp(1.5rem, 4vw, 3rem);
     border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s;
     font-family: var(--font-heading);
+    min-height: 44px;
 }
 
 .btn-genius:hover {
@@ -547,11 +550,12 @@ header {
 }
 
 .genius-text {
-    font-size: 3.5rem;
+    font-size: clamp(1.5rem, 4vw, 3.5rem);
     font-family: var(--font-heading);
     color: #fff;
     text-align: center;
-    letter-spacing: 2px;
+    letter-spacing: clamp(1px, 0.3vw, 2px);
+    word-break: keep-all;
 }
 
 /* ==================================
@@ -625,71 +629,8 @@ header {
     box-shadow: none;
 }
 
-/* 태블릿 및 모바일 반응형 최적화 (공통) */
-@media (max-width: 1024px) {
-    .splash-title {
-        font-size: clamp(3rem, 6vw, 4.5rem);
-    }
-    .splash-subtitle {
-        font-size: clamp(1rem, 2vw, 1.5rem);
-    }
-    .game-title {
-        font-size: clamp(2rem, 4vw, 3.5rem);
-    }
-    .grid-container {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.5rem;
-    }
-}
+/* 아래 반응형 미디어 쿼리는 파일 하단에 통합 정리됨 */
 
-@media (max-width: 768px) {
-    .splash-title {
-        font-size: clamp(2.5rem, 8vw, 3.5rem);
-    }
-    .genius-text {
-        font-size: clamp(1.5rem, 5vw, 2.5rem);
-    }
-    .subtitle {
-        font-size: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    .grid-container {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-    }
-    .dept-card, .role-card {
-        padding: 1.2rem 0.8rem;
-    }
-    .dept-card h3, .role-card h3 {
-        font-size: clamp(1.1rem, 3vw, 1.3rem);
-    }
-    header {
-        padding: 0.6rem 1rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    .brand-logo {
-        font-size: 1.1rem;
-    }
-    .modal-content {
-        width: 95%;
-        padding: 1.5rem;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-}
-
-/* 좁은 모바일(세로) 특수 처리 */
-@media (max-width: 480px) {
-    .inventory {
-        justify-content: center;
-        width: 100%;
-        margin-top: 0.5rem;
-    }
-    .header-right {
-        width: 100%;
-    }
-}
 
 /* 관리자 히든 버튼 (좌측 상단 모서리) */
 .admin-toggle-area {
@@ -1022,33 +963,211 @@ input:focus {
     box-shadow: 0 0 30px var(--accent-gold);
 }
 
-/* 모바일 최적화 */
-@media (max-width: 768px) {
+/* =========================================
+   반응형 미디어 쿼리 - 통합 정리
+   ========================================= */
+
+/* 태블릿 가로 (Landscape) 전용 최적화 */
+@media (max-height: 600px) and (orientation: landscape) {
+    /* 모달 높이 조정 - 세로로 화면이 작으니 max-height 낙춤 */
+    .modal-content {
+        max-height: 90vh;
+        padding: 1rem 1.5rem;
+        overflow-y: auto;
+    }
+    /* 스플래시 제목 조정 */
+    .splash-title {
+        font-size: clamp(2rem, 5vh, 3.5rem);
+        margin-bottom: 0.5rem;
+    }
+    .splash-subtitle {
+        font-size: clamp(0.8rem, 2vh, 1.2rem);
+        margin-bottom: 1.5rem;
+    }
+    /* 차단 카드 크기 조정 */
     .flip-card {
-        width: 100px;
-        height: 140px;
+        width: 90px;
+        height: 120px;
     }
-    .flip-card-front p {
-        font-size: 0.75rem;
+    /* 그리드 콜럼 조정 */
+    .grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
     }
-    .flip-card-back {
-        font-size: 2rem;
+    .dept-card, .role-card {
+        padding: 1rem;
+    }
+    /* 헤더 콤팯 트 */
+    header {
+        padding: 0.4rem 1rem;
+    }
+    /* 인트로 모달 텍스트 영역 높이 제한 */
+    #intro-text-container {
+        max-height: 20vh !important;
+    }
+    /* paperdoll 스튜디오 사이즈 조정 */
+    .paperdoll-studio-container {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .avatar-section {
+        max-width: 180px;
+        min-height: 280px;
+    }
+    /* 단서 표시 경우 항상 */
+    #stage3-success-modal .modal-content,
+    #stage3-success-modal > div {
+        padding: 0.8rem;
+    }
+}
+
+/* 태블릿 포함 (1024px 이하) */
+@media (max-width: 1024px) {
+    .splash-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+    }
+    .splash-subtitle {
+        font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+    }
+    .game-title {
+        font-size: clamp(1.8rem, 3.5vw, 3rem);
+    }
+    .grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    /* 터치 타겟 최소 44px 보장 */
+    .btn-primary, .btn-secondary {
+        min-height: 44px;
+    }
+    button {
+        min-height: 36px;
+    }
+}
+
+/* 모바일 / 소형 태블릿 (768px 이하) */
+@media (max-width: 768px) {
+    /* 타이틀 */
+    .splash-title {
+        font-size: clamp(2rem, 7vw, 3rem);
+    }
+    .genius-text {
+        font-size: clamp(1.3rem, 4.5vw, 2rem);
+    }
+    .subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 1.2rem;
     }
 
-/* 모바일 최적화 */
-@media (max-width: 768px) {
+    /* 그리드 */
+    .grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.8rem;
+    }
+    .dept-card, .role-card {
+        padding: 1rem 0.7rem;
+    }
+    .dept-card h3, .role-card h3 {
+        font-size: clamp(1rem, 2.8vw, 1.2rem);
+    }
+
+    /* 헤더 */
+    header {
+        padding: 0.6rem 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .brand-logo {
+        font-size: 1rem;
+    }
+
+    /* 모달 */
+    .modal-content {
+        width: 95%;
+        padding: 1.2rem;
+        max-height: 90vh;
+    }
+
+    /* 플립카드 */
     .flip-card {
-        width: 100px;
-        height: 140px;
+        width: 95px;
+        height: 130px;
     }
     .flip-card-front p {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
     }
     .flip-card-back {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     .card-container {
         gap: 0.5rem;
+    }
+
+    /* 모션 컨테이너 */
+    .mission-container {
+        gap: 1rem;
+    }
+    .mission-card {
+        padding: 1rem;
+    }
+
+    /* 입력숫자 */
+    input[type="text"], input[type="password"], textarea {
+        font-size: 1rem;
+        padding: 0.7rem;
+    }
+
+    /* 텍스트 크기 일반적 조정 */
+    body {
+        font-size: 0.95rem;
+    }
+
+    /* 다이어리 콘텐츠 */
+    .diary-content p {
+        font-size: 1.4rem;
+    }
+    .diary-content h3 {
+        font-size: 1.8rem;
+    }
+}
+
+/* 좌우 480px 이하 (모바일 세로) */
+@media (max-width: 480px) {
+    .inventory {
+        justify-content: center;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    .header-right {
+        width: 100%;
+    }
+    .splash-title {
+        font-size: clamp(1.8rem, 8vw, 2.5rem);
+        letter-spacing: 2px;
+    }
+    .splash-subtitle {
+        letter-spacing: 1px;
+    }
+    .grid-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+    }
+    .flip-card {
+        width: 80px;
+        height: 110px;
+    }
+    .flip-card-front p {
+        font-size: 0.65rem;
+    }
+    /* 모달 안에서 테이블 가로 스크롤 허용 */
+    .modal-content table {
+        font-size: 0.8rem;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .modal-content {
+        padding: 1rem 0.8rem;
     }
 }
 
