@@ -776,8 +776,8 @@ input:focus {
 
 .flip-card {
     background-color: transparent;
-    width: 150px;
-    height: 200px;
+    width: clamp(110px, 20vw, 150px);
+    height: clamp(150px, 27vw, 200px);
     perspective: 1000px;
     cursor: pointer;
 }
@@ -806,20 +806,20 @@ input:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: clamp(0.5rem, 1vw, 1rem);
     background-color: var(--bg-panel);
 }
 
 .flip-card-back {
     transform: rotateY(180deg);
     background-color: var(--bg-panel-hover);
-    font-size: 3rem;
+    font-size: clamp(2rem, 5vw, 3rem);
     font-family: var(--font-heading);
     color: var(--accent-gold);
 }
 
 .flip-card-front p {
-    font-size: 0.9rem;
+    font-size: clamp(0.75rem, 1.5vw, 0.9rem);
     word-break: keep-all;
 }
 
@@ -984,11 +984,7 @@ input:focus {
         font-size: clamp(0.8rem, 2vh, 1.2rem);
         margin-bottom: 1.5rem;
     }
-    /* 차단 카드 크기 조정 */
-    .flip-card {
-        width: 90px;
-        height: 120px;
-    }
+    /* 차단 카드 크기 조정 - clamp로 통합되어 제거함 */
     /* 그리드 콜럼 조정 */
     .grid-container {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1088,17 +1084,7 @@ input:focus {
         max-height: 90vh;
     }
 
-    /* 플립카드 */
-    .flip-card {
-        width: 95px;
-        height: 130px;
-    }
-    .flip-card-front p {
-        font-size: 0.72rem;
-    }
-    .flip-card-back {
-        font-size: 1.8rem;
-    }
+    /* 플립카드 크기 조정 - clamp로 통합되어 제거함 */
     .card-container {
         gap: 0.5rem;
     }
@@ -1152,13 +1138,7 @@ input:focus {
         grid-template-columns: 1fr 1fr;
         gap: 0.6rem;
     }
-    .flip-card {
-        width: 80px;
-        height: 110px;
-    }
-    .flip-card-front p {
-        font-size: 0.65rem;
-    }
+    /* 플립카드 크기 조정 - clamp로 통합되어 제거함 */
     /* 모달 안에서 테이블 가로 스크롤 허용 */
     .modal-content table {
         font-size: 0.8rem;
