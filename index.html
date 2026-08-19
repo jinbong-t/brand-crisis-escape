@@ -19,7 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/scroll-behaviour.min.js"></script>
     <script>
         MobileDragDrop.polyfill({
-            holdToDrag: 250, // 모바일에서 스크롤과 구분을 위해 250ms 꾹 누르면 드래그 시작
+            holdToDrag: 0, // 드래그를 즉시 시작 (지연 없음)
             dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
         });
         // 태블릿 세로 스크롤 이슈를 일으키던 touchmove 이벤트 제거
@@ -595,11 +595,11 @@
                             <div id="stage4-5r-puzzle" class="hidden" style="margin-bottom: 2rem; border: 1px dashed var(--accent-gold); padding: 1rem; border-radius: 8px;">
                                 <h4 style="color: #c7a477; margin-bottom: 1rem;">1. 5R 순서 조립</h4>
                                 <div id="5r-options" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap;">
-                                    <div class="item-5r" draggable="true" data-val="줄이기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">줄이기</div>
-                                    <div class="item-5r" draggable="true" data-val="재활용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재활용</div>
-                                    <div class="item-5r" draggable="true" data-val="거절하기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">거절하기</div>
-                                    <div class="item-5r" draggable="true" data-val="썩히기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">썩히기</div>
-                                    <div class="item-5r" draggable="true" data-val="재사용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff;">재사용</div>
+                                    <div class="item-5r" draggable="true" data-val="줄이기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff; touch-action: none;">줄이기</div>
+                                    <div class="item-5r" draggable="true" data-val="재활용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff; touch-action: none;">재활용</div>
+                                    <div class="item-5r" draggable="true" data-val="거절하기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff; touch-action: none;">거절하기</div>
+                                    <div class="item-5r" draggable="true" data-val="썩히기" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff; touch-action: none;">썩히기</div>
+                                    <div class="item-5r" draggable="true" data-val="재사용" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid #fff; touch-action: none;">재사용</div>
                                 </div>
                                 <div id="5r-slots" style="display: flex; gap: 10px; justify-content: center;">
                                     <div class="slot-5r" data-index="0" style="width: 100px; height: 40px; border: 2px dashed #666; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888;">1순위</div>

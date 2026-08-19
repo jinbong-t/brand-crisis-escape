@@ -1694,15 +1694,13 @@ function startScreen5() {
                 item.style.opacity = '1';
             });
             
-            // 모바일/태블릿용 터치/클릭 지원
+            // 모바일/태블릿용 클릭 지원 (드래그 대신 클릭으로도 가능하게 유지)
             const handleSelect = (e) => {
-                e.preventDefault();
                 draggables.forEach(d => d.style.boxShadow = 'none');
                 item.style.boxShadow = '0 0 10px 3px var(--accent-gold)';
                 window.selected5RItemForTouch = item.getAttribute('data-val');
             };
             item.addEventListener('click', handleSelect);
-            item.addEventListener('touchstart', handleSelect, {passive: false});
         });
         
         // ------------------------------------
@@ -1752,9 +1750,8 @@ function startScreen5() {
                 }
             });
             
-            // 모바일/태블릿용 터치/클릭 지원
+            // 모바일/태블릿용 클릭 지원
             const handleDrop = (e) => {
-                e.preventDefault();
                 if (window.selected5RItemForTouch) {
                     slot.textContent = window.selected5RItemForTouch;
                     slot.style.border = '2px solid #4caf50';
@@ -1775,7 +1772,6 @@ function startScreen5() {
                 }
             };
             slot.addEventListener('click', handleDrop);
-            slot.addEventListener('touchstart', handleDrop, {passive: false});
         });
         
         scoreInput.addEventListener('input', checkManagerStage4Complete);
