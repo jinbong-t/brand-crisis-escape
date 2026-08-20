@@ -2856,23 +2856,17 @@ if (btnStartScanner) {
                     if (match && match[1]) {
                         const scannedDeptId = decodeURIComponent(match[1]);
                         if (scannedDeptId === currentDeptId) {
-                            // 내 부서 조각이 맞으면 즉시 패스!
+                            // 내 부서 조각이 맞으면 비밀번호 입력 요구
                             playSound('success');
-                            showFabricPieceReveal();
+                            const enteredPw = prompt('우리 조의 원단 조각을 찾았습니다!\n이제 선생님이 알려주신 부서별 비밀번호를 입력해주세요:');
                             
-                            const qrErrorMsg = document.getElementById('qr-error-msg');
-                            const qrPasswordInput = document.getElementById('qr-password-input');
-                            if (qrErrorMsg) qrErrorMsg.classList.add('hidden');
-                            if (btnSubmitQr) btnSubmitQr.classList.add('hidden');
-                            if (qrPasswordInput) qrPasswordInput.disabled = true;
-                            
-                            import('./firebase-config.js').then(({ setDoc, doc }) => {
-                                setDoc(getPieceDocRef(currentDeptId), { 
-                                    unlocked: true, 
-                                    unlockedAt: new Date().toISOString()
-                                }, { merge: true });
-                            }).catch(console.error);
-                            
+                            if (enteredPw !== null && enteredPw.trim() !== '') {
+                                const qrPasswordInput = document.getElementById('qr-password-input');
+                                if (qrPasswordInput) qrPasswordInput.value = enteredPw.trim();
+                                window.submitQr();
+                            } else {
+                                alert('비밀번호 입력이 취소되었습니다. 다시 스캔하거나 화면의 입력창에 직접 입력해주세요.');
+                            }
                             return;
                         } else {
                             playSound('error');
