@@ -91,6 +91,8 @@ function setupClassListeners(className) {
     if (noticeUnsub) noticeUnsub();
     if (stateUnsub) stateUnsub();
     
+    firstNoticeLoad = true;
+    
     // 공지사항 리스너 등록
     noticeUnsub = onSnapshot(doc(db, `classes/${className}/global`, 'notice'), (noticeSnap) => {
         if (noticeSnap.exists()) {
