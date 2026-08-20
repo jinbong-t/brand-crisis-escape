@@ -487,7 +487,7 @@ trashDropzone.addEventListener('drop', (e) => {
 
 // 배치 전체 초기화 버튼
 document.getElementById('btn-reset-assign')?.addEventListener('click', () => {
-    if (!confirm('정말로 배치된 모든 명단을 초기화하시겠습니까?\n배치된 학생들은 모두 대기칸으로 돌아갑니다.')) return;
+    if (!confirm('정말로 배치된 모든 명단을 초기화하시겠습니까?\\n배치된 학생들은 모두 대기칸으로 돌아갑니다.')) return;
     const inputs = document.querySelectorAll('.member-input');
     inputs.forEach(input => {
         if (input.value) {
@@ -500,7 +500,7 @@ document.getElementById('btn-reset-assign')?.addEventListener('click', () => {
 
 // 전체 명단 완전 삭제 버튼
 document.getElementById('btn-clear-all-roster')?.addEventListener('click', () => {
-    if (!confirm('정말로 모든 명단을 완전히 삭제하시겠습니까?\n대기칸의 명단과 조에 배치된 명단이 모두 완전히 삭제됩니다.')) return;
+    if (!confirm('정말로 모든 명단을 완전히 삭제하시겠습니까?\\n대기칸의 명단과 조에 배치된 명단이 모두 완전히 삭제됩니다.')) return;
     
     // 1. 대기칸 비우기
     document.getElementById('roster-pills').innerHTML = '';
@@ -520,7 +520,7 @@ document.getElementById('btn-clear-all-roster')?.addEventListener('click', () =>
 
 // 배치 확정 및 활동 시작 버튼
 document.getElementById('btn-start-activity')?.addEventListener('click', async () => {
-    if (!confirm('학생들의 배치를 확정하고 활동을 시작하시겠습니까?\n(이후 학생들이 기기에서 입장할 수 있습니다)')) return;
+    if (!confirm('학생들의 배치를 확정하고 활동을 시작하시겠습니까?\\n(이후 학생들이 기기에서 입장할 수 있습니다)')) return;
     try {
         const ref = doc(db, `classes/${activeClass}/global`, 'state');
         await setDoc(ref, { activityStarted: true }, { merge: true });
