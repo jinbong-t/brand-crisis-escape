@@ -184,7 +184,10 @@
                 <section id="tab-results" class="tab-pane">
                     <div class="pane-header">
                         <p class="pane-desc">학생들이 제출한 최종 결과물 이미지들을 모아보고 다운로드할 수 있습니다.</p>
-                        <button id="btn-download-all" class="btn-primary">전체 이미지 다운로드 (ZIP)</button>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button id="btn-reset-results" class="btn-danger-outline">🔄 제출된 결과물 전체 초기화</button>
+                            <button id="btn-download-all" class="btn-primary">전체 이미지 다운로드 (ZIP)</button>
+                        </div>
                     </div>
                     <div id="td-results-gallery" class="gallery-layout">
                         <!-- 결과물 갤러리 -->

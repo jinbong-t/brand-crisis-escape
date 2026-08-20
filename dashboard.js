@@ -92,6 +92,51 @@ document.getElementById('btn-reset-status')?.addEventListener('click', async () 
     }
 });
 
+// 학생 결과물 탭 초기화 버튼
+document.getElementById('btn-reset-results')?.addEventListener('click', async () => {
+    if (!confirm('정말로 모든 학생의 제출 결과물(디자인 이미지, 소감문, 실천적 추론 등)을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) return;
+    
+    try {
+        const deptsRef = collection(db, `classes/${activeClass}/departments`);
+        const snapshot = await getDocs(deptsRef);
+        const promises = [];
+        
+        for (const docSnap of snapshot.docs) {
+            const deptId = docSnap.id;
+            
+            // 1. 역할별 제출물(personalDesign, reflection) 리셋
+            const rolesRef = collection(db, `classes/${activeClass}/departments/${deptId}/roles`);
+            const rolesSnap = await getDocs(rolesRef);
+            
+            rolesSnap.forEach(roleDoc => {
+                promises.push(updateDoc(roleDoc.ref, {
+                    personalDesign: null,
+                    reflection: null
+                }));
+            });
+            
+            // 2. 부서별 실천적 추론(reasoning) 삭제
+            const reasoningRef = collection(db, `classes/${activeClass}/departments/${deptId}/reasoning`);
+            const reasoningSnap = await getDocs(reasoningRef);
+            reasoningSnap.forEach(rDoc => {
+                promises.push(deleteDoc(rDoc.ref));
+            });
+            
+            // 3. 부서 매니저 최종 답변(managerFinalAnswer1, 2) 리셋
+            promises.push(updateDoc(docSnap.ref, {
+                managerFinalAnswer1: "",
+                managerFinalAnswer2: ""
+            }));
+        }
+        
+        await Promise.all(promises);
+        alert('모든 제출 결과물이 성공적으로 초기화되었습니다!');
+    } catch (e) {
+        console.error(e);
+        alert('결과물 초기화 중 오류가 발생했습니다.');
+    }
+});
+
 // ==========================================
 // 파이어베이스 데이터 구독 및 렌더링
 // ==========================================
