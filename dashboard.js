@@ -209,7 +209,8 @@ document.getElementById('td-dept-list').addEventListener('change', async (e) => 
         
         try {
             const roleRef = doc(db, `classes/${activeClass}/departments/${deptId}/roles`, role);
-            await setDoc(roleRef, { studentName: val }, { merge: true });
+            // 학생 이름이 변경되면(비우는 것 포함), 직급 선택 상태도 초기화하여 다시 선택할 수 있게 함
+            await setDoc(roleRef, { studentName: val, taken: false }, { merge: true });
             
             // 시각적 피드백
             e.target.style.borderColor = 'var(--success)';
@@ -345,7 +346,15 @@ function autoAssign(randomize) {
     for (let i = 0; i < Math.min(students.length, inputs.length); i++) {
         inputs[i].value = students[i];
         inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
-        pills[i].remove(); // 대기칸에서 제거
+        
+        // 대기칸에서 해당 이름의 pill을 찾아 제거
+        const pillToRemove = pills.find(p => p.textContent === students[i]);
+        if (pillToRemove) {
+            pillToRemove.remove();
+            const idx = pills.indexOf(pillToRemove);
+            if (idx > -1) pills.splice(idx, 1);
+        }
+        
         assignedCount++;
     }
     
