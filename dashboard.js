@@ -1068,6 +1068,15 @@ document.getElementById('btn-print-qr')?.addEventListener('click', () => {
 
 
 
+const DEFAULT_QR_PASSWORDS = {
+    '디자인기획부': '지구를 위한 스케치',
+    '소재개발부': '자연을 품은 원단',
+    '스타일링부': '오래 입는 즐거움',
+    '생산전략부': '낭비 없는 재단',
+    '마케팅부': '가치 있는 소비',
+    '품질관리부': '건강한 옷 입기'
+};
+
 // 부서 목록 로드 + 각 부서별 비번 입력칸 생성
 async function loadDeptQrPasswords() {
     const grid = document.getElementById('qr-dept-pw-grid');
@@ -1099,7 +1108,8 @@ async function loadDeptQrPasswords() {
         deptSnap.forEach(docSnap => {
             const deptId = docSnap.id;
             const deptName = docSnap.data().name || deptId;
-            const savedPw = savedPasswords[deptId] || '';
+            // 저장된 비밀번호가 없으면 기본 비밀번호 사용
+            const savedPw = savedPasswords[deptId] !== undefined ? savedPasswords[deptId] : (DEFAULT_QR_PASSWORDS[deptId] || '');
             const color = colors[colorIdx % colors.length];
             colorIdx++;
 
@@ -1192,19 +1202,33 @@ async function loadDeptQrPasswords() {
 
 // 비밀번호 전체 초기화 버튼
 document.getElementById('btn-reset-all-qr-pw')?.addEventListener('click', async () => {
-    if (!confirm('모든 부서의 QR 비밀번호를 초기화(빈칸)하시겠습니까?\n(이미 입력된 입력칸도 모두 비워집니다)')) return;
+    if (!confirm('모든 부서의 QR 비밀번호를 기본 설정값으로 초기화하시겠습니까?\n(직접 입력한 비밀번호는 사라집니다)')) return;
     try {
+        const resetPasswords = {};
+        document.querySelectorAll('[id^="qr-pw-"]').forEach(input => {
+            const deptId = input.id.replace('qr-pw-', '');
+            resetPasswords[deptId] = DEFAULT_QR_PASSWORDS[deptId] || '';
+        });
+
         await setDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig'), {
-            deptPasswords: {}
+            deptPasswords: resetPasswords
         }, { merge: true });
 
         // 입력칸 및 상태 라벨 초기화
         document.querySelectorAll('[id^="qr-pw-"]').forEach(input => {
-            input.value = '';
+            const deptId = input.id.replace('qr-pw-', '');
+            input.value = DEFAULT_QR_PASSWORDS[deptId] || '';
         });
         document.querySelectorAll('[id^="status-"]').forEach(el => {
-            el.textContent = '미설정';
-            el.style.color = '#aaa';
+            const deptId = el.id.replace('status-', '');
+            const defaultPw = DEFAULT_QR_PASSWORDS[deptId];
+            if (defaultPw) {
+                el.textContent = `"${defaultPw}"`;
+                el.style.color = '#2ecc71';
+            } else {
+                el.textContent = '미설정';
+                el.style.color = '#aaa';
+            }
         });
 
         // 버튼 피드백
