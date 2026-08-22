@@ -1070,11 +1070,17 @@ document.getElementById('btn-print-qr')?.addEventListener('click', () => {
 
 const DEFAULT_QR_PASSWORDS = {
     '디자인기획부': '지구를 위한 스케치',
+    'dept-1': '지구를 위한 스케치',
     '소재개발부': '자연을 품은 원단',
+    'dept-2': '자연을 품은 원단',
     '스타일링부': '오래 입는 즐거움',
+    'dept-3': '오래 입는 즐거움',
     '생산전략부': '낭비 없는 재단',
+    'dept-4': '낭비 없는 재단',
     '마케팅부': '가치 있는 소비',
-    '품질관리부': '건강한 옷 입기'
+    'dept-5': '가치 있는 소비',
+    '품질관리부': '건강한 옷 입기',
+    'dept-6': '건강한 옷 입기'
 };
 
 // 부서 목록 로드 + 각 부서별 비번 입력칸 생성
@@ -1108,8 +1114,8 @@ async function loadDeptQrPasswords() {
         deptSnap.forEach(docSnap => {
             const deptId = docSnap.id;
             const deptName = docSnap.data().name || deptId;
-            // 저장된 비밀번호가 없으면 기본 비밀번호 사용
-            const savedPw = savedPasswords[deptId] !== undefined ? savedPasswords[deptId] : (DEFAULT_QR_PASSWORDS[deptId] || '');
+            // 저장된 비밀번호가 없거나 빈칸이면 기본 비밀번호 사용
+            const savedPw = savedPasswords[deptId] || DEFAULT_QR_PASSWORDS[deptId] || DEFAULT_QR_PASSWORDS[deptName] || '';
             const color = colors[colorIdx % colors.length];
             colorIdx++;
 
