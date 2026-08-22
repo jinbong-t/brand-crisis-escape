@@ -3243,6 +3243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // html2canvas로 영역 캡처 (선택형 캔버스)
             let canvasDataUrl = "";
+            const canvas = document.getElementById('design-canvas');
             if (canvas) {
                 canvasDataUrl = canvas.toDataURL('image/jpeg', 0.8);
             }
