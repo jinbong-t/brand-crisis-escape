@@ -2492,9 +2492,20 @@ async function initApp() {
                         startScreen5();
                     } else if (stage === 5) {
                         const s6 = document.getElementById('screen-6');
-                        if (s6) s6.classList.remove('hidden');
-                        document.getElementById('display-current-role-stage6').textContent = currentRole;
-                        initCanvas();
+                        const sQr = document.getElementById('screen-qr');
+                        getDoc(getPieceDocRef(currentDeptId)).then(pieceSnap => {
+                            if (pieceSnap.exists() && pieceSnap.data().unlocked) {
+                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                                if (s6) s6.classList.remove('hidden');
+                                document.getElementById('display-current-role-stage6').textContent = currentRole;
+                                initCanvas();
+                            } else {
+                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                                if (sQr) sQr.classList.remove('hidden');
+                            }
+                        }).catch(e => {
+                            console.error(e);
+                        });
                     } else if (stage === 6) {
                         const s7 = document.getElementById('screen-7');
                         if (s7) s7.classList.remove('hidden');
@@ -2504,7 +2515,9 @@ async function initApp() {
                     }
                     
                     // 강제 패스 등 비정상적인 단계 이동 시 띄워져 있던 모달 강제 종료 (reasoning은 아래에서 별도 제어)
-                    document.getElementById('stage3-success-modal')?.classList.add('hidden');
+                    if (stage !== 5) {
+                        document.getElementById('stage3-success-modal')?.classList.add('hidden');
+                    }
                     document.getElementById('twist-modal')?.classList.add('hidden');
                     document.getElementById('intro-modal')?.classList.add('hidden');
                 } 
