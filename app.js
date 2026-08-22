@@ -2941,6 +2941,8 @@ function initCanvas() {
     canvas.dataset.initialized = 'true';
     
     const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = 5;
@@ -3031,7 +3033,8 @@ function initCanvas() {
     };
 
     document.getElementById('btn-tool-clear').onclick = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
 
     const aiFeedback = document.getElementById('ai-feedback-panel');
