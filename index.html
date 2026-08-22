@@ -764,7 +764,7 @@
             <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                     <div class="mission-card" style="background: rgba(0,0,0,0.9); width: 95%; max-width: 500px; text-align: center; margin: 0 auto;">
-                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">🔎 조각 찾기 미션!</h2>
+                        <h2 id="qr-mission-title" style="color: var(--accent-gold); margin-bottom: 1rem; cursor: pointer; user-select: none;">🔎 조각 찾기 미션!</h2>
                         <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
                             교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>선생님이 지정한 <strong>'부서별 비밀번호'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
                         </p>
@@ -776,10 +776,12 @@
                             <button id="btn-stop-scanner" class="btn-text" style="margin-top: 0.5rem; color: #e74c3c; width: 100%;">스캐너 닫기 ❌</button>
                         </div>
 
-                        <input type="text" id="qr-password-input" placeholder="비밀번호(숫자/문자) 입력" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
-                        <div style="position: relative; display: inline-block; width: 80%;">
-                            <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">원단 잠금 해제</button>
-                            <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
+                        <div id="manual-qr-input-container" class="hidden" style="width: 100%;">
+                            <input type="text" id="qr-password-input" placeholder="비밀번호(숫자/문자) 입력" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
+                            <div style="position: relative; display: inline-block; width: 80%;">
+                                <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">원단 잠금 해제</button>
+                                <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
+                            </div>
                         </div>
                         <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.1rem;">이건 우리 조각이 아니에요! 다른 조각을 찾아보세요.</p>
 

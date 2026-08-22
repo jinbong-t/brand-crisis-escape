@@ -3502,3 +3502,26 @@ if (_splashTitle) _splashTitle.addEventListener('click', () => {
     clearTimeout(adminClickTimer);
     adminClickTimer = setTimeout(() => { adminClickCount = 0; }, 2000);
 });
+
+// 교사용 비밀 수동 입력 폼 토글 (QR 미션 제목 5번 연속 클릭)
+let qrTitleClickCount = 0;
+let qrTitleClickTimer;
+const qrMissionTitle = document.getElementById('qr-mission-title');
+if (qrMissionTitle) {
+    qrMissionTitle.addEventListener('click', () => {
+        qrTitleClickCount++;
+        clearTimeout(qrTitleClickTimer);
+        
+        if (qrTitleClickCount >= 5) {
+            const manualContainer = document.getElementById('manual-qr-input-container');
+            if (manualContainer) {
+                manualContainer.classList.toggle('hidden');
+            }
+            qrTitleClickCount = 0;
+        } else {
+            qrTitleClickTimer = setTimeout(() => {
+                qrTitleClickCount = 0;
+            }, 1000);
+        }
+    });
+}
