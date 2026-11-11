@@ -162,7 +162,7 @@
            원단 QR 카드 그리드
            ========================================= */
         .page-sheet {
-            max-width: 1080px;
+            max-width: 1020px;
             margin: 2rem auto;
             padding: 1rem;
         }
@@ -175,17 +175,17 @@
 
         .fabric-grid.cols-2 {
             grid-template-columns: repeat(2, 1fr);
-            max-width: 780px;
+            max-width: 740px;
             margin: 0 auto;
         }
 
         /* =========================================
-           개별 원단 조각 + QR만 있는 깔끔한 디자인
+           원단 안에 정사각형 QR이 쏙 들어가는 디자인
            ========================================= */
         .fabric-swatch-card {
             position: relative;
             aspect-ratio: 1 / 1;
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -194,6 +194,7 @@
             page-break-inside: avoid;
             break-inside: avoid;
             border: 3px solid #cbb89d;
+            padding: 22%;
         }
 
         /* 실제 원단 배경 이미지 레이어 */
@@ -233,21 +234,23 @@
             position: absolute;
             inset: 10px;
             border: 2px dashed rgba(95, 72, 42, 0.65);
-            border-radius: 4px;
+            border-radius: 5px;
             z-index: 2;
             pointer-events: none;
         }
 
-        /* 원단 한가운데에 꿰매어진 순수 QR 패치 (글자 일체 없음) */
+        /* 원단 한가운데에 쏙 들어가는 정사각형 QR 라벨 패치 */
         .woven-qr-patch {
             position: relative;
             z-index: 3;
+            width: 100%;
+            aspect-ratio: 1 / 1;
             background: #fffdf9;
-            padding: 16px;
+            padding: 12px;
             border-radius: 6px;
             box-shadow:
-                0 6px 16px rgba(45, 32, 16, 0.32),
-                0 1px 3px rgba(0,0,0,0.2);
+                0 5px 14px rgba(45, 32, 16, 0.3),
+                0 1px 3px rgba(0,0,0,0.18);
             border: 1.5px solid #d8ccb8;
             display: flex;
             align-items: center;
@@ -258,7 +261,7 @@
         .woven-qr-patch::before {
             content: '';
             position: absolute;
-            inset: 5px;
+            inset: 4px;
             border: 1.5px dashed #8b7355;
             border-radius: 4px;
             pointer-events: none;
@@ -268,20 +271,22 @@
         /* 네 모서리 고정 핀(리벳/실밥 매듭) */
         .corner-tack {
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 35%, #f5e6c8, #9c7c48);
-            border: 1.5px solid #5a4322;
+            border: 1.2px solid #5a4322;
             box-shadow: 0 1px 2px rgba(0,0,0,0.35);
             z-index: 5;
         }
-        .corner-tack.tl { top: 8px; left: 8px; }
-        .corner-tack.tr { top: 8px; right: 8px; }
-        .corner-tack.bl { bottom: 8px; left: 8px; }
-        .corner-tack.br { bottom: 8px; right: 8px; }
+        .corner-tack.tl { top: 7px; left: 7px; }
+        .corner-tack.tr { top: 7px; right: 7px; }
+        .corner-tack.bl { bottom: 7px; left: 7px; }
+        .corner-tack.br { bottom: 7px; right: 7px; }
 
         .qr-frame {
+            width: 100%;
+            height: 100%;
             background: #ffffff;
             padding: 6px;
             border-radius: 4px;
@@ -290,11 +295,37 @@
             justify-content: center;
         }
 
-        .qr-frame img,
-        .qr-frame canvas {
-            width: 175px !important;
-            height: 175px !important;
+        .qr-box {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* qrcodejs가 canvas와 img를 동시에 만들어 세로로 2개 겹쳐 보이던 현상 해결! */
+        .qr-box canvas {
+            display: none !important;
+        }
+
+        .qr-box img {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 135px !important;
+            max-height: 135px !important;
+            aspect-ratio: 1 / 1 !important;
+            object-fit: contain !important;
             display: block !important;
+        }
+
+        /* 만약 브라우저 환경에 따라 img가 안 생기고 canvas만 있을 때 대비 */
+        .qr-box canvas:only-child {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 135px !important;
+            max-height: 135px !important;
+            aspect-ratio: 1 / 1 !important;
         }
 
         /* =========================================
@@ -328,12 +359,13 @@
             .fabric-swatch-card {
                 box-shadow: none !important;
                 border: 2px solid #9e896b !important;
+                padding: 22% !important;
             }
 
-            .qr-frame img,
-            .qr-frame canvas {
-                width: 155px !important;
-                height: 155px !important;
+            .qr-box img,
+            .qr-box canvas:only-child {
+                max-width: 115px !important;
+                max-height: 115px !important;
             }
         }
     </style>
@@ -347,7 +379,7 @@
                 <span style="font-size: 2rem;">🧵</span>
                 <div>
                     <h1>원단 QR 카드 (인쇄용)</h1>
-                    <p>아무 글자 없이 원단 조각 위에 QR 코드 라벨만 깔끔하게 부착된 디자인입니다.</p>
+                    <p>원단 조각 한가운데에 1:1 정사각형 QR 코드 라벨이 쏙 들어가도록 제작되었습니다.</p>
                 </div>
             </div>
 
@@ -462,7 +494,7 @@
                         <span class="corner-tack bl"></span>
                         <span class="corner-tack br"></span>
                         <div class="qr-frame">
-                            <div id="qr-box-${idx}"></div>
+                            <div id="qr-box-${idx}" class="qr-box"></div>
                         </div>
                     </div>
                 `;
@@ -473,8 +505,8 @@
                 if (qrContainer && typeof QRCode !== 'undefined') {
                     new QRCode(qrContainer, {
                         text: qrTargetUrl,
-                        width: 175,
-                        height: 175,
+                        width: 135,
+                        height: 135,
                         colorDark: '#1a1612',
                         colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.L
