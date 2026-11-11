@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧵 RE:BRAND - 원단 조각 QR 카드 (인쇄용)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <title>🧵 RE:BRAND - 원단 QR 카드 (인쇄용)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --gold: #d4af37;
-            --dark: #15171e;
-            --stitch-color: #8b7355;
         }
 
         * {
@@ -30,12 +28,12 @@
         }
 
         /* =========================================
-           상단 컨트롤 패널 (인쇄 시 자동 숨김)
+           상단 컨트롤 바 (인쇄 시 자동 숨김)
            ========================================= */
         .control-bar {
             background: linear-gradient(135deg, #1f2330 0%, #12141c 100%);
             border-bottom: 2px solid var(--gold);
-            padding: 1.2rem 2rem;
+            padding: 1.1rem 2rem;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -43,7 +41,7 @@
         }
 
         .control-header {
-            max-width: 1200px;
+            max-width: 1120px;
             margin: 0 auto;
             display: flex;
             flex-wrap: wrap;
@@ -59,10 +57,9 @@
         }
 
         .brand-title h1 {
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             color: var(--gold);
             font-weight: 900;
-            letter-spacing: -0.5px;
         }
 
         .brand-title p {
@@ -124,10 +121,6 @@
             background: linear-gradient(135deg, #e5c158, #b89020);
             color: #111;
         }
-        .btn-gold:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
-        }
 
         .btn-print {
             background: linear-gradient(135deg, #2ecc71, #27ae60);
@@ -136,22 +129,9 @@
             font-size: 0.95rem;
             box-shadow: 0 4px 15px rgba(46, 204, 113, 0.35);
         }
-        .btn-print:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
-        }
-
-        .btn-outline {
-            background: rgba(255,255,255,0.08);
-            color: #eee;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .btn-outline:hover {
-            background: rgba(255,255,255,0.15);
-        }
 
         .url-bar {
-            max-width: 1200px;
+            max-width: 1120px;
             margin: 0.8rem auto 0;
             display: flex;
             align-items: center;
@@ -178,29 +158,13 @@
             font-size: 0.85rem;
         }
 
-        .tip-banner {
-            max-width: 1200px;
-            margin: 1.2rem auto 0;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px dashed rgba(212, 175, 55, 0.5);
-            border-radius: 10px;
-            padding: 0.75rem 1.2rem;
-            font-size: 0.85rem;
-            color: #f3e5ab;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
         /* =========================================
-           원단 QR 카드 그리드 영역
+           원단 QR 카드 그리드
            ========================================= */
         .page-sheet {
-            max-width: 1120px;
-            margin: 1.5rem auto;
-            padding: 1.5rem;
+            max-width: 1080px;
+            margin: 2rem auto;
+            padding: 1rem;
         }
 
         .fabric-grid {
@@ -211,43 +175,37 @@
 
         .fabric-grid.cols-2 {
             grid-template-columns: repeat(2, 1fr);
-            max-width: 820px;
+            max-width: 780px;
             margin: 0 auto;
         }
 
         /* =========================================
-           개별 원단 조각 카드 디자인 (핵심!)
+           개별 원단 조각 + QR만 있는 깔끔한 디자인
            ========================================= */
         .fabric-swatch-card {
             position: relative;
+            aspect-ratio: 1 / 1;
             border-radius: 6px;
-            padding: 20px 18px 18px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             overflow: hidden;
-            box-shadow:
-                0 10px 25px rgba(0,0,0,0.45),
-                inset 0 0 0 2px rgba(255,255,255,0.35);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.45);
             page-break-inside: avoid;
             break-inside: avoid;
-            min-height: 410px;
-            /* 핑킹가위로 오린 원단 느낌 테두리 */
             border: 3px solid #cbb89d;
         }
 
-        /* 실제 원단 배경 이미지 레이어 (인쇄 시에도 100% 나오도록 처리) */
+        /* 실제 원단 배경 이미지 레이어 */
         .fabric-bg-layer {
             position: absolute;
             inset: 0;
             background-image: url('조각 원단.png');
             background-repeat: no-repeat;
             z-index: 0;
-            filter: contrast(1.03) brightness(0.98);
         }
 
-        /* 원단 직조(씨실/날실) 미세 질감 오버레이 */
+        /* 원단 직조(씨실/날실) 미세 질감 */
         .fabric-weave-overlay {
             position: absolute;
             inset: 0;
@@ -255,113 +213,59 @@
             background-image:
                 repeating-linear-gradient(
                     0deg,
-                    rgba(120, 95, 65, 0.06) 0px,
-                    rgba(120, 95, 65, 0.06) 1px,
+                    rgba(120, 95, 65, 0.05) 0px,
+                    rgba(120, 95, 65, 0.05) 1px,
                     transparent 1px,
                     transparent 4px
                 ),
                 repeating-linear-gradient(
                     90deg,
-                    rgba(120, 95, 65, 0.05) 0px,
-                    rgba(120, 95, 65, 0.05) 1px,
+                    rgba(120, 95, 65, 0.04) 0px,
+                    rgba(120, 95, 65, 0.04) 1px,
                     transparent 1px,
                     transparent 4px
                 );
             pointer-events: none;
         }
 
-        /* 원단 테두리 안쪽 재봉틀 바느질(스티치) 점선 */
+        /* 원단 가장자리 바느질(스티치) 점선 테두리 */
         .fabric-stitch-border {
             position: absolute;
-            inset: 8px;
+            inset: 10px;
             border: 2px dashed rgba(95, 72, 42, 0.65);
             border-radius: 4px;
             z-index: 2;
             pointer-events: none;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
         }
 
-        /* 가위 자르기 가이드 표시 */
-        .scissor-mark {
-            position: absolute;
-            top: -2px;
-            right: 12px;
-            z-index: 4;
-            font-size: 0.72rem;
-            color: #5c4628;
-            background: rgba(255, 250, 240, 0.85);
-            padding: 1px 6px;
-            border-radius: 0 0 4px 4px;
-            border: 1px solid rgba(95, 72, 42, 0.35);
-            font-weight: 700;
-        }
-
-        /* 원단 상단 조각 번호 핀 배지 */
-        .swatch-pin-header {
-            position: relative;
-            z-index: 3;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-            padding: 0 4px;
-        }
-
-        .swatch-code {
-            background: rgba(45, 36, 24, 0.85);
-            color: #f7e7c4;
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 3px 9px;
-            border-radius: 3px;
-            letter-spacing: 1px;
-            border: 1px solid #b89b6a;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .swatch-piece-num {
-            background: rgba(255, 252, 245, 0.92);
-            color: #4a3820;
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 3px;
-            border: 1px solid rgba(95, 72, 42, 0.4);
-        }
-
-        /* =========================================
-           원단 한가운데 박음질된 의류 브랜드 QR 라벨(Woven Tag)
-           ========================================= */
+        /* 원단 한가운데에 꿰매어진 순수 QR 패치 (글자 일체 없음) */
         .woven-qr-patch {
             position: relative;
             z-index: 3;
-            background: #fffdf8;
-            width: 92%;
+            background: #fffdf9;
+            padding: 16px;
             border-radius: 6px;
-            padding: 14px 12px 12px;
-            text-align: center;
-            color: #1e1e1e;
-            /* 라벨이 원단 위에 꿰매어진 입체 그림자 */
             box-shadow:
-                0 6px 14px rgba(45, 32, 16, 0.28),
-                0 1px 3px rgba(0,0,0,0.18);
+                0 6px 16px rgba(45, 32, 16, 0.32),
+                0 1px 3px rgba(0,0,0,0.2);
             border: 1.5px solid #d8ccb8;
-            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* 라벨 안쪽 실밥 스티치 라인 */
+        /* QR 라벨 안쪽 실밥 스티치 라인 */
         .woven-qr-patch::before {
             content: '';
             position: absolute;
-            inset: 4px;
-            border: 1.5px dashed var(--dept-color, #8b7355);
+            inset: 5px;
+            border: 1.5px dashed #8b7355;
             border-radius: 4px;
             pointer-events: none;
-            opacity: 0.75;
+            opacity: 0.7;
         }
 
-        /* 네 모서리 실밥(바느질 고정 표시) / 리벳 구멍 */
+        /* 네 모서리 고정 핀(리벳/실밥 매듭) */
         .corner-tack {
             position: absolute;
             width: 8px;
@@ -377,113 +281,20 @@
         .corner-tack.bl { bottom: 8px; left: 8px; }
         .corner-tack.br { bottom: 8px; right: 8px; }
 
-        .label-brand-line {
-            font-family: 'Playfair Display', serif;
-            font-size: 0.68rem;
-            letter-spacing: 2px;
-            color: #7a6a53;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .label-dept-title {
-            font-size: 1.05rem;
-            font-weight: 900;
-            color: #222;
-            margin-bottom: 2px;
+        .qr-frame {
+            background: #ffffff;
+            padding: 6px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-        }
-
-        .dept-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--dept-color, #d4af37);
-        }
-
-        .label-sub {
-            font-size: 0.72rem;
-            color: #666;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        /* QR 코드 박스 */
-        .qr-frame {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            background: #ffffff;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1.5px solid #e2d9c8;
-            margin-bottom: 8px;
         }
 
         .qr-frame img,
         .qr-frame canvas {
-            width: 168px !important;
-            height: 168px !important;
+            width: 175px !important;
+            height: 175px !important;
             display: block !important;
-        }
-
-        /* 케어 라벨 스타일 비밀번호 영역 */
-        .care-label-pw {
-            background: #f5efe4;
-            border: 1px solid #d5c7b2;
-            border-radius: 4px;
-            padding: 5px 8px;
-            font-size: 0.85rem;
-            color: #2c2216;
-            font-weight: 700;
-            margin: 0 4px 4px;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .care-label-pw:hover {
-            background: #ebe1cf;
-        }
-
-        .care-label-pw strong {
-            color: var(--dept-color, #b33939);
-            font-size: 0.95rem;
-            letter-spacing: 0.5px;
-        }
-
-        .care-label-meta {
-            font-size: 0.64rem;
-            color: #887a66;
-            letter-spacing: 0.3px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 2px;
-            font-weight: 600;
-        }
-
-        /* 하단 원단 케어 안내 리본 */
-        .swatch-footer-ribbon {
-            position: relative;
-            z-index: 3;
-            margin-top: 6px;
-            background: rgba(35, 28, 18, 0.82);
-            color: #f3e5ab;
-            font-size: 0.7rem;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-            border: 1px solid rgba(212, 175, 55, 0.4);
-        }
-
-        /* 비밀번호 숨김 모드일 때 */
-        body.hide-pw .care-label-pw {
-            display: none !important;
         }
 
         /* =========================================
@@ -492,12 +303,11 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 10mm;
+                margin: 12mm;
             }
 
             body {
                 background: #ffffff !important;
-                color: #000000 !important;
                 padding: 0 !important;
             }
 
@@ -512,20 +322,18 @@
             }
 
             .fabric-grid {
-                gap: 14px !important;
+                gap: 16px !important;
             }
 
             .fabric-swatch-card {
-                min-height: 360px !important;
-                padding: 14px 12px 12px !important;
                 box-shadow: none !important;
                 border: 2px solid #9e896b !important;
             }
 
             .qr-frame img,
             .qr-frame canvas {
-                width: 150px !important;
-                height: 150px !important;
+                width: 155px !important;
+                height: 155px !important;
             }
         }
     </style>
@@ -538,23 +346,23 @@
             <div class="brand-title">
                 <span style="font-size: 2rem;">🧵</span>
                 <div>
-                    <h1>RE:BRAND 원단 조각 QR 카드 생성기</h1>
-                    <p>실제 천(원단) 없이 인쇄해서 바로 오려 쓸 수 있는 '원단 질감 + 의류 라벨' 일체형 QR 카드입니다.</p>
+                    <h1>원단 QR 카드 (인쇄용)</h1>
+                    <p>아무 글자 없이 원단 조각 위에 QR 코드 라벨만 깔끔하게 부착된 디자인입니다.</p>
                 </div>
             </div>
 
             <div class="control-actions">
                 <div class="ctrl-group">
                     <label for="class-select">학급:</label>
-                    <input type="text" id="class-select" value="3-1" style="width: 75px; text-align: center;" title="학급 입력 후 불러오기 클릭">
+                    <input type="text" id="class-select" value="3-1" style="width: 70px; text-align: center;">
                     <button id="btn-load-firebase" class="btn btn-gold" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;">🔄 DB 연동</button>
                 </div>
 
                 <div class="ctrl-group">
                     <label for="bg-mode-select">원단 배경:</label>
                     <select id="bg-mode-select">
-                        <option value="slice">🧩 부서별 조각 분할 (합치면 1장)</option>
-                        <option value="full">🌿 전체 원단 무늬 반복</option>
+                        <option value="slice">🧩 6등분 퍼즐 원단 조각</option>
+                        <option value="full">🌿 전체 원단 무늬</option>
                     </select>
                 </div>
 
@@ -566,36 +374,25 @@
                     </select>
                 </div>
 
-                <button id="btn-toggle-pw" class="btn btn-outline" title="카드 하단의 비밀번호 인쇄 여부를 전환합니다">
-                    🔑 비밀번호 표시 중
-                </button>
-
                 <button onclick="window.print()" class="btn btn-print">
-                    🖨️ 원단 QR 카드 인쇄하기
+                    🖨️ 인쇄하기
                 </button>
             </div>
         </div>
 
         <div class="url-bar">
             <label for="base-url-input">🔗 QR 연결 주소 (게임 URL):</label>
-            <input type="text" id="base-url-input" value="https://jinbong-t.github.io/brand-crisis-escape/index.html" placeholder="https://.../index.html">
+            <input type="text" id="base-url-input" value="https://jinbong-t.github.io/brand-crisis-escape/index.html">
             <button id="btn-regenerate" class="btn btn-gold">✨ QR 다시 생성</button>
-        </div>
-
-        <div class="tip-banner">
-            <span>💡 <strong>교실 활용 팁:</strong> 각 카드의 <strong>비밀번호 상자를 클릭</strong>하면 문구를 바로 수정할 수 있습니다. 인쇄 후 점선을 따라 가위로 오려서 교실 곳곳에 숨겨두세요!</span>
-            <span id="sync-status" style="color: #2ecc71; font-weight: 700;">⏳ 기본 데이터 준비 완료</span>
+            <span id="sync-status" style="color: #2ecc71; font-size: 0.8rem; font-weight: 700;"></span>
         </div>
     </header>
 
     <!-- 인쇄될 원단 QR 카드 시트 -->
     <main class="page-sheet">
-        <div id="fabric-cards-grid" class="fabric-grid">
-            <!-- 자바스크립트에서 원단 QR 카드 렌더링 -->
-        </div>
+        <div id="fabric-cards-grid" class="fabric-grid"></div>
     </main>
 
-    <!-- Firebase 연동 및 카드 렌더링 스크립트 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -610,20 +407,16 @@
             measurementId: "G-JBZKBCTCXN"
         };
 
-        // 기본 6개 부서 및 기본 암호
         const DEFAULT_DEPTS = [
-            { id: '디자인기획부', name: '디자인기획부', pw: '지구를 위한 스케치', color: '#b8860b', fabricCode: 'ECO-LINEN #01' },
-            { id: '소재개발부',   name: '소재개발부',   pw: '자연을 품은 원단',   color: '#2471a3', fabricCode: 'ECO-LINEN #02' },
-            { id: '스타일링부',   name: '스타일링부',   pw: '오래 입는 즐거움',   color: '#c0392b', fabricCode: 'ECO-LINEN #03' },
-            { id: '생산전략부',   name: '생산전략부',   pw: '낭비 없는 재단',     color: '#1e8449', fabricCode: 'ECO-LINEN #04' },
-            { id: '마케팅부',     name: '마케팅부',     pw: '가치 있는 소비',     color: '#7d3c98', fabricCode: 'ECO-LINEN #05' },
-            { id: '품질관리부',   name: '품질관리부',   pw: '건강한 옷 입기',     color: '#d35400', fabricCode: 'ECO-LINEN #06' }
+            { id: '디자인기획부' },
+            { id: '소재개발부' },
+            { id: '스타일링부' },
+            { id: '생산전략부' },
+            { id: '마케팅부' },
+            { id: '품질관리부' }
         ];
 
-        const PALETTE = ['#b8860b', '#2471a3', '#c0392b', '#1e8449', '#7d3c98', '#d35400'];
-
         let currentDepts = [...DEFAULT_DEPTS];
-        let showPassword = true;
 
         const gridEl = document.getElementById('fabric-cards-grid');
         const classInput = document.getElementById('class-select');
@@ -632,13 +425,10 @@
         const colsSelect = document.getElementById('cols-select');
         const syncStatus = document.getElementById('sync-status');
 
-        // 현재 로컬/배포 URL 자동 감지 (http/https일 때만)
         if (window.location.protocol.startsWith('http')) {
-            const autoUrl = window.location.href.replace(/\/[^\/]*$/, '/index.html');
-            urlInput.value = autoUrl;
+            urlInput.value = window.location.href.replace(/\/[^\/]*$/, '/index.html');
         }
 
-        // 원단 조각 QR 카드 렌더링 함수
         function renderFabricQrCards() {
             gridEl.innerHTML = '';
             const baseUrl = urlInput.value.trim().split('?')[0] || 'https://jinbong-t.github.io/brand-crisis-escape/index.html';
@@ -648,105 +438,52 @@
             const rows = total <= 3 ? 1 : 2;
 
             currentDepts.forEach((dept, idx) => {
-                const color = dept.color || PALETTE[idx % PALETTE.length];
                 const qrTargetUrl = `${baseUrl}?qr=true&deptId=${encodeURIComponent(dept.id)}`;
 
-                // 부서별 원단 이미지 분할 좌표 계산 (dashboard.js의 퍼즐 뷰어와 동일한 분할 비율)
                 const colIdx = idx % cols;
                 const rowIdx = Math.floor(idx / cols);
                 const bgXPercent = cols <= 1 ? 0 : (colIdx / (cols - 1)) * 100;
                 const bgYPercent = rows <= 1 ? 0 : (rowIdx / (rows - 1)) * 100;
 
-                const card = document.createElement('div');
-                card.className = 'fabric-swatch-card';
-                card.style.setProperty('--dept-color', color);
-
                 const bgStyle = bgMode === 'slice'
                     ? `background-size: ${cols * 100}% ${rows * 100}%; background-position: ${bgXPercent}% ${bgYPercent}%;`
                     : `background-size: cover; background-position: center;`;
 
+                const card = document.createElement('div');
+                card.className = 'fabric-swatch-card';
                 card.innerHTML = `
-                    <!-- 1. 실제 조각 원단 배경 이미지 -->
                     <div class="fabric-bg-layer" style="${bgStyle}"></div>
-                    <!-- 2. 원단 씨실/날실 직조 오버레이 -->
                     <div class="fabric-weave-overlay"></div>
-                    <!-- 3. 재봉틀 박음질 스티치 테두리 -->
                     <div class="fabric-stitch-border"></div>
-                    <div class="scissor-mark">✂️ 원단 외곽선</div>
 
-                    <!-- 상단 원단 샘플 핀 헤더 -->
-                    <div class="swatch-pin-header">
-                        <span class="swatch-code">🧵 SWATCH #0${idx + 1}</span>
-                        <span class="swatch-piece-num">조각 ${idx + 1} / ${total}</span>
-                    </div>
-
-                    <!-- 원단 중앙에 박음질된 의류 QR 라벨 택 -->
                     <div class="woven-qr-patch">
                         <span class="corner-tack tl"></span>
                         <span class="corner-tack tr"></span>
                         <span class="corner-tack bl"></span>
                         <span class="corner-tack br"></span>
-
-                        <div class="label-brand-line">RE:BRAND ECO COLLECTION</div>
-                        <div class="label-dept-title">
-                            <span class="dept-dot"></span>
-                            <span>${dept.name}</span>
-                        </div>
-                        <div class="label-sub">원단에 부착된 QR 라벨을 카메라로 스캔하세요</div>
-
                         <div class="qr-frame">
                             <div id="qr-box-${idx}"></div>
                         </div>
-
-                        <div class="care-label-pw" data-idx="${idx}" title="클릭하여 비밀번호 문구 수정">
-                            🔑 암호: <strong>${dept.pw || '(미설정)'}</strong>
-                        </div>
-
-                        <div class="care-label-meta">
-                            <span>100% ECO FABRIC</span>
-                            <span>•</span>
-                            <span>HAN SEO-YEON ARCHIVE</span>
-                        </div>
-                    </div>
-
-                    <!-- 하단 원단 배지 -->
-                    <div class="swatch-footer-ribbon">
-                        🌿 한서연 수석 디자이너가 숨겨둔 진짜 컬렉션 원단 조각
                     </div>
                 `;
 
                 gridEl.appendChild(card);
 
-                // QR 코드 생성
                 const qrContainer = document.getElementById(`qr-box-${idx}`);
                 if (qrContainer && typeof QRCode !== 'undefined') {
                     new QRCode(qrContainer, {
                         text: qrTargetUrl,
-                        width: 168,
-                        height: 168,
+                        width: 175,
+                        height: 175,
                         colorDark: '#1a1612',
                         colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.L
                     });
                 }
-
-                // 비밀번호 클릭 시 즉석 수정 가능
-                const pwEl = card.querySelector('.care-label-pw');
-                pwEl?.addEventListener('click', () => {
-                    const newPw = prompt(`[${dept.name}] 원단 카드에 표시할 비밀번호를 입력하세요:`, dept.pw);
-                    if (newPw !== null) {
-                        currentDepts[idx].pw = newPw.trim();
-                        renderFabricQrCards();
-                    }
-                });
             });
         }
 
-        // Firebase에서 현재 학급의 부서 및 비밀번호 불러오기
         async function syncFromFirebase(useGlobalActiveClass = false) {
-            syncStatus.textContent = '⏳ Firebase에서 부서·암호 불러오는 중...';
-            syncStatus.style.color = '#f1c40f';
-
             try {
                 const app = initializeApp(firebaseConfig);
                 const db = getFirestore(app);
@@ -761,78 +498,37 @@
                     }
                 }
 
-                // 1) qrConfig (저장된 URL 및 부서별 비번) 조회
                 const qrConfigSnap = await getDoc(doc(db, `classes/${targetClass}/global`, 'qrConfig'));
-                let savedPws = {};
-                if (qrConfigSnap.exists()) {
-                    const qData = qrConfigSnap.data();
-                    if (qData.deptPasswords) savedPws = qData.deptPasswords;
-                    if (qData.savedGameUrl) {
-                        urlInput.value = qData.savedGameUrl.split('?')[0];
-                    }
+                if (qrConfigSnap.exists() && qrConfigSnap.data().savedGameUrl) {
+                    urlInput.value = qrConfigSnap.data().savedGameUrl.split('?')[0];
                 }
 
-                // 2) 부서 목록 조회
                 const deptSnap = await getDocs(collection(db, `classes/${targetClass}/departments`));
                 if (!deptSnap.empty) {
                     const loadedDepts = [];
-                    let i = 0;
-                    deptSnap.forEach(d => {
-                        const deptId = d.id;
-                        const deptName = d.data().name || deptId;
-                        const fallbackDefault = DEFAULT_DEPTS.find(def => def.name === deptName || def.id === deptId);
-                        const pw = savedPws[deptId] || savedPws[deptName] || (fallbackDefault ? fallbackDefault.pw : '지구를 위한 스케치');
-                        loadedDepts.push({
-                            id: deptId,
-                            name: deptName,
-                            pw: pw,
-                            color: PALETTE[i % PALETTE.length]
-                        });
-                        i++;
-                    });
+                    deptSnap.forEach(d => loadedDepts.push({ id: d.id }));
                     currentDepts = loadedDepts;
-                    syncStatus.textContent = `✅ [${targetClass}]반 ${loadedDepts.length}개 부서 연동 완료`;
-                    syncStatus.style.color = '#2ecc71';
+                    syncStatus.textContent = `✅ [${targetClass}]반 (${loadedDepts.length}조) 연동됨`;
                 } else {
-                    // 부서가 아직 없으면 기본 6개 부서에 저장된 비번만 매핑
-                    currentDepts = DEFAULT_DEPTS.map(d => ({
-                        ...d,
-                        pw: savedPws[d.id] || savedPws[d.name] || d.pw
-                    }));
-                    syncStatus.textContent = `ℹ️ [${targetClass}]반 기본 6개 부서로 표시 중`;
-                    syncStatus.style.color = '#3498db';
+                    currentDepts = [...DEFAULT_DEPTS];
+                    syncStatus.textContent = `ℹ️ 기본 6조 구성`;
                 }
 
                 renderFabricQrCards();
             } catch (err) {
-                console.warn('Firebase 연동 실패 (오프라인/기본값 사용):', err);
-                syncStatus.textContent = '⚠️ 기본 6개 부서 데이터로 표시 중';
-                syncStatus.style.color = '#e67e22';
+                currentDepts = [...DEFAULT_DEPTS];
                 renderFabricQrCards();
             }
         }
 
-        // 이벤트 바인딩
         document.getElementById('btn-load-firebase').addEventListener('click', () => syncFromFirebase(false));
         document.getElementById('btn-regenerate').addEventListener('click', renderFabricQrCards);
         bgModeSelect.addEventListener('change', renderFabricQrCards);
 
         colsSelect.addEventListener('change', () => {
-            if (colsSelect.value === '2') {
-                gridEl.classList.add('cols-2');
-            } else {
-                gridEl.classList.remove('cols-2');
-            }
+            gridEl.classList.toggle('cols-2', colsSelect.value === '2');
         });
 
-        const btnTogglePw = document.getElementById('btn-toggle-pw');
-        btnTogglePw.addEventListener('click', () => {
-            showPassword = !showPassword;
-            document.body.classList.toggle('hide-pw', !showPassword);
-            btnTogglePw.textContent = showPassword ? '🔑 비밀번호 표시 중' : '🔒 비밀번호 숨김 중';
-        });
-
-        // 초기 렌더링 후 Firebase 동기화 시도
         renderFabricQrCards();
         syncFromFirebase(true);
     </script>
