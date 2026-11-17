@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🧵 RE:BRAND - 원단 QR 카드 (인쇄 및 이미지 저장)</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -514,7 +515,7 @@
         const colsSelect = document.getElementById('cols-select');
         const syncStatus = document.getElementById('sync-status');
 
-        if (window.location.protocol.startsWith('http')) {
+        if (window.location.protocol.startsWith('http') && !window.location.hostname.includes('127.0.0.1') && !window.location.hostname.includes('localhost')) {
             urlInput.value = window.location.href.replace(/\/[^\/]*$/, '/index.html');
         }
 
@@ -808,7 +809,7 @@
             }
         });
 
-        // [버튼 3] 전체 6장 A4 1장 완벽 인쇄 (배경 그래픽 체크 여부와 무관하게 6장 모두 100% 인쇄)
+        // [버튼 3] 전체 6장 A4 1장 완벽 인쇄 (Live Server 스크립트 주입 충돌 방지 DOM 생성 방식)
         document.getElementById('btn-print-all').addEventListener('click', async () => {
             const btn = document.getElementById('btn-print-all');
             const origText = btn.textContent;
@@ -828,65 +829,36 @@
                     return;
                 }
 
-                printWin.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="ko">
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>원단 QR 카드 6장 인쇄</title>
-                        <style>
-                            @page {
-                                size: A4 portrait;
-                                margin: 10mm;
-                            }
-                            * {
-                                box-sizing: border-box;
-                                margin: 0;
-                                padding: 0;
-                            }
-                            body {
-                                background: #ffffff;
-                                display: flex;
-                                flex-direction: column;
-                                align-items: center;
-                                justify-content: center;
-                                font-family: 'Noto Sans KR', sans-serif;
-                            }
-                            .print-grid {
-                                width: 180mm;
-                                display: grid;
-                                grid-template-columns: repeat(2, 84mm);
-                                grid-template-rows: repeat(3, 84mm);
-                                justify-content: center;
-                                gap: 8mm;
-                                margin: 0 auto;
-                            }
-                            .print-card {
-                                width: 84mm;
-                                height: 84mm;
-                                display: block;
-                                object-fit: contain;
-                                page-break-inside: avoid;
-                                break-inside: avoid;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="print-grid">
-                            ${dataUrls.map((src, idx) => `<img class="print-card" src="${src}" alt="원단 QR ${idx + 1}">`).join('')}
-                        </div>
-                        <script>
-                            window.onload = function() {
-                                setTimeout(function() {
-                                    window.focus();
-                                    window.print();
-                                }, 250);
-                            };
-                        <\/script>
-                    </body>
-                    </html>
-                `);
-                printWin.document.close();
+                const pDoc = printWin.document;
+                pDoc.open();
+                pDoc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>원단 QR 카드 6장 인쇄<' + '/title><' + '/head><body><' + '/body><' + '/html>');
+                pDoc.close();
+
+                const styleEl = pDoc.createElement('style');
+                styleEl.textContent = `
+                    @page { size: A4 portrait; margin: 10mm; }
+                    * { box-sizing: border-box; margin: 0; padding: 0; }
+                    body { background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+                    .print-grid { width: 180mm; display: grid; grid-template-columns: repeat(2, 84mm); grid-template-rows: repeat(3, 84mm); justify-content: center; gap: 8mm; margin: 0 auto; }
+                    .print-card { width: 84mm; height: 84mm; display: block; object-fit: contain; page-break-inside: avoid; break-inside: avoid; }
+                `;
+                pDoc.head.appendChild(styleEl);
+
+                const gridDiv = pDoc.createElement('div');
+                gridDiv.className = 'print-grid';
+                dataUrls.forEach((src, idx) => {
+                    const img = pDoc.createElement('img');
+                    img.className = 'print-card';
+                    img.src = src;
+                    img.alt = '원단 QR ' + (idx + 1);
+                    gridDiv.appendChild(img);
+                });
+                pDoc.body.appendChild(gridDiv);
+
+                setTimeout(() => {
+                    printWin.focus();
+                    printWin.print();
+                }, 300);
             } catch (e) {
                 console.error(e);
                 window.print();

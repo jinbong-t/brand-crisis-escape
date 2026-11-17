@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RE:BRAND 컨트롤 타워</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dashboard.css">
@@ -208,7 +209,8 @@
                                 <p style="color: #888; font-size: 0.8rem; margin: 0;">학생이 스캔 → 자기 부서 비밀번호 입력 화면으로 이동</p>
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button id="btn-gen-qr" class="btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">⚙️ QR 생성</button>
+                                <button onclick="window.open('원단_QR_카드.html', '_blank')" class="btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; background: linear-gradient(135deg, #d4af37, #b89020); color: #111; font-weight: bold;">🧵 원단 QR 카드 저장·인쇄 창 열기</button>
+                                <button id="btn-gen-qr" class="btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">⚙️ 기본 QR 생성</button>
                                 <button id="btn-print-qr" class="btn-success" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; display:none;">🖨️ 인쇄하기</button>
                             </div>
                         </div>

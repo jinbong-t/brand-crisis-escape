@@ -85,6 +85,18 @@ document.getElementById('btn-reset-status')?.addEventListener('click', async () 
             }));
         });
         await Promise.all(promises);
+
+        // UI 게이지도 즉시 0%로 리셋
+        const scoreTextEl = document.getElementById('env-score-text');
+        const scoreBarEl = document.getElementById('env-score-bar');
+        const msgEl = document.getElementById('env-score-msg');
+        if (scoreTextEl) scoreTextEl.textContent = '0%';
+        if (scoreBarEl) scoreBarEl.style.width = '0%';
+        if (msgEl) {
+            msgEl.textContent = '학생들이 긍정적인 환경 선택을 할 때마다 게이지가 차오릅니다.';
+            msgEl.style.color = '#aaa';
+        }
+
         alert('모든 진행 상황과 환경 점수가 성공적으로 초기화되었습니다!');
     } catch (e) {
         console.error(e);
@@ -550,6 +562,16 @@ function renderStatusTab() {
         container.innerHTML = '';
         if (snapshot.empty) {
             container.innerHTML = '<p>현재 진행 중인 부서 데이터가 없습니다.</p>';
+            const scoreTextEl = document.getElementById('env-score-text');
+            const scoreBarEl = document.getElementById('env-score-bar');
+            const msgEl = document.getElementById('env-score-msg');
+            if (scoreTextEl) scoreTextEl.textContent = '0%';
+            if (scoreBarEl) scoreBarEl.style.width = '0%';
+            if (msgEl) {
+                msgEl.textContent = '학생들이 긍정적인 환경 선택을 할 때마다 게이지가 차오릅니다.';
+                msgEl.style.color = '#aaa';
+            }
+            updateForcePassSelect(snapshot);
             return;
         }
 
@@ -821,17 +843,38 @@ function renderControlTab() {
     if(btnResetClass) btnResetClass.onclick = async () => {
         if(confirm(`정말 [${activeClass}] 반의 모든 데이터를 삭제하시겠습니까? 복구할 수 없습니다!`)) {
             try {
-                // 부서 목록 가져오기
+                // 부서 목록 및 하위 컬렉션(roles, reasoning), 조각(pieces) 모두 삭제
                 const deptsRef = collection(db, `classes/${activeClass}/departments`);
                 const snap = await getDocs(deptsRef);
+                const deletePromises = [];
                 
-                // 순회하며 삭제
-                snap.forEach(async (docSnap) => {
-                    await deleteDoc(doc(db, `classes/${activeClass}/departments`, docSnap.id));
-                });
+                for (const docSnap of snap.docs) {
+                    const deptId = docSnap.id;
+                    const rolesSnap = await getDocs(collection(db, `classes/${activeClass}/departments/${deptId}/roles`));
+                    rolesSnap.forEach(rDoc => deletePromises.push(deleteDoc(rDoc.ref)));
+
+                    const reasoningSnap = await getDocs(collection(db, `classes/${activeClass}/departments/${deptId}/reasoning`));
+                    reasoningSnap.forEach(rDoc => deletePromises.push(deleteDoc(rDoc.ref)));
+
+                    deletePromises.push(deleteDoc(doc(db, `classes/${activeClass}/pieces`, deptId)));
+                    deletePromises.push(deleteDoc(docSnap.ref));
+                }
+
+                await Promise.all(deletePromises);
                 
                 // 전역 상태 초기화 (활동 시작, 얼음 등)
                 await setDoc(doc(db, `classes/${activeClass}/global`, 'state'), { freeze: false, activityStarted: false });
+
+                // 화면의 환경 게이지도 즉시 0%로 초기화
+                const scoreTextEl = document.getElementById('env-score-text');
+                const scoreBarEl = document.getElementById('env-score-bar');
+                const msgEl = document.getElementById('env-score-msg');
+                if (scoreTextEl) scoreTextEl.textContent = '0%';
+                if (scoreBarEl) scoreBarEl.style.width = '0%';
+                if (msgEl) {
+                    msgEl.textContent = '학생들이 긍정적인 환경 선택을 할 때마다 게이지가 차오릅니다.';
+                    msgEl.style.color = '#aaa';
+                }
                 
                 alert(`[${activeClass}] 반 초기화가 완료되었습니다.`);
             } catch(e) {
