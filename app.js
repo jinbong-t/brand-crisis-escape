@@ -183,7 +183,7 @@ function getReasoningDocRef(deptId, stageStr) {
     return doc(db, `classes/${activeClass}/departments/${deptId}/reasoning`, stageStr);
 }
 
-sessionStorage.clear();
+// (주의: 새로고침 시 학생 세션이 유지되도록 sessionStorage.clear() 제거)
 
 // 화면에 현재 반 희미하게 표시
 document.getElementById('active-class-watermark').textContent = `Class: ${activeClass}`;
@@ -228,50 +228,60 @@ const diaryText = document.getElementById('diary-text');
 const btnSubmitOpening = document.getElementById('btn-submit-opening');
 const openingErrorMsg = document.getElementById('opening-error-msg');
 
-// 상태 관리
-let currentDeptId = sessionStorage.getItem('currentDeptId') || null;
-let currentDeptName = sessionStorage.getItem('currentDeptName') || null;
-let currentRole = sessionStorage.getItem('currentRole') || null;
+// 상태 관리 (새로고침 시에도 튕기지 않도록 sessionStorage + localStorage 이중 보존)
+let currentDeptId = sessionStorage.getItem('currentDeptId') || localStorage.getItem('rebrand_saved_deptId') || null;
+let currentDeptName = sessionStorage.getItem('currentDeptName') || localStorage.getItem('rebrand_saved_deptName') || null;
+let currentRole = sessionStorage.getItem('currentRole') || localStorage.getItem('rebrand_saved_role') || null;
 let adminClickCount = 0;
 let adminClickTimer = null;
 
 function saveSessionState() {
-    if (currentDeptId) sessionStorage.setItem('currentDeptId', currentDeptId);
-    if (currentDeptName) sessionStorage.setItem('currentDeptName', currentDeptName);
-    if (currentRole) sessionStorage.setItem('currentRole', currentRole);
+    if (currentDeptId) {
+        sessionStorage.setItem('currentDeptId', currentDeptId);
+        localStorage.setItem('rebrand_saved_deptId', currentDeptId);
+    }
+    if (currentDeptName) {
+        sessionStorage.setItem('currentDeptName', currentDeptName);
+        localStorage.setItem('rebrand_saved_deptName', currentDeptName);
+    }
+    if (currentRole) {
+        sessionStorage.setItem('currentRole', currentRole);
+        localStorage.setItem('rebrand_saved_role', currentRole);
+    }
 }
 
 function clearSessionState() {
     sessionStorage.removeItem('currentDeptId');
     sessionStorage.removeItem('currentDeptName');
     sessionStorage.removeItem('currentRole');
+    localStorage.removeItem('rebrand_saved_deptId');
+    localStorage.removeItem('rebrand_saved_deptName');
+    localStorage.removeItem('rebrand_saved_role');
 }
 
 // ==========================================
-// QR 인증 모드 처리
+// QR 스캔 모드 처리 (학생이 원단 QR을 찍으면 부서와 숨겨진 암호를 즉시 발견!)
 // ==========================================
 const urlParams = new URLSearchParams(window.location.search);
 const isQrMode = urlParams.get('qr') === 'true';
 
 if (isQrMode) {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         // QR 모드일 때는 백그라운드에서 실행되는 영상/음악을 완전히 차단 (보물 효과음만 예외)
         const originalPlay = HTMLMediaElement.prototype.play;
         HTMLMediaElement.prototype.play = function() {
             if (this.src && this.src.includes('fairy_glissando')) {
-                return originalPlay.call(this); // 요정 소리만 허용
+                return originalPlay.call(this);
             }
-            return Promise.resolve(); // 나머지는 모두 차단
+            return Promise.resolve();
         };
 
-        // DOM에 이미 있는 미디어들도 강제 일시정지 및 음소거
         document.querySelectorAll('video, audio').forEach(media => {
             media.pause();
             media.muted = true;
             media.removeAttribute('autoplay');
         });
         
-        // 파이어베이스 이벤트로 인해 모달이 강제로 뜨는 것을 원천 차단
         const style = document.createElement('style');
         style.innerHTML = '#intro-modal, #epilogue-modal, #twist-modal { display: none !important; }';
         document.head.appendChild(style);
@@ -280,93 +290,68 @@ if (isQrMode) {
         document.getElementById('screen-qr-standalone').classList.remove('hidden');
         
         const authSection = document.getElementById('qr-auth-section');
-        
-        document.getElementById('btn-submit-qr-pw').addEventListener('click', async () => {
-            const inputPw = document.getElementById('qr-password-input-standalone').value.trim();
-            if (!inputPw) return;
+        const discoveredDeptEl = document.getElementById('qr-discovered-dept');
+        const discoveredPwEl = document.getElementById('qr-discovered-pw');
+        const submitBtn = document.getElementById('btn-submit-qr-pw');
 
-            // 버튼 비활성화 (중복 클릭 방지)
-            const submitBtn = document.getElementById('btn-submit-qr-pw');
+        const targetDeptId = urlParams.get('deptId') || currentDeptId || '디자인기획부';
+        let qrClass = activeClass;
+        let secretPw = (typeof PUZZLE_DATA !== 'undefined' && PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[targetDeptId])
+            ? PUZZLE_DATA.qrMessages[targetDeptId]
+            : '지구를 위한 스케치';
+
+        try {
+            const globalConfigSnap = await getDoc(doc(db, 'global', 'config'));
+            if (globalConfigSnap.exists() && globalConfigSnap.data().currentActiveSession) {
+                qrClass = globalConfigSnap.data().currentActiveSession;
+            }
+            const qrConfigSnap = await getDoc(doc(db, `classes/${qrClass}/global`, 'qrConfig'));
+            if (qrConfigSnap.exists() && qrConfigSnap.data().deptPasswords && qrConfigSnap.data().deptPasswords[targetDeptId]) {
+                secretPw = qrConfigSnap.data().deptPasswords[targetDeptId];
+            }
+        } catch (e) {
+            console.warn('QR 설정 로드 중 기본값 사용:', e);
+        }
+
+        if (discoveredDeptEl) discoveredDeptEl.textContent = `🧵 [${targetDeptId}] 원단 조각`;
+        if (discoveredPwEl) discoveredPwEl.textContent = `"${secretPw}"`;
+        if (submitBtn) submitBtn.textContent = `✨ [${targetDeptId}] 원단 조각 즉시 획득하기`;
+
+        submitBtn?.addEventListener('click', async () => {
+            // 만약 현재 기기에 다른 부서로 로그인된 정보가 있다면 실수 방지 확인
+            if (currentDeptId && currentDeptId !== targetDeptId) {
+                const ok = confirm(`현재 이 기기는 [${currentDeptId}] 소속입니다.\n정말 [${targetDeptId}]의 원단 조각을 획득 처리하시겠습니까?`);
+                if (!ok) return;
+            }
+
             submitBtn.disabled = true;
-            submitBtn.textContent = '확인 중...';
+            submitBtn.textContent = '획득 처리 중...';
             
             try {
-                // ① activeClass를 Firebase에서 직접 조회 (비동기 동기화 문제 해결)
-                const globalConfigSnap = await getDoc(doc(db, 'global', 'config'));
-                let qrClass = activeClass; // 기본값
-                if (globalConfigSnap.exists() && globalConfigSnap.data().currentActiveSession) {
-                    qrClass = globalConfigSnap.data().currentActiveSession;
-                }
+                const pieceRef = doc(db, `classes/${qrClass}/pieces`, targetDeptId);
+                await setDoc(pieceRef, { unlocked: true, unlockedAt: new Date().toISOString() }, { merge: true });
                 
-                const qrConfigRef = doc(db, `classes/${qrClass}/global`, 'qrConfig');
-                const qrConfigSnap = await getDoc(qrConfigRef);
+                authSection.classList.add('hidden');
+                document.getElementById('qr-success-section').classList.remove('hidden');
                 
-                let foundDept = null;
-                const targetDeptId = urlParams.get('deptId');
+                const treasureAudio = new Audio('https://actions.google.com/sounds/v1/magic/fairy_glissando.ogg');
+                treasureAudio.volume = 0.5;
+                treasureAudio.play().catch(() => {});
                 
-                if (qrConfigSnap.exists() && qrConfigSnap.data().deptPasswords) {
-                    const pws = qrConfigSnap.data().deptPasswords;
-                    
-                    const normalize = s => typeof s === 'string' ? s.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase() : '';
-                    const normInput = normalize(inputPw);
-                    
-                    if (targetDeptId) {
-                        // QR 코드에 할당된 부서가 있는 경우, 해당 부서 비번만 대조
-                        if (pws[targetDeptId] && normalize(pws[targetDeptId]) === normInput) {
-                            foundDept = targetDeptId;
-                        }
-                    } else {
-                        // 예전 방식(파라미터 없는 QR) 대비 안전장치: 전체 순회
-                        for (const [deptId, pw] of Object.entries(pws)) {
-                            if (pw && normalize(pw) === normInput) {
-                                foundDept = deptId;
-                                break;
-                            }
-                        }
-                    }
-                }
+                document.getElementById('qr-success-dept').textContent = `🎉 [${targetDeptId}] 원단 획득!`;
+                document.getElementById('qr-success-message').innerHTML = `🔑 발견한 비밀 암호:<br>"${secretPw}"`;
                 
-                if (foundDept) {
-                    // 성공: pieces/{deptId} 에 unlocked: true 기록
-                    const pieceRef = doc(db, `classes/${qrClass}/pieces`, foundDept);
-                    await setDoc(pieceRef, { unlocked: true }, { merge: true });
-                    
-                    authSection.classList.add('hidden');
-                    document.getElementById('qr-success-section').classList.remove('hidden');
-                    
-                    // ✨ 보물 발견 효과음 재생
-                    const treasureAudio = new Audio('https://actions.google.com/sounds/v1/magic/fairy_glissando.ogg');
-                    treasureAudio.volume = 0.5;
-                    treasureAudio.play().catch(e => console.log('오디오 자동재생 방지됨:', e));
-                    
-                    // 성공 메시지 및 단서 렌더링
-                    document.getElementById('qr-success-dept').textContent = `[${foundDept}] 원단 획득!`;
-                    const clue = (typeof PUZZLE_DATA !== 'undefined' && PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[foundDept]) 
-                                    ? PUZZLE_DATA.qrMessages[foundDept] 
-                                    : '팀원들과 힘을 합쳐 다음 단계를 진행하세요.';
-                    document.getElementById('qr-success-message').innerHTML = `💡 획득한 단서:<br>"${clue}"`;
-                    
-                    try {
-                        await updateDoc(doc(db, `classes/${qrClass}/departments`, foundDept), { qrScanned: true });
-                    } catch(e) { console.error(e); }
-                    
-                } else {
-                    playSound('error');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '확인';
-                    const errMsg = document.getElementById('qr-error-msg-standalone');
-                    errMsg.classList.remove('hidden');
-                    setTimeout(() => errMsg.classList.add('hidden'), 3000);
-                }
+                try {
+                    await updateDoc(doc(db, `classes/${qrClass}/departments`, targetDeptId), { qrScanned: true });
+                } catch(e) {}
             } catch (e) {
                 console.error(e);
                 submitBtn.disabled = false;
-                submitBtn.textContent = '확인';
-                alert("인증 처리 중 오류가 발생했습니다.");
+                submitBtn.textContent = `✨ [${targetDeptId}] 원단 조각 즉시 획득하기`;
+                alert("원단 획득 처리 중 오류가 발생했습니다. 게임 화면의 암호 입력창에 위 암호를 직접 입력해주세요!");
             }
         });
         
-        // 메인 게임으로 돌아가기 버튼
         document.getElementById('btn-qr-to-main')?.addEventListener('click', () => {
             window.location.href = window.location.pathname;
         });
@@ -492,11 +477,15 @@ function checkRoleAvailability() {
                 studentName = `<br><span style="color:#d4af37; font-size:1.0rem; font-weight:bold; display:block; margin-top:0.5rem;">👤 ${snap.data().studentName}</span>`;
             }
             
+            // 이미 선택된 직급이어도 튕긴 학생이 다시 눌러서 재입장할 수 있도록 disabled 하지 않음!
+            card.disabled = false;
             if (snap.exists() && snap.data().taken) {
-                card.disabled = true;
-                card.innerHTML = `<h3>${role}</h3><p>(선택 완료)${studentName}</p>`;
+                card.style.opacity = '0.88';
+                card.style.borderColor = '#f1c40f';
+                card.innerHTML = `<h3>${role}</h3><p style="color:#f1c40f; font-weight:bold;">(접속 중 - 클릭 시 재입장)${studentName}</p>`;
             } else {
-                card.disabled = false;
+                card.style.opacity = '1';
+                card.style.borderColor = '';
                 card.innerHTML = `<h3>${role}</h3><p>${getRoleDesc(role)}${studentName}</p>`;
             }
         });
@@ -513,11 +502,9 @@ function getRoleDesc(role) {
     }
 }
 
-// 직급 선택 (트랜잭션)
+// 직급 선택 (튕긴 학생 재입장 지원)
 roleCards.forEach(card => {
     card.addEventListener('click', async () => {
-        if (card.disabled) return;
-        
         // 브라우저 정책(오디오 자동 재생 제한) 우회를 위해 사용자 클릭 시점에 미리 미디어 권한 획득
         if (introVideo) {
             introVideo.muted = false;
@@ -534,17 +521,30 @@ roleCards.forEach(card => {
         
         try {
             const roleRef = getRoleDocRef(currentDeptId, role);
-            await runTransaction(db, async (transaction) => {
-                const docSnap = await transaction.get(roleRef);
-                if (docSnap.exists() && docSnap.data().taken) {
-                    throw "이미 선택된 직급입니다.";
-                }
-                transaction.set(roleRef, { taken: true, timestamp: Date.now() }, { merge: true });
-            });
+            const docSnap = await getDoc(roleRef);
+            if (docSnap.exists() && docSnap.data().taken) {
+                const sName = docSnap.data().studentName ? ` (${docSnap.data().studentName})` : '';
+                const reEnter = confirm(`[${role}${sName}] 직급은 이미 입장한 기록이 있습니다.\n본인이 맞거나 이어서 진행하시려면 [확인]을 눌러 바로 재입장하세요!`);
+                if (!reEnter) return;
+            } else {
+                await setDoc(roleRef, { taken: true, timestamp: Date.now() }, { merge: true });
+            }
             
             // 성공
             currentRole = role;
             saveSessionState();
+            
+            // 현재 부서의 진행 단계(currentStage)를 확인하여 이미 진행 중이면 해당 단계로 즉시 복구!
+            const deptSnap = await getDoc(getDeptDocRef(currentDeptId));
+            const currentStage = (deptSnap.exists() && deptSnap.data().currentStage) ? deptSnap.data().currentStage : 0;
+
+            if (currentStage > 0) {
+                alert(`${currentDeptName} [${role}] 직급으로 진행 중인 ${currentStage}단계 화면에 바로 합류합니다!`);
+                screen0.classList.add('hidden');
+                initApp();
+                return;
+            }
+
             alert(`${role} 직급으로 시작합니다!`);
             
             // 다이어리 넘기는(페이지 턴) 애니메이션으로 화면 전환
@@ -558,6 +558,7 @@ roleCards.forEach(card => {
                 setTimeout(() => screen1.classList.remove('page-turn-in'), 800);
                 
                 startScreen1(); // 화면 1(오프닝) 셋팅
+                initApp();      // 실시간 스테이지 구독 연결
             }, 800);
             
         } catch (e) {
@@ -608,9 +609,8 @@ btnLogoutRoles.forEach(btn => {
         if (confirm("현재 부서와 역할에서 로그아웃하시겠습니까? (팀원들의 기안 기록은 DB에 그대로 보존됩니다!)")) {
             currentRole = null;
             currentDeptId = null;
-            sessionStorage.removeItem('currentRole');
-            sessionStorage.removeItem('currentDeptId');
-            sessionStorage.removeItem('currentDeptName');
+            currentDeptName = null;
+            clearSessionState();
             location.reload();
         }
     });
@@ -1533,15 +1533,10 @@ function startScreen4() {
             
             const btnStage3Mgr = document.getElementById('btn-stage3-manager-submit');
             const inputStage3Mgr = document.getElementById('stage3-manager-answer-input');
-            if (stage3CompletedCount === 3) {
-                btnStage3Mgr.disabled = false;
-                btnStage3Mgr.textContent = '단서 전송';
-                inputStage3Mgr.disabled = false;
-            } else {
-                btnStage3Mgr.disabled = true;
-                btnStage3Mgr.textContent = '팀원 완료 대기 중...';
-                inputStage3Mgr.disabled = true;
-            }
+            // 조원이 4명 미만(2~3명)인 조도 진행이 막히지 않도록 부장 입력창 항상 활성화
+            btnStage3Mgr.disabled = false;
+            btnStage3Mgr.textContent = '단서 전송';
+            inputStage3Mgr.disabled = false;
         });
         
         document.getElementById('stage3-manager-title').textContent = "단서 1: 퍼스널 컬러 종합";
@@ -2024,48 +2019,29 @@ function startScreen5() {
         const d = docSnap.data();
         if (d && d.currentStage === 5) {
             const successModal = document.getElementById('stage3-success-modal');
-            const pwDisplay = document.getElementById('stage3-revealed-password');
             const guideText = document.getElementById('stage3-guide-text');
             const closeBtn = document.getElementById('btn-close-stage3-success');
             const waitingMsg = document.getElementById('stage3-waiting-msg');
 
             if (successModal && successModal.classList.contains('hidden')) {
-                // pwDisplay 관련 로직은 제거됨
                 if (guideText) {
-                    // Firebase에서 부서별 QR 비밀번호 로드하여 안내
-                    getDoc(doc(db, `classes/${activeClass}/global`, 'qrConfig')).then(qrSnap => {
-                        let qrPw = '????';
-                        if (qrSnap.exists()) {
-                            const d = qrSnap.data();
-                            // 부서별 비번 우선
-                            if (d.deptPasswords && d.deptPasswords[currentDeptId]) {
-                                qrPw = d.deptPasswords[currentDeptId];
-                            } else if (d.password) {
-                                qrPw = d.password;
-                            }
-                        }
-                        guideText.innerHTML = `
-                            <div style="background: rgba(212,175,55,0.1); border: 1px dashed var(--accent-gold); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; text-align:left;">
-                                <p style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 0.5rem;">📜 한서연 수석 디자이너의 메시지:</p>
-                                <p style="color: white; font-size: 0.95rem; line-height: 1.6; margin: 0;">
-                                    "친환경 원단을 안전하게 교실 곳곳에 숨겨 두었습니다.<br>
-                                    너희 <strong>${currentDeptId}</strong>의 원단을 찾아 하나로 완성해 주세요!<br>
-                                    원단을 찾은 곳의 비밀번호는 <strong style="color: #f1c40f; font-size: 1.2rem; letter-spacing: 2px;">${qrPw}</strong> 입니다."
-                                </p>
-                            </div>
-                            <p style="color: #ccc; font-size: 0.9rem;">
-                                원단을 찾은 뒤, <strong>팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.
+                    guideText.innerHTML = `
+                        <div style="background: rgba(212,175,55,0.1); border: 1px dashed var(--accent-gold); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; text-align:left;">
+                            <p style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 0.5rem;">📜 한서연 수석 디자이너의 메시지:</p>
+                            <p style="color: white; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+                                "친환경 원단 조각들을 교실 곳곳에 숨겨 두었습니다!<br>
+                                교실에서 너희 <strong style="color: #f1c40f;">${currentDeptId}</strong>의 원단 QR 카드를 찾아 스캔하세요!<br>
+                                QR을 찍으면 그 원단이 어느 부서의 원단인지와 함께 <strong>'숨겨진 비밀 암호'</strong>가 나타납니다!"
                             </p>
-                        `;
-                    }).catch(() => {
-                        guideText.innerHTML = "이제 팀원들과 함께 교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>원단을 찾은 뒤, <strong>역할에 상관없이 팀원 누구나 대표로</strong> 원단에 붙어 있는 QR 코드를 휴대폰 카메라로 스캔하세요.";
-                    });
+                        </div>
+                        <p style="color: #ccc; font-size: 0.9rem;">
+                            아래 버튼을 눌러 <strong>기기 카메라로 원단 QR을 스캔</strong>하거나, 스마트폰으로 스캔해 찾은 <strong>비밀 암호</strong>를 입력하세요!
+                        </p>
+                    `;
                 }
 
-                
-                closeBtn.classList.remove('hidden'); // 누구나 스캔 창을 열 수 있음
-                if(waitingMsg) waitingMsg.classList.add('hidden');
-                
+                closeBtn.classList.remove('hidden');
+                if (waitingMsg) waitingMsg.classList.add('hidden');
                 successModal.classList.remove('hidden');
 
                 // 누군가 QR을 찍어 조각을 획득하면 모두가 단서를 보고 6단계로 넘어감
@@ -2073,9 +2049,8 @@ function startScreen5() {
                     if (pieceSnap.exists() && pieceSnap.data().unlocked) {
                         unsub();
                         
-                        // 획득한 단서 메시지 가져오기 (부서 이름으로 조회)
-                        const clue = (typeof PUZZLE_DATA !== 'undefined' && PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[currentDeptName])
-                            ? PUZZLE_DATA.qrMessages[currentDeptName]
+                        const clue = (typeof PUZZLE_DATA !== 'undefined' && PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[currentDeptName || currentDeptId])
+                            ? PUZZLE_DATA.qrMessages[currentDeptName || currentDeptId]
                             : '팀원들과 힘을 합쳐 다음 단계를 진행하세요.';
                         
                         const successModalElement = document.getElementById('stage3-success-modal');
@@ -2110,7 +2085,6 @@ function startScreen5() {
                                 initCanvas();
                             });
                         } else {
-                            // fallback: 모달이 없으면 바로 이동
                             document.getElementById('stage3-success-modal')?.classList.add('hidden');
                             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                             document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
@@ -2127,21 +2101,20 @@ function startScreen5() {
 
     const btnCloseStage3Success = document.getElementById('btn-close-stage3-success');
     if (btnCloseStage3Success) {
-        // 인게임 암호 입력창(screen-qr) 수동으로 열기
         btnCloseStage3Success.onclick = () => {
             document.getElementById('stage3-success-modal').classList.add('hidden');
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
             
-            // 기존 인게임 QR 화면(screen-qr) 보이기
             const inGameQrScreen = document.getElementById('screen-qr');
             if (inGameQrScreen) {
                 inGameQrScreen.classList.remove('hidden');
                 document.getElementById('qr-dept-name').textContent = currentDeptId;
+                const manualContainer = document.getElementById('manual-qr-input-container');
+                if (manualContainer) manualContainer.classList.remove('hidden');
                 document.getElementById('qr-password-input').value = '';
                 document.getElementById('qr-password-input').focus();
             }
         };
-        // 대기 메시지는 숨김
         const waitingMsg = document.getElementById('stage3-waiting-msg');
         if (waitingMsg) {
             waitingMsg.classList.add('hidden');
@@ -2420,54 +2393,74 @@ function showReasoningModal(stageData, targetStageNum) {
     };
 }
 
-// 초기화 함수
+// 초기화 함수 (새로고침 시 현재 반과 부서 진행 단계를 안전하게 복구)
+let stageListenerUnsub = null;
+let stagePollTimer = null;
+
 async function initApp() {
     renderDeptGrid();
     
-    // QR 스캔으로 진입했는지 확인 (?qr=true)
     const urlParams = new URLSearchParams(window.location.search);
     const isQrScan = urlParams.get('qr') === 'true';
+    if (isQrScan) return; // QR 전용 모드는 상단 isQrMode에서 독립 처리
 
-    // 세션이 남아있다면 해당 단계로 바로 복구
+    // 세션이 남아있다면 현재 활성 학급을 먼저 동기화한 뒤 해당 단계로 즉시 복구
     if (currentDeptId && currentRole) {
         try {
+            if (!currentDeptName) currentDeptName = currentDeptId;
+            saveSessionState();
+
+            // 1) Firebase에서 현재 활성 학급(currentActiveSession) 먼저 확인 (비동기 레이스 컨디션 방지!)
+            try {
+                const globalSnap = await getDoc(doc(db, 'global', 'config'));
+                if (globalSnap.exists() && globalSnap.data().currentActiveSession) {
+                    activeClass = globalSnap.data().currentActiveSession;
+                    const wm = document.getElementById('active-class-watermark');
+                    if (wm) wm.textContent = `Class: ${activeClass}`;
+                    setupClassListeners(activeClass);
+                }
+            } catch (e) {
+                console.warn('글로벌 학급 설정 조회 실패 (기본값 사용):', e);
+            }
+
+            // 상단 헤더 및 스플래시 숨김 즉시 반영
+            mainHeader.classList.remove('hidden');
+            currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
+            screenSplash.classList.add('hidden');
+            screenSplash.classList.remove('active');
+
             let lastStage = -1;
             let lastShowReasoning1 = false;
             let lastShowReasoning3 = false;
             
-            function handleStageUpdate(d) {
+            async function handleStageUpdate(d) {
                 const stage = d.currentStage || 0;
                 let showReasoning1 = !!d.showStage1Reasoning;
                 let showReasoning3 = !!d.showStage3Reasoning;
                 
-                // REST API 지연 등으로 과거 stage 값이 넘어오면 무시하여 뒤로 튕김 현상 방지
                 if (stage < lastStage) return;
                 
-                // 지연된 응답으로 인해 모달이 닫혔다 열렸다 반복하는 현상 방지
                 if (stage === 1 && lastShowReasoning1 && !showReasoning1) showReasoning1 = true;
                 if (stage === 3 && lastShowReasoning3 && !showReasoning3) showReasoning3 = true;
                 
-                // 1. Stage가 완전히 바뀌었을 때 (화면 전면 교체)
+                // 개인 미션(screen-6, screen-7) 진행 중인 학생이 다른 조원의 제출로 인해 화면이 강제로 넘어가는 현상 방지
+                const s6El = document.getElementById('screen-6');
+                const s7El = document.getElementById('screen-7');
+                if (lastStage >= 5 && stage >= 6) {
+                    if (s6El && !s6El.classList.contains('hidden')) return;
+                    if (s7El && !s7El.classList.contains('hidden')) return;
+                }
+
                 if (lastStage !== stage) {
                     lastStage = stage;
                     lastShowReasoning1 = showReasoning1;
                     lastShowReasoning3 = showReasoning3;
                     
+                    mainHeader.classList.remove('hidden');
+                    currentTeamDisplay.textContent = `${currentDeptName} - ${currentRole}`;
                     deptSelection.classList.add('hidden');
                     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
                     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-                    
-                    // QR 스캔 진입인 경우 바로 QR 화면으로 이동 (부장만 허용)
-                    if (isQrScan) {
-                        if (currentRole !== '부장') {
-                            alert('QR 스캔과 암호 입력은 부장님만 할 수 있습니다!\n부장님의 휴대폰으로 스캔해주세요.');
-                            document.getElementById('screen-0').classList.remove('hidden');
-                            return;
-                        }
-                        document.getElementById('screen-qr').classList.remove('hidden');
-                        document.getElementById('qr-dept-name').textContent = currentDeptName || '우리 부서';
-                        return;
-                    }
 
                     if (stage == 0) {
                         screen1.classList.remove('hidden');
@@ -2475,7 +2468,7 @@ async function initApp() {
                     } else if (stage == 1) {
                         const s2 = document.getElementById('screen-2');
                         if (s2) s2.classList.remove('hidden');
-                        startScreen2();
+                        startScreen2(d);
                         if (showReasoning1) showReasoningModal(PUZZLE_DATA.stage1, 2);
                     } else if (stage == 2) {
                         const s3 = document.getElementById('screen-3');
@@ -2490,77 +2483,89 @@ async function initApp() {
                         const s5 = document.getElementById('screen-5');
                         if (s5) s5.classList.remove('hidden');
                         startScreen5();
-                    } else if (stage === 5) {
-                        const s6 = document.getElementById('screen-6');
-                        const sQr = document.getElementById('screen-qr');
-                        getDoc(getPieceDocRef(currentDeptId)).then(pieceSnap => {
-                            if (pieceSnap.exists() && pieceSnap.data().unlocked) {
-                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                    } else if (stage >= 5) {
+                        // 5단계(QR), 6단계(개인 디자인), 7단계(소감문/엔딩): 학생 본인의 완료 여부에 따라 정확한 화면으로 복구!
+                        try {
+                            const [pieceSnap, roleSnap] = await Promise.all([
+                                getDoc(getPieceDocRef(currentDeptId)),
+                                getDoc(getRoleDocRef(currentDeptId, currentRole))
+                            ]);
+                            const pieceUnlocked = (pieceSnap.exists() && pieceSnap.data().unlocked) || stage >= 6;
+                            const roleData = roleSnap.exists() ? roleSnap.data() : {};
+
+                            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+
+                            if (roleData.stage7Completed) {
+                                const ending = document.getElementById('screen-ending');
+                                if (ending) ending.classList.remove('hidden');
+                                document.getElementById('certificate-dept-name').textContent = currentDeptName || '우리 부서';
+                                document.getElementById('certificate-student-name').textContent = roleData.studentName ? `${currentRole} (${roleData.studentName})` : currentRole;
+                            } else if (roleData.stage6Completed) {
+                                const s7 = document.getElementById('screen-7');
+                                if (s7) s7.classList.remove('hidden');
+                            } else if (pieceUnlocked) {
+                                const s6 = document.getElementById('screen-6');
                                 if (s6) s6.classList.remove('hidden');
                                 document.getElementById('display-current-role-stage6').textContent = currentRole;
                                 initCanvas();
                             } else {
-                                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-                                if (sQr) sQr.classList.remove('hidden');
+                                const sQr = document.getElementById('screen-qr');
+                                if (sQr) {
+                                    sQr.classList.remove('hidden');
+                                    document.getElementById('qr-dept-name').textContent = currentDeptName || currentDeptId;
+                                    document.getElementById('manual-qr-input-container')?.classList.remove('hidden');
+                                }
+                                // 다른 팀원이 스마트폰으로 QR을 찍어 잠금 해제했을 때 실시간으로 감지하여 화면 전환
+                                const unsubPiece = onSnapshot(getPieceDocRef(currentDeptId), (pSnap) => {
+                                    if (pSnap.exists() && pSnap.data().unlocked) {
+                                        unsubPiece();
+                                        showFabricPieceReveal();
+                                    }
+                                });
                             }
-                        }).catch(e => {
+                        } catch (e) {
                             console.error(e);
-                        });
-                    } else if (stage === 6) {
-                        const s7 = document.getElementById('screen-7');
-                        if (s7) s7.classList.remove('hidden');
-                    } else if (stage === 7) {
-                        const ending = document.getElementById('screen-ending');
-                        if (ending) ending.classList.remove('hidden');
+                            const sQr = document.getElementById('screen-qr');
+                            if (sQr) sQr.classList.remove('hidden');
+                        }
                     }
                     
-                    // 강제 패스 등 비정상적인 단계 이동 시 띄워져 있던 모달 강제 종료 (reasoning은 아래에서 별도 제어)
                     if (stage !== 5) {
                         document.getElementById('stage3-success-modal')?.classList.add('hidden');
                     }
                     document.getElementById('twist-modal')?.classList.add('hidden');
-                    document.getElementById('intro-modal')?.classList.add('hidden');
-                } 
-                // 2. Stage는 같은데 팝업(Reasoning Modal) 상태만 바뀌었을 때 (화면 유지, 팝업만 띄움/닫음)
-                else {
+                    if (stage > 0) {
+                        document.getElementById('intro-modal')?.classList.add('hidden');
+                    }
+                } else {
                     if (stage == 1 && lastShowReasoning1 !== showReasoning1) {
                         lastShowReasoning1 = showReasoning1;
                         if (showReasoning1) showReasoningModal(PUZZLE_DATA.stage1, 2);
-                        else {
-                            const modal = document.getElementById('reasoning-modal');
-                            if (modal) modal.classList.add('hidden');
-                        }
+                        else document.getElementById('reasoning-modal')?.classList.add('hidden');
                     }
                     if (stage == 3 && lastShowReasoning3 !== showReasoning3) {
                         lastShowReasoning3 = showReasoning3;
                         if (showReasoning3) showReasoningModal(PUZZLE_DATA.stage3, 4);
-                        else {
-                            const modal = document.getElementById('reasoning-modal');
-                            if (modal) modal.classList.add('hidden');
-                        }
+                        else document.getElementById('reasoning-modal')?.classList.add('hidden');
                     }
                 }
             }
 
-            // 부서의 currentStage 변경을 실시간으로 감지하여 화면 자동 전환
-            onSnapshot(getDeptDocRef(currentDeptId), (snap) => {
+            if (stageListenerUnsub) stageListenerUnsub();
+            stageListenerUnsub = onSnapshot(getDeptDocRef(currentDeptId), (snap) => {
                 if (snap.exists()) {
                     handleStageUpdate(snap.data());
                 } else {
-                    // 파이어베이스에 부서 문서가 없으면(초기화된 경우) 세션 날림
-                    clearSessionState();
-                    currentDeptId = null;
-                    currentRole = null;
-                    location.reload();
+                    // 부서 문서가 아직 없거나 초기화된 경우에도 학생 세션을 강제로 날리지 않고 0단계부터 안전하게 복구
+                    handleStageUpdate({ currentStage: 0 });
                 }
             });
             
-            // 방화벽 대비 3초 간격 폴링 (Firebase SDK + REST API 이중 폴링)
-            setInterval(async () => {
-                if (Date.now() - window.localUpdateTimestamp < 10000) return; // 10초 이내에 로컬 업데이트가 있었다면 폴링 무시 (상태 롤백 방지)
+            if (stagePollTimer) clearInterval(stagePollTimer);
+            stagePollTimer = setInterval(async () => {
+                if (Date.now() - window.localUpdateTimestamp < 10000) return;
                 
                 try {
-                    // 1. Firebase SDK 폴링 시도
                     const snap = await getDoc(getDeptDocRef(currentDeptId));
                     if (snap.exists()) {
                         handleStageUpdate(snap.data());
@@ -2568,8 +2573,7 @@ async function initApp() {
                 } catch(e) { console.error('SDK Poll Error:', e); }
 
                 try {
-                    // 2. 무조건 성공하는 REST API 폴링 (최후의 보루, SDK 캐시 무시)
-                    const res = await fetch(`https://firestore.googleapis.com/v1/projects/brand-crisis-escape/databases/(default)/documents/departments/${currentDeptId}?_t=${Date.now()}`);
+                    const res = await fetch(`https://firestore.googleapis.com/v1/projects/brand-crisis-escape/databases/(default)/documents/classes/${encodeURIComponent(activeClass)}/departments/${encodeURIComponent(currentDeptId)}?_t=${Date.now()}`);
                     if (res.ok) {
                         const json = await res.json();
                         if (json && json.fields) {
@@ -2594,7 +2598,6 @@ async function initApp() {
             
         } catch(e) { 
             console.error(e); 
-            clearSessionState();
         }
     }
 }
@@ -2691,9 +2694,13 @@ window.submitQr = async () => {
         correctPw = PUZZLE_DATA.qrMessages[currentDeptId] || '';
     }
     
-    // 입력값과 정답 비교 (공백/보이지 않는 문자 무시)
-    const normalize = s => s.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
-    if (correctPw && normalize(inputPw) === normalize(correctPw)) {
+    // 입력값과 정답 비교 (선생님이 설정한 비번 또는 부서별 기본 비밀 메시지 모두 정답 인정!)
+    const normalize = s => (typeof s === 'string' ? s.replace(/[\s\u200B-\u200D\uFEFF"'“”]+/g, '').toLowerCase() : '');
+    const defaultMotto = (PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[currentDeptId]) ? PUZZLE_DATA.qrMessages[currentDeptId] : '';
+    const isMatch = (correctPw && normalize(inputPw) === normalize(correctPw)) ||
+                    (defaultMotto && normalize(inputPw) === normalize(defaultMotto));
+
+    if (isMatch) {
         qrErrorMsg.classList.add('hidden');
         btnSubmitQr.classList.add('hidden');
         qrPasswordInput.disabled = true;
@@ -2863,27 +2870,22 @@ if (btnStartScanner) {
                 qrReaderContainer.classList.add('hidden');
                 btnStartScanner.classList.remove('hidden');
                 
-                // 1. 스캔된 텍스트가 선생님이 만든 QR 링크(URL)인 경우
+                // 1. 스캔된 텍스트가 원단 QR 링크(URL)인 경우: 선생님이 비번을 말해줄 필요 없이 우리 부서 원단이면 즉시 암호 발견 및 잠금 해제!
                 if (decodedText.includes('deptId=')) {
                     const match = decodedText.match(/deptId=([^&]+)/);
                     if (match && match[1]) {
                         const scannedDeptId = decodeURIComponent(match[1]);
                         if (scannedDeptId === currentDeptId) {
-                            // 내 부서 조각이 맞으면 비밀번호 입력 요구
                             playSound('success');
-                            const enteredPw = prompt('우리 조의 원단 조각을 찾았습니다!\n이제 선생님이 알려주신 부서별 비밀번호를 입력해주세요:');
-                            
-                            if (enteredPw !== null && enteredPw.trim() !== '') {
-                                const qrPasswordInput = document.getElementById('qr-password-input');
-                                if (qrPasswordInput) qrPasswordInput.value = enteredPw.trim();
-                                window.submitQr();
-                            } else {
-                                alert('비밀번호 입력이 취소되었습니다. 다시 스캔하거나 화면의 입력창에 직접 입력해주세요.');
-                            }
+                            const motto = (PUZZLE_DATA.qrMessages && PUZZLE_DATA.qrMessages[currentDeptId]) || '지구를 위한 스케치';
+                            alert(`🎉 우리 [${currentDeptId}]의 진짜 원단 조각을 찾았습니다!\n\n🔑 발견한 비밀 암호: "${motto}"`);
+                            const qrPasswordInput = document.getElementById('qr-password-input');
+                            if (qrPasswordInput) qrPasswordInput.value = motto;
+                            window.submitQr();
                             return;
                         } else {
                             playSound('error');
-                            alert(`이건 다른 부서의 조각입니다! 현재 부서: ${currentDeptId}`);
+                            alert(`앗! 이건 [${scannedDeptId}]의 원단 조각입니다!\n우리 부서([${currentDeptId}])의 원단 조각을 더 찾아보세요!`);
                             return;
                         }
                     }

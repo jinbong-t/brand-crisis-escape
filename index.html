@@ -56,36 +56,46 @@
                 </div>
             </section>
 
-            <!-- QR 인증 화면 (Standalone 모드 전용) -->
+            <!-- QR 스캔 결과 화면 (Standalone 모드 전용: QR을 찍으면 부서와 비밀 암호를 즉시 공개) -->
             <section id="screen-qr-standalone" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
-                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.6);">
-                    <div class="mission-card" style="background: rgba(0,0,0,0.85); max-width: 400px; width: 90%; text-align: center; border: 2px solid var(--accent-gold); padding: 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-                        <h2 style="color: var(--accent-gold); margin-bottom: 1rem; font-size: 1.6rem; word-break: keep-all;">🧵 원단 조각 발견!</h2>
+                <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.65);">
+                    <div class="mission-card" style="background: rgba(0,0,0,0.9); max-width: 440px; width: 92%; text-align: center; border: 2px solid var(--accent-gold); padding: 1.6rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.85);">
+                        <h2 style="color: var(--accent-gold); margin-bottom: 0.8rem; font-size: 1.55rem; word-break: keep-all;">🧵 숨겨진 원단 조각 발견!</h2>
                         
                         <div id="qr-auth-section">
-                            <p style="color: white; font-size: 1.05rem; margin-bottom: 1.5rem; line-height: 1.5; word-break: keep-all;">부서별 비밀번호를<br>입력하세요!</p>
-                            
-                            <input type="text" id="qr-password-input-standalone" placeholder="비밀번호 입력" style="padding: 1rem; text-align: center; font-size: 1.2rem; border-radius: 8px; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.6); color: white; width: 100%; margin-bottom: 1rem; box-sizing: border-box;">
-                            
-                            <button id="btn-submit-qr-pw" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem; border-radius: 8px;">확인</button>
-                            <p id="qr-error-msg-standalone" class="error-text hidden" style="margin-top: 1rem; font-size: 0.95rem; word-break: keep-all; line-height: 1.4;">비밀번호가 틀렸습니다.<br>부서에 맞는 원단 조각을 찾으러 갑니다!</p>
+                            <p style="color: #ccc; font-size: 0.95rem; margin-bottom: 0.8rem;">이 원단 조각의 소속 부서와 비밀 암호입니다:</p>
+                            <div style="background: rgba(255,255,255,0.08); border-radius: 10px; padding: 1.1rem; margin-bottom: 1.2rem; border: 1px solid rgba(212,175,55,0.4);">
+                                <img src="조각 원단.png" style="width: 130px; height: 130px; object-fit: cover; border-radius: 10px; margin-bottom: 0.8rem; border: 2px solid var(--accent-gold);">
+                                <div id="qr-discovered-dept" style="color: #2ecc71; font-size: 1.3rem; font-weight: bold; margin-bottom: 0.6rem;">[부서 확인 중...]</div>
+                                <div style="background: rgba(212,175,55,0.18); border: 1.5px dashed var(--accent-gold); border-radius: 8px; padding: 0.8rem;">
+                                    <span style="color: #ccc; font-size: 0.82rem; display: block; margin-bottom: 0.3rem;">🔑 원단에 숨겨진 비밀 암호</span>
+                                    <strong id="qr-discovered-pw" style="color: #f1c40f; font-size: 1.35rem; letter-spacing: 1px; word-break: keep-all;">로딩 중...</strong>
+                                </div>
+                            </div>
+
+                            <p style="color: #ddd; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.2rem; word-break: keep-all;">
+                                ✅ <strong>우리 부서의 원단이 맞다면</strong> 게임 화면에 위 암호를 입력하거나 아래 버튼을 눌러 원단을 획득하세요!<br>
+                                <span style="color: #aaa; font-size: 0.82rem;">(다른 부서의 원단이라면 원래 자리에 두고 우리 부서 원단을 찾아보세요!)</span>
+                            </p>
+
+                            <input type="hidden" id="qr-password-input-standalone">
+                            <button id="btn-submit-qr-pw" class="btn-primary" style="width: 100%; font-size: 1.05rem; padding: 0.95rem; border-radius: 8px;">✨ 우리 부서 원단 조각 획득하기</button>
+                            <p id="qr-error-msg-standalone" class="error-text hidden" style="margin-top: 1rem; font-size: 0.95rem;"></p>
                         </div>
                         
                         <div id="qr-success-section" class="hidden">
-                            <h3 id="qr-success-dept" style="color: #2ecc71; margin-bottom: 0.8rem; font-size: 1.4rem;">[부서명] 원단 획득!</h3>
-                            <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                                <img src="조각 원단.png" style="width: 180px; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem; border: 3px solid var(--accent-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                            <h3 id="qr-success-dept" style="color: #2ecc71; margin-bottom: 0.8rem; font-size: 1.4rem;">[부서명] 원단 획득 완료!</h3>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem;">
+                                <img src="조각 원단.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; margin-bottom: 0.8rem; border: 3px solid var(--accent-gold);">
                                 <p id="qr-success-message" style="color: #f1c40f; font-size: 1.1rem; font-weight: bold; line-height: 1.5; word-break: keep-all;"></p>
                             </div>
-                            <div style="background: rgba(231,76,60,0.1); border: 1px solid #e74c3c; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                                <p style="color: #e74c3c; font-size: 1rem; font-weight: bold; margin-bottom: 0.5rem;">⚠️ 주의: 이 창에서는 다음 단계로 넘어가지 않습니다!</p>
-                                <p style="color: #ddd; font-size: 0.95rem; line-height: 1.5; word-break: keep-all;">
-                                    스마트폰의 <strong>뒤로 가기(◀)</strong> 버튼을 누르거나,<br>
-                                    <strong>열려 있는 웹페이지(탭) 목록(□)</strong>을 눌러서<br>
-                                    <strong>원래 문제를 풀던 게임 화면</strong>으로 직접 돌아가 주세요!
+                            <div style="background: rgba(46,204,113,0.12); border: 1px solid #2ecc71; border-radius: 8px; padding: 0.9rem; margin-bottom: 1.2rem;">
+                                <p style="color: #2ecc71; font-size: 0.95rem; font-weight: bold; margin-bottom: 0.3rem;">🎉 게임 화면에 원단 획득이 자동 반영되었습니다!</p>
+                                <p style="color: #ddd; font-size: 0.88rem; line-height: 1.5; word-break: keep-all;">
+                                    이제 원래 문제를 풀던 <strong>게임 화면(탭/기기)</strong>으로 돌아가서 다음 미션을 진행하세요!
                                 </p>
                             </div>
-                            <button id="btn-close-qr-tab" class="btn-secondary" style="width: 100%; border-color: var(--accent-gold); color: var(--accent-gold); padding: 1rem; font-size: 1.1rem; border-radius: 8px;" onclick="window.close(); alert('만약 창이 자동으로 닫히지 않는다면, 스마트폰의 뒤로가기 버튼을 누르거나 인터넷 탭 목록에서 원래 게임 화면으로 돌아가주세요!');">이 창 닫기 시도하기</button>
+                            <button id="btn-close-qr-tab" class="btn-secondary" style="width: 100%; border-color: var(--accent-gold); color: var(--accent-gold); padding: 0.9rem; font-size: 1rem; border-radius: 8px;" onclick="window.close(); alert('원래 문제를 풀던 게임 화면(탭/기기)으로 돌아가시면 다음 단계가 열려 있습니다!');">이 창 닫기</button>
                         </div>
                     </div>
                 </div>
@@ -744,20 +754,20 @@
                 </div>
             </div>
 
-            <!-- 3단계 완료 및 암호 발급 모달 -->
+            <!-- 3단계 완료 및 원단 보물찾기 안내 모달 -->
             <div id="stage3-success-modal" class="modal hidden">
                 <div class="modal-content" style="width: 90%; max-width: 500px; text-align: center; border: 2px solid #4caf50;">
                     <h2 style="color: #4caf50; margin-bottom: 1rem;">🎉 3단계 미션 완료!</h2>
                     <p style="font-size: 1.1rem; margin-bottom: 1rem;">모든 미션을 완벽하게 수행했습니다.</p>
-                    <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                        <p style="color: var(--accent-gold); font-size: 1.2rem; margin-bottom: 0.5rem;">우리 부서의 숨겨진 원단 조각을 찾으세요!</p>
+                    <div style="background: rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.2rem;">
+                        <p style="color: var(--accent-gold); font-size: 1.2rem; margin: 0;">교실에 숨겨진 우리 부서의 원단 조각을 찾으세요!</p>
                     </div>
-                    <p id="stage3-guide-text" style="color: #ccc; line-height: 1.6; margin-bottom: 1.5rem;">
-                        교실 어딘가에 숨겨져 있는 <strong>조각 원단</strong>을 찾아보세요!<br>
-                        원단을 찾은 뒤, 원단에 붙어 있는 <strong>QR 코드</strong>를 휴대폰 카메라로 스캔하여 <strong>'숨겨진 메시지'</strong>를 알아내야 합니다.
-                    </p>
-                    <button id="btn-close-stage3-success" class="btn-primary" style="width: 100%;">암호 확인 완료 (직접 스캔 시도)</button>
-                    <p id="stage3-waiting-msg" class="hidden" style="color: var(--accent-gold); font-weight: bold; margin-top: 1rem; font-size: 1.1rem; animation: pulse 2s infinite;">부장님이 조각을 스캔하고 암호를 입력할 때까지 기다려주세요...</p>
+                    <div id="stage3-guide-text" style="color: #ccc; line-height: 1.6; margin-bottom: 1.5rem;">
+                        교실 어딘가에 숨겨져 있는 <strong>원단 QR 카드</strong>를 찾아보세요!<br>
+                        원단의 <strong>QR 코드</strong>를 스캔하면 어느 부서의 원단인지와 함께 <strong>'숨겨진 비밀 암호'</strong>가 나타납니다!
+                    </div>
+                    <button id="btn-close-stage3-success" class="btn-primary" style="width: 100%;">🔎 원단 QR 스캔 / 암호 입력하러 가기</button>
+                    <p id="stage3-waiting-msg" class="hidden" style="color: var(--accent-gold); font-weight: bold; margin-top: 1rem; font-size: 1.1rem; animation: pulse 2s infinite;"></p>
                 </div>
             </div>
 
@@ -765,26 +775,27 @@
             <section id="screen-qr" class="screen hidden" style="background-image: url('splash_bg.png'); background-size: cover; background-position: center; min-height: 100vh;">
                 <div class="glass-overlay" style="padding: 1.5rem; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                     <div class="mission-card" style="background: rgba(0,0,0,0.9); width: 95%; max-width: 500px; text-align: center; margin: 0 auto;">
-                        <h2 id="qr-mission-title" style="color: var(--accent-gold); margin-bottom: 1rem; cursor: pointer; user-select: none;">🔎 조각 찾기 미션!</h2>
-                        <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.05rem;">
-                            교실 어딘가에 숨겨진 <strong><span id="qr-dept-name"></span></strong>의 조각을 찾아 휴대폰으로 스캔하세요!<br>선생님이 지정한 <strong>'부서별 비밀번호'</strong>를 정확히 입력해야 조각을 획득할 수 있습니다.
+                        <h2 id="qr-mission-title" style="color: var(--accent-gold); margin-bottom: 1rem; cursor: pointer; user-select: none;">🔎 우리 부서 원단 조각 찾기!</h2>
+                        <p style="color: #ccc; margin-bottom: 1.5rem; font-size: 1.02rem; line-height: 1.6; word-break: keep-all;">
+                            교실 곳곳에 숨겨진 원단 QR 카드 중 <strong><span id="qr-dept-name" style="color: var(--accent-gold);"></span></strong>의 원단을 찾으세요!<br>
+                            QR을 스캔하여 찾아낸 <strong>'비밀 암호'</strong>를 아래에 입력하거나 기기 카메라로 직접 스캔하세요.
                         </p>
                         
                         <!-- 웹캠 내장 QR 스캐너 -->
-                        <button id="btn-start-scanner" class="btn-secondary" style="margin-bottom: 1rem; width: 80%; background-color: #2c3e50; color: white; border-color: var(--accent-gold);">📷 기기 카메라로 직접 스캔하기</button>
+                        <button id="btn-start-scanner" class="btn-secondary" style="margin-bottom: 1.2rem; width: 85%; background-color: #2c3e50; color: white; border-color: var(--accent-gold);">📷 기기 카메라로 QR 직접 스캔하기</button>
                         <div id="qr-reader-container" class="hidden" style="width: 100%; max-width: 400px; margin: 0 auto 1.5rem auto; background: white; border-radius: 8px; overflow: hidden; padding: 0.5rem;">
                             <div id="qr-reader" style="width: 100%;"></div>
                             <button id="btn-stop-scanner" class="btn-text" style="margin-top: 0.5rem; color: #e74c3c; width: 100%;">스캐너 닫기 ❌</button>
                         </div>
 
-                        <div id="manual-qr-input-container" class="hidden" style="width: 100%;">
-                            <input type="text" id="qr-password-input" placeholder="비밀번호(숫자/문자) 입력" style="font-size: 1.2rem; text-align: center; padding: 1rem; width: 80%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 1rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
-                            <div style="position: relative; display: inline-block; width: 80%;">
-                                <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem; width: 100%;">원단 잠금 해제</button>
+                        <div id="manual-qr-input-container" style="width: 100%;">
+                            <input type="text" id="qr-password-input" placeholder="QR에서 찾은 비밀 암호 입력" style="font-size: 1.15rem; text-align: center; padding: 0.95rem; width: 85%; background: rgba(255,255,255,0.1); color: white; border: 2px solid var(--accent-gold); border-radius: 8px; margin-bottom: 0.8rem;" onkeydown="if(event.key === 'Enter') document.getElementById('btn-submit-qr').click();">
+                            <div style="position: relative; display: inline-block; width: 85%;">
+                                <button id="btn-submit-qr" class="btn-primary" style="font-size: 1.15rem; padding: 0.95rem 2rem; width: 100%;">🔓 원단 잠금 해제</button>
                                 <div id="secret-skip-qr" style="position: absolute; right: 0; top: 0; width: 40px; height: 100%; cursor: pointer; z-index: 10;" title="강제 패스"></div>
                             </div>
                         </div>
-                        <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.1rem;">이건 우리 조각이 아니에요! 다른 조각을 찾아보세요.</p>
+                        <p id="qr-error-msg" class="error-text hidden" style="margin-top: 1rem; font-size: 1.05rem;">우리 부서의 암호가 아니에요! 교실에서 우리 부서의 원단 QR을 다시 찾아보세요.</p>
 
                         
                         <div id="qr-success-panel" class="hidden" style="margin-top: 2rem;">
@@ -1052,6 +1063,6 @@
     </script>
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="puzzle-data.js?v=5.0"></script>
-    <script type="module" src="app.js?v=10"></script>
+    <script type="module" src="app.js?v=11"></script>
 </body>
 </html>
